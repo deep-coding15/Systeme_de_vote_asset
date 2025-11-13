@@ -131,3 +131,29 @@ JOIN poste p ON v.id_poste = p.id_poste
 JOIN equipe e ON c.id_equipe = e.id_equipe
 GROUP BY p.id_poste, p.intitule, c.id_candidat, c.nom, c.prenom, e.nom_equipe
 ORDER BY p.id_poste, total_votes DESC;
+
+
+
+INSERT INTO admin (nom, prenom, email, mot_de_passe) VALUES
+('Super', 'Admin', 'admin@aseet.org', 'hashed_password');
+
+INSERT INTO equipe (nom_equipe) VALUES
+('Team Alpha'), ('Team Beta');
+
+INSERT INTO poste (intitule) VALUES
+('Président'), ('Secrétaire');
+
+INSERT INTO candidat (nom, prenom, email, id_equipe, id_poste) VALUES
+('Alice', 'Dupont', 'alice@alpha.org', 1, 1),
+('Bob', 'Martin', 'bob@beta.org', 2, 1),
+('Carla', 'Durand', 'carla@alpha.org', 1, 2),
+('David', 'Leroy', 'david@beta.org', 2, 2);
+
+INSERT INTO participant (nom, prenom, email, code_qr, est_valide) VALUES
+('Nana', 'Nalova', 'nana@example.com', 'QR123', TRUE),
+('Doe', 'John', 'john@example.com', 'QR124', TRUE);
+
+-- Votes de test
+INSERT INTO vote (id_participant, id_candidat, id_poste) VALUES
+(1, 1, 1), (2, 2, 1),
+(1, 3, 2), (2, 4, 2);
