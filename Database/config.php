@@ -11,15 +11,18 @@ $baseUrl = $protocol . '://' . $host . $basePath ;
 
 define('BASE_URL', $baseUrl);
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'vote_asset_db');
+define('DB_NAME', 'systeme_vote_aseet');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
+$serverName = DB_HOST;
+$bdName = DB_NAME;
+
 try {
-  $conn = new PDO("mysql:host=$servername;dbname=myDB", DB_USER, DB_PASS);
+  $conn = new PDO("mysql:host=$serverName;dbname=$bdName", DB_USER, DB_PASS);
   // set the PDO error mode to exception
   $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  echo "Connected successfully";
+  //echo "Connected successfully";
 } catch(PDOException $e) {
   echo "Connection failed: " . $e->getMessage();
 }
