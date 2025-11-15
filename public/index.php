@@ -15,21 +15,28 @@ require_once __DIR__ . '/../controller/CandidatController.php';
  |---------------------------------------------------------
 */
 
-// Page d'accueil
+// Page d'accueil : OKAY
 get('/', function () {
-    echo "Bienvenue sur le système de vote ASEET";
+    Response::render('index');
 });
+
+// Candidats : OKAY
+get('/candidats', [CandidatController::class, 'index']);
+
+// Participants : OKAY
+get('/votes', function(){
+    Response::render('/votes/index');
+});
+post('/participants/add', [ParticipantController::class, 'store']);
+
 
 // Auth admin
 post('/admin/login', [AdminController::class, 'login']);
 
 // Participants
 get('/participants', [ParticipantController::class, 'index']);
-post('/participants/add', [ParticipantController::class, 'store']);
 post('/participants/validate/:id', [ParticipantController::class, 'validate']);
 
-// Candidats
-get('/candidats', [CandidatController::class, 'index']);
 
 // Votes
 post('/vote/:poste/:candidat/:participant', [VoteController::class, 'store']);

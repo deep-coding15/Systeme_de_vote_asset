@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/config.php'; ?>
+<?php /* require_once __DIR__ . '/config.php'; */ ?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -338,10 +338,10 @@
     </header>
 
     <nav>
-        <a href="<?= BASE_URL ?>/index.php" class="nav-btn outline">🏠 Accueil</a>
-        <a href="<?= BASE_URL ?>/candidats.php" class="nav-btn outline">👥 Candidats</a>
-        <a href="<?= BASE_URL ?>/voter.php" class="nav-btn outline">☑️ Voter</a>
-        <a href="<?= BASE_URL ?>/resultats.php" class="nav-btn primary">📊 Résultats</a>
+        <a href="<?= BASE_URL ?>/" class="nav-btn outline">🏠 Accueil</a>
+        <a href="<?= BASE_URL ?>/candidats" class="nav-btn outline">👥 Candidats</a>
+        <a href="<?= BASE_URL ?>/votes" class="nav-btn outline">☑️ Voter</a>
+        <a href="<?= BASE_URL ?>/resultats" class="nav-btn primary">📊 Résultats</a>
     </nav>
 
     <main>
@@ -358,10 +358,15 @@
                 <p>Vos informations personnelles sont sécurisées et utilisées uniquement pour vérifier votre éligibilité au vote.</p>
             </div>
             <div class="form-card">
-                <form method="post" enctype="multipart/form-data">
+                <form action="<?= BASE_URL . '/participants/add' ?>" method="post" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="nom">Nom complet *</label>
-                        <input type="text" name="nom" id="nom" placeholder="Votre nom complet" required>
+                        <label for="nom">Noms *</label>
+                        <input type="text" name="nom" id="nom" placeholder="Votre nom " required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prenom">Prenoms *</label>
+                        <input type="text" name="prenom" id="prenom" placeholder="Votre prenom " required>
                     </div>
 
                     <div class="form-group">

@@ -349,10 +349,10 @@
     </header>
 
     <nav>
-        <a href="<?= BASE_URL ?>/index.php" class="nav-btn outline">🏠 Accueil</a>
-        <a href="<?= BASE_URL ?>/candidats.php" class="nav-btn outline">👥 Candidats</a>
-        <a href="<?= BASE_URL ?>/voter.php" class="nav-btn outline">☑️ Voter</a>
-        <a href="<?= BASE_URL ?>/resultats.php" class="nav-btn primary">📊 Résultats</a>
+        <a href="<?= BASE_URL ?>/" class="nav-btn outline">🏠 Accueil</a>
+        <a href="<?= BASE_URL ?>/candidats" class="nav-btn outline">👥 Candidats</a>
+        <a href="<?= BASE_URL ?>/votes" class="nav-btn outline">☑️ Voter</a>
+        <a href="<?= BASE_URL ?>/resultats" class="nav-btn primary">📊 Résultats</a>
     </nav>
 
     <main>

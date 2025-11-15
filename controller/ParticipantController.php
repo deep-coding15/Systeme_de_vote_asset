@@ -1,15 +1,43 @@
 <?php
+require_once dirname(__DIR__, 1) . '/repositories/participantRepository.php';
+require_once dirname(__DIR__, 1) . '/core/CODE_RESPONSE.php';
+
+use Core\CODE_RESPONSE;
+use Repositories\participantRepository;
 
 class ParticipantController
 {
+    private $participantRepository;
+    public function __construct()
+    {
+        $this->participantRepository = new participantRepository();
+    }
     public function index()
     {
-        echo "Liste des participants";
+        $participants = $this->participantRepository->findAll();
+        Response::render('participants/liste', ['participants' => $participants]);
     }
 
     public function store()
     {
-        echo "Enregistrement participant";
+        if(!$_SERVER['REQUEST_METHOD'] === "POST"){
+            Response::redirect('/403', CODE_RESPONSE::FORBIDDEN);
+        }
+        $nom = $_POST['nom'] ?? '';
+        $prenom = $_POST['prenom'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $code_qr = '';
+        $phone = $_POST['phone'] ?? '';
+        $type_document = $_POST['type-documenr'] ?? '';
+        $numero_document = $_POST['numero-document'] ?? '';
+        $photo_document = '';
+        
+        $data = compact('nom', 'prenom', 'email', 'code_qr', 'phone', 'type_document', 'numero_document', 'photo_document');
+        if($this->participantRepository->insert($data))
+            return Response::json([
+                "message" => "Participant ajouté avec succès.",
+                "code" => CODE_RESPONSE::CREATED,
+            ]);
     }
 
     public function validate($id)

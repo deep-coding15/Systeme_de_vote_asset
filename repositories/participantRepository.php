@@ -5,15 +5,15 @@ use Database\Database;
 use PDO;
 use PDOException;
 
-require_once dirname(__DIR__) . '/config/database.php';
+require_once dirname(__DIR__) . '/Database/database.php';
 
-class Participant
+class participantRepository
 {
     private $db;
 
     public function __construct()
     {
-        $this->db = new Database();
+        $this->db = (new Database())->getConnection();
     }
 
     /**
@@ -44,13 +44,17 @@ class Participant
      */
     public function insert($data)
     {
-        $sql = "INSERT INTO participant (nom, prenom, email, code_qr, est_valide, a_vote, date_inscription)
-                VALUES (:nom, :prenom, :email, :code_qr, :est_valide, :a_vote, NOW())";
+        $sql = "INSERT INTO participant (nom, prenom, email, code_qr, phone, type_document, numero_document, photo_document, est_valide, a_vote, date_inscription)
+                VALUES (:nom, :prenom, :email, :code_qr, :phone, :type_document, :numero_document, :photo_document, :est_valide, :a_vote, NOW())";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(":nom", $data['nom']);
         $stmt->bindParam(":prenom", $data['prenom']);
         $stmt->bindParam(":email", $data['email']);
         $stmt->bindParam(":code_qr", $data['code_qr']);
+        $stmt->bindParam(":phone", $data['phone']);
+        $stmt->bindParam(":type_document", $data['type_document']);
+        $stmt->bindParam(":numero_document", $data['numero_document']);
+        $stmt->bindParam(":photo_document", $data['photo_document']);
         $stmt->bindParam(":est_valide", $data['est_valide']);
         $stmt->bindParam(":a_vote", $data['a_vote']);        
         return $stmt->execute();
