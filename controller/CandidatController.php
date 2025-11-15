@@ -1,15 +1,22 @@
 <?php
+namespace Controller;
 require_once __DIR__ . '/../Database/Database.php';
-
+require_once __DIR__ . '/../repositories/candidatRepository.php';
+require_once dirname(__DIR__, 1) . '/core/Response.php';
+use Core\CODE_RESPONSE;
 use Database\Database;
+use Repositories\CandidatRepository;
+use Response;
 
 class CandidatController
 {
     private $db;
+    private $candidatRepository;
 
     public function __construct()
     {
         $this->db = new Database();
+        $this->candidatRepository = new CandidatRepository();
     }
 
     /**
@@ -17,42 +24,26 @@ class CandidatController
      */
     public function index()
     {
-        $sql = "
-            SELECT c.id_candidat, c.nom, c.prenom, c.email, c.photo,
-                   e.nom_equipe,
-                   p.intitule AS poste
-            FROM candidat c
-            JOIN equipe e ON c.id_equipe = e.id_equipe
-            JOIN poste p ON c.id_poste = p.id_poste
-            ORDER BY c.id_candidat ASC
-        ";
-
-        $stmt = $this->db->query($sql);
-        $candidats = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        header('Content-Type: application/json');
-        echo json_encode($candidats);
+        $candidats = $this->candidatRepository->findAll();
+        
+        Response::render('candidats/index', ['candidats' => $candidats]);
     }
 
     /**
      * Voir un candidat
      */
-    public function show($id)
+    public function show(int $id)
     {
-        $stmt = $this->db->prepare("
-            SELECT * FROM candidat WHERE id_candidat = ?
-        ");
-        $stmt->execute([$id]);
-
-        $candidat = $stmt->fetch(PDO::FETCH_ASSOC);
-
+        $candidat = $this->candidatRepository->findById($id);
         if (!$candidat) {
-            echo "Candidat introuvable.";
+            Response::json([
+                "message" => "Candidat introuvable.",
+                "code" => CODE_RESPONSE::NOT_FOUND
+            ]);
             return;
         }
 
-        header('Content-Type: application/json');
-        echo json_encode($candidat);
+        return Response::json($candidat);
     }
 
     /**
@@ -60,21 +51,24 @@ class CandidatController
      */
     public function store()
     {
+        if(!$_SERVER['REQUEST_METHOD'] === "POST"){
+            Response::redirect('/403', CODE_RESPONSE::FORBIDDEN);
+        }
         $nom = $_POST['nom'];
         $prenom = $_POST['prenom'];
+        $description = $_POST['description'] ?? null;
         $email = $_POST['email'];
         $photo = $_POST['photo'] ?? null;
         $id_equipe = $_POST['id_equipe'];
         $id_poste = $_POST['id_poste'];
 
-        $stmt = $this->db->prepare("
-            INSERT INTO candidat (nom, prenom, email, photo, id_equipe, id_poste)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ");
-
-        $stmt->execute([$nom, $prenom, $email, $photo, $id_equipe, $id_poste]);
-
-        echo "Candidat ajouté avec succès.";
+        
+        $data = compact('nom', 'prenom', 'description', 'email', 'photo', 'id_equipe', 'id_poste');
+        if($this->candidatRepository->insert($data))
+            return Response::json([
+                "message" => "Candidat ajouté avec succès.",
+                "code" => CODE_RESPONSE::CREATED,
+            ]);
     }
 
     /**
@@ -84,20 +78,18 @@ class CandidatController
     {
         $nom = $_POST['nom'];
         $prenom = $_POST['prenom'];
+        $description = $_POST['description'] ?? null;
         $email = $_POST['email'];
-        $photo = $_POST['photo'];
+        $photo = $_POST['photo'] ?? null;
         $id_equipe = $_POST['id_equipe'];
         $id_poste = $_POST['id_poste'];
 
-        $stmt = $this->db->prepare("
-            UPDATE candidat
-            SET nom=?, prenom=?, email=?, photo=?, id_equipe=?, id_poste=?
-            WHERE id_candidat=?
-        ");
-
-        $stmt->execute([$nom, $prenom, $email, $photo, $id_equipe, $id_poste, $id]);
-
-        echo "Candidat mis à jour.";
+        $data = compact('nom', 'prenom', 'description', 'email', 'photo', 'id_equipe', 'id_poste');
+        $this->candidatRepository->update($id, $data);
+        Response::json([
+            "message" => "Candidat mis à jour.",
+            "code" => CODE_RESPONSE::OK,
+        ]);
     }
 
     /**
@@ -105,9 +97,10 @@ class CandidatController
      */
     public function delete($id)
     {
-        $stmt = $this->db->prepare("DELETE FROM candidat WHERE id_candidat = ?");
-        $stmt->execute([$id]);
-
-        echo "Candidat supprimé.";
+        $this->candidatRepository->delete($id);
+        Response::json([
+            "message" => "Candidat supprimé.",
+            "code" => CODE_RESPONSE::OK,
+        ]);
     }
 }

@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/config.php'; ?>
+<?php /* require_once __DIR__ . '/config.php'; */ ?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -363,40 +363,53 @@
 
         <section class="candidats">
             <!-- Candidat 1 -->
-            <div class="candidat">
-                <div class="candidat-header">
-                    <img src="https://via.placeholder.com/120" alt="Amina Benjelloun">
-                    <div class="candidat-info">
-                        <h3>Amina Benjelloun</h3>
-                        <p>Ensemble pour une ASSET plus forte</p>
-                    </div>
-                </div>
-                <div class="candidat-body">
-                    <div class="section-block programme">
-                        <h3>Programme</h3>
-                        <p>Mon programme vise à renforcer la cohésion au sein de l'ASSET en créant des opportunités de collaboration entre étudiants de différentes filières. Je m'engage à améliorer la communication avec l'administration, à développer des partenariats avec des entreprises locales pour faciliter l'insertion professionnelle, et à organiser des événements culturels et sportifs qui rassemblent notre communauté. Ensemble, nous construirons une association plus dynamique et inclusive.</p>
-                    </div>
-                    <div class="section-block experience">
-                        <h3>Expérience</h3>
-                        <ul>
-                            <li>Vice-présidente de l'ASSET 2023-2024</li>
-                            <li>Coordinatrice des événements culturels depuis 2 ans</li>
-                            <li>Membre active du bureau des étudiants depuis 2022</li>
-                        </ul>
-                    </div>
-                    <div class="section-block priorite">
-                        <h3>Priorités</h3>
-                        <ul>
-                            <li>Innovation</li>
-                            <li>Emploi</li>
-                            <li>Culture</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
 
+            <?php foreach ($candidats as $key => $candidat) : ?>
+                <div class="candidat">
+                    <div class="candidat-header">
+<!--                         <img src="<?= $candidat['photo'] ?>" alt="Photo de <?= $candidat['nom'] ?> <?= $candidat['prenom'] ?>">
+ -->                        <div class="candidat-info">
+                            <h3> <?= $candidat['prenom'] ?> <?= $candidat['nom'] ?> </h3>
+                            <p> <?= $candidat['description'] ?> </p>
+                        </div>
+                    </div>
+                    <div class="candidat-body">
+                        <div class="section-block programme">
+                            <h3>Programme</h3>
+                            <p> <?= $candidat['programme'] ?></p>
+                        </div>
+                        <?php $candidat['experiences'] = explode('||', $candidat['experiences']); ?>
+                        <?php $candidat['priorites'] = explode('||', $candidat['priorites']); ?>
+                        <!-- $candidat['experiences'] = explode('||', $candidat['experiences']);
+        $candidat['priorites'] = explode('||', $candidat['priorites']);
+     -->
+                        <div class="section-block experience">
+                            <h3>Expérience</h3>
+                            <ul>
+                                <?php foreach ($candidat['experiences'] as $key => $experience) : ?>
+                                    <li><?= $experience ?></li>
+                                <?php endforeach; ?>
+                               <!--  <li>Vice-présidente de l'ASSET 2023-2024</li>
+                                <li>Coordinatrice des événements culturels depuis 2 ans</li>
+                                <li>Membre active du bureau des étudiants depuis 2022</li> -->
+                            </ul>
+                        </div>
+                        <div class="section-block priorite">
+                            <h3>Priorités</h3>
+                            <ul>
+                                <?php foreach ($candidat['priorites'] as $key => $priorite) : ?>
+                                    <li><?= $priorite ?></li>
+                                <?php endforeach; ?>
+                                <!-- <li>Innovation</li>
+                                <li>Emploi</li>
+                                <li>Culture</li> -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
             <!-- Candidat 2 -->
-            <div class="candidat">
+            <!-- <div class="candidat">
                 <div class="candidat-header">
                     <img src="https://via.placeholder.com/120" alt="Youssef El Amrani">
                     <div class="candidat-info">
@@ -426,10 +439,10 @@
                         </ul>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Candidat 3 -->
-            <div class="candidat">
+            <!-- <div class="candidat">
                 <div class="candidat-header">
                     <img src="https://via.placeholder.com/120" alt="Sara Khattabi">
                     <div class="candidat-info">
@@ -459,7 +472,7 @@
                         </ul>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </section>
     </main>
 

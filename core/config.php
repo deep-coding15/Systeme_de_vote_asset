@@ -1,5 +1,8 @@
 <?php
 
+
+require_once 'CODE_RESPONSE.php';
+
 // Auto-detect BASE_URL based on current request
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'];

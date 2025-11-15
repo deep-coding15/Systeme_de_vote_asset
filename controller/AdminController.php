@@ -1,4 +1,5 @@
 <?php
+namespace Controller;
 require_once __DIR__ . '/../Database/Database.php';
 
 use Database\Database;
@@ -27,7 +28,7 @@ class AdminController
 
         $stmt = $this->db->prepare("SELECT * FROM admin WHERE email = ?");
         $stmt->execute([$email]);
-        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+        $admin = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if (!$admin) {
             echo "Admin introuvable.";
@@ -62,7 +63,7 @@ class AdminController
     public function index()
     {
         $stmt = $this->db->query("SELECT id_admin, nom, prenom, email, role FROM admin");
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         header('Content-Type: application/json');
         echo json_encode($data);

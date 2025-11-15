@@ -2,34 +2,34 @@
 namespace Database;
 
 use PDO;
-require_once __DIR__ . '/config.php';
-class Database extends PDO{
-    
-    private $conn = null;
+use PDOException;
 
-    public function __construct()
+require_once __DIR__ . '/../core/config.php';
+
+class Database
+{
+    private ?PDO $conn = null;
+
+    public function getConnection(): PDO
     {
-        if(!$this->conn || $this->conn == null)
-            $this->conn = $this->getConnection();
-        //$this->conn->prepare('');
-    }
-    
-    // Connexion à la base de données
-    private function getConnection() {
-        $this->conn = null;
+        if ($this->conn !== null) {
+            return $this->conn;
+        }
+
         try {
-            $this->conn = new \PDO(
-                "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME,
+            $this->conn = new PDO(
+                "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
                 DB_USER,
-                DB_PASS
+                DB_PASS,
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                ]
             );
-            $this->conn->exec("set names utf8");
-            $this->conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        } catch (\PDOException $exception) {
-            echo "Erreur de connexion : " . $exception->getMessage();
+        } catch (PDOException $e) {
+            die("Erreur de connexion : " . $e->getMessage());
         }
 
         return $this->conn;
     }
 }
-?>

@@ -5,9 +5,9 @@ use Database\Database;
 use PDO;
 use PDOException;
 
-require_once dirname(__DIR__) . '/config/database.php';
+require_once dirname(__DIR__) . '/Database/Database.php';
 
-class equipe
+class EquipeRepository
 {
     private $db;
 
@@ -41,6 +41,7 @@ class equipe
 
     /**
      * Insérer une nouvelle equipe
+     * @param array $data = ['nom_equipe', 'logo', 'description']
      */
     public function insert($data)
     {
@@ -55,6 +56,8 @@ class equipe
 
     /**
      * Modifier les informations d’une equipe
+     * @param int $id : id de l'equipe
+     * @param array $data = ['nom_equipe', 'logo', 'description']
      */
     public function update($id, $data)
     {
@@ -72,7 +75,7 @@ class equipe
     /**
      * Supprimer une équipe
      */
-    public function delete($id)
+    public function delete(int $id)
     {
         $sql = "DELETE FROM equipe WHERE id_equipe = :id";
         $stmt = $this->db->prepare($sql);
@@ -81,27 +84,28 @@ class equipe
     }
 
     /**
-     * Compter le nombre total de candidats
+     * Compter le nombre total de d'equipes
      */
-    /* public function countAll()
+    public function countAll()
     {
-        $sql = "SELECT COUNT(*) as total FROM candidats";
+        $sql = "SELECT COUNT(*) as total FROM equipe";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total'];
-    } */
+    }
 
     /**
      * Chercher une equipe par nom
+     * @param string $keyboard : debut de mot pour la recherche de l'equipe
      */
-    public function search($keyword)
+    public function search(string $keyword)
     {
         $sql = "SELECT * FROM candidats 
                 WHERE nom_equipe LIKE :keyword";
         $stmt = $this->db->prepare($sql);
         $search = "%" . $keyword . "%";
-        $stmt->bindParam(":keyword", $search);
+        $stmt->bindParam(":keyword", $search, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

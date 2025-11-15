@@ -9,7 +9,7 @@ class Equipe{
 
     /**
      * Summary of __construct
-     * @param array $data = ['id_equipe', 'nom_equipe', 'logo', 'description']
+     * @param array $data = ['id_equipe', 'nom_equipe', 'logo_path', 'description']
      */
     public function __construct(array $data)
     {
@@ -19,7 +19,7 @@ class Equipe{
     private function hydrateData(array $data){
         $this->id_equipe = $data['id_equipe'] ?? null;
         $this->nom_equipe = $data['nom_equipe'] ?? null;
-        $this->logo_path = $data['logo'] ?? null;
+        $this->logo_path = $data['logo_path'] ?? null;
         $this->description = $data['description'] ?? null;
     }
     
@@ -30,8 +30,8 @@ class Equipe{
     {
         return sprintf(
             "Equipe #%d | NomEquipe: %s | LogoPath: %s | Description: %s",
-            $this->id_vote ?? 0,
             $this->id_equipe ?? 0,
+            $this->nom_equipe ?? 'N/A',
             $this->logo_path ?? 0,
             $this->description ?? 'N/A',
         );
