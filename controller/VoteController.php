@@ -1,4 +1,6 @@
 <?php
+namespace Controller;
+use Core\Response;
 
 class VoteController
 {
@@ -9,6 +11,6 @@ class VoteController
 
     public function results()
     {
-        echo "Affichage des résultats";
+        Response::render('resultats/index');
     }
 }

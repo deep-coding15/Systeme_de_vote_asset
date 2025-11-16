@@ -1,5 +1,5 @@
 <?php
-
+namespace Core;
 use Core\CODE_RESPONSE;
 
 require_once 'CODE_RESPONSE.php';
@@ -11,7 +11,7 @@ class Response
      * @param string $url
      * @param CODE_RESPONSE $statusCode (302 par défaut)
      */
-    public static function redirect(string $url, CODE_RESPONSE $statusCode = CODE_RESPONSE::OK)
+    public static function redirect(string $url, CODE_RESPONSE $statusCode = CODE_RESPONSE::REDIRECT)
     {
         http_response_code($statusCode->value);
         header("Location: $url");
@@ -24,7 +24,7 @@ class Response
      * @param array  $data      ex: ['nom' => 'Christelle'] => apres $nom sera accessible a la vue
      * @param CODE_RESPONSE    $statusCode ex: 200
      */
-    public static function render(string $viewPath, array $data = [], CODE_RESPONSE $statusCode = CODE_RESPONSE::OK)
+    public static function render(string $viewPath, array $data = [], bool $withLayout = true, CODE_RESPONSE $statusCode = CODE_RESPONSE::OK)
     {
         http_response_code($statusCode->value);
 
@@ -40,8 +40,16 @@ class Response
             return;
         }
 
+        if($withLayout){
+            include_once __DIR__ . '/../views/layout/header.php'; 
+            require $fullPath;
+            include_once __DIR__ . '/../views/layout/footer.php'; 
+            return;
+        }
+            
         require $fullPath;
     }
+
 
     public static function json($data, CODE_RESPONSE $statusCode = CODE_RESPONSE::OK)
     {

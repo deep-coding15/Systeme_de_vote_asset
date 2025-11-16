@@ -2,6 +2,8 @@
 
 use Controller\AdminController;
 use Controller\CandidatController;
+use Controller\VoteController;
+use Core\Response;
 
 require_once __DIR__ . '/../router.php';
 require_once __DIR__ . '/../controller/AdminController.php';
@@ -17,7 +19,7 @@ require_once __DIR__ . '/../controller/CandidatController.php';
 
 // Page d'accueil : OKAY
 get('/', function () {
-    Response::render('index');
+    Response::render('index', ['titre' => 'Accueil']);
 });
 
 // Candidats : OKAY
@@ -25,11 +27,16 @@ get('/candidats', [CandidatController::class, 'index']);
 
 // Participants : OKAY
 get('/votes', function(){
-    Response::render('/votes/index');
+    Response::render('/votes/index', ['titre' => 'Voter - ASSET 2025']);
 });
 post('/participants/add', [ParticipantController::class, 'store']);
+get('/candidats/vote', [CandidatController::class, 'vote']);
 
 
+get('/test', [CandidatController::class, 'test']);
+//get('/resultats', [CandidatController::class, 'test']);
+
+//get('/resultats', [ResultatController::class, 'test']); //Résultats - ASSET 2025
 // Auth admin
 post('/admin/login', [AdminController::class, 'login']);
 

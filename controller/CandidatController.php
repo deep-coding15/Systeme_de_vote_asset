@@ -1,12 +1,16 @@
 <?php
+
 namespace Controller;
+
 require_once __DIR__ . '/../Database/Database.php';
 require_once __DIR__ . '/../repositories/candidatRepository.php';
 require_once dirname(__DIR__, 1) . '/core/Response.php';
+
 use Core\CODE_RESPONSE;
+use Core\Response as CoreResponse;
 use Database\Database;
 use Repositories\CandidatRepository;
-use Response;
+use Core\Response;
 
 class CandidatController
 {
@@ -25,8 +29,24 @@ class CandidatController
     public function index()
     {
         $candidats = $this->candidatRepository->findAll();
-        
-        Response::render('candidats/index', ['candidats' => $candidats]);
+
+        Response::render('candidats/index', ['titre' => 'Candidats - ASSET 2025', 'candidats' => $candidats]);
+    }
+
+    /**
+     * Liste des candidats à voter
+     */
+    public function vote()
+    {
+        $candidats = $this->candidatRepository->findAll();
+
+        Response::render('candidats/vote', ['candidats' => $candidats]);
+    }
+
+    public function test(){
+        $equipes = $this->candidatRepository->getCandidatsGrouped();
+
+        Response::render('candidats/index1', ['equipes' => $equipes], true);
     }
 
     /**
@@ -51,7 +71,7 @@ class CandidatController
      */
     public function store()
     {
-        if(!$_SERVER['REQUEST_METHOD'] === "POST"){
+        if (!$_SERVER['REQUEST_METHOD'] === "POST") {
             Response::redirect('/403', CODE_RESPONSE::FORBIDDEN);
         }
         $nom = $_POST['nom'];
@@ -62,9 +82,9 @@ class CandidatController
         $id_equipe = $_POST['id_equipe'];
         $id_poste = $_POST['id_poste'];
 
-        
+
         $data = compact('nom', 'prenom', 'description', 'email', 'photo', 'id_equipe', 'id_poste');
-        if($this->candidatRepository->insert($data))
+        if ($this->candidatRepository->insert($data))
             return Response::json([
                 "message" => "Candidat ajouté avec succès.",
                 "code" => CODE_RESPONSE::CREATED,

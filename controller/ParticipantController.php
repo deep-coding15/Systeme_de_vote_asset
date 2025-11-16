@@ -3,6 +3,7 @@ require_once dirname(__DIR__, 1) . '/repositories/participantRepository.php';
 require_once dirname(__DIR__, 1) . '/core/CODE_RESPONSE.php';
 
 use Core\CODE_RESPONSE;
+use Core\Response;
 use Repositories\participantRepository;
 
 class ParticipantController
@@ -33,11 +34,13 @@ class ParticipantController
         $photo_document = '';
         
         $data = compact('nom', 'prenom', 'email', 'code_qr', 'phone', 'type_document', 'numero_document', 'photo_document');
-        if($this->participantRepository->insert($data))
-            return Response::json([
+        if($this->participantRepository->insert($data)) {
+            Response::json([
                 "message" => "Participant ajouté avec succès.",
                 "code" => CODE_RESPONSE::CREATED,
             ]);
+            return Response::redirect('/candidats/vote');
+        }
     }
 
     public function validate($id)

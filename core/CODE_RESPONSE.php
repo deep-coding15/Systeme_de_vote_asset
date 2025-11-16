@@ -10,6 +10,7 @@ enum CODE_RESPONSE: int
     case CREATED = 201;
     case ACCEPTED = 202;
     case NO_CONTENT = 204;
+    case REDIRECT = 302;
     
     case BAD_REQUEST = 400;
     case UNAUTHORIZED = 401;
