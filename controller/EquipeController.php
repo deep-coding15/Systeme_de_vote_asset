@@ -5,7 +5,7 @@ require_once __DIR__ . '/../Database/Database.php';
 use Core\CODE_RESPONSE;
 use Database\Database;
 use Repositories\EquipeRepository;
-use Response;
+use Core\Response;
 
 class EquipeController
 {
@@ -14,7 +14,7 @@ class EquipeController
 
     public function __construct()
     {
-        $this->db = new Database();
+        $this->db = (new Database())->getConnection();
         $this->equipeRepository = new EquipeRepository();
     }
 

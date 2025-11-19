@@ -19,7 +19,7 @@ class CandidatController
 
     public function __construct()
     {
-        $this->db = new Database();
+        $this->db = (new Database())->getConnection();
         $this->candidatRepository = new CandidatRepository();
     }
 
@@ -28,9 +28,9 @@ class CandidatController
      */
     public function index()
     {
-        $candidats = $this->candidatRepository->findAll();
+        $equipes = $this->candidatRepository->getCandidatsGrouped();
 
-        Response::render('candidats/index', ['titre' => 'Candidats - ASSET 2025', 'candidats' => $candidats]);
+        Response::render('candidats/index', ['titre' => 'Candidats - ASSET 2025', 'equipes' => $equipes], true);
     }
 
     /**
@@ -40,13 +40,7 @@ class CandidatController
     {
         $candidats = $this->candidatRepository->findAll();
 
-        Response::render('candidats/vote', ['candidats' => $candidats]);
-    }
-
-    public function test(){
-        $equipes = $this->candidatRepository->getCandidatsGrouped();
-
-        Response::render('candidats/index1', ['equipes' => $equipes], true);
+        Response::render('candidats/vote', ['titre' => 'Candidats - ASSET 2025', 'candidats' => $candidats]);
     }
 
     /**

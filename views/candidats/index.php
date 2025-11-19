@@ -1,247 +1,253 @@
+<style>
+    /* -------- TITRES -------- */
+    .title-page {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    .subtitle {
+        color: #555;
+        margin-bottom: 25px;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            line-height: 1.6;
-        }
+    /* -------- ONGLET DES ÉQUIPES -------- */
+    .tabs {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+    }
 
-       
+    .tab {
+        background: none;
+        border: none;
+        font-size: 17px;
+        cursor: pointer;
+        padding: 10px 0;
+        color: #777;
+        position: relative;
+    }
 
-        /* Hero Section */
-        .hero {
-            background: #f8f9fa;
-            color: black;
-            padding: 4rem 5%;
-            text-align: center;
-        }
+    .tab.active {
+        color: #c62828;
+        font-weight: bold;
+    }
 
-        .hero h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
+    .tab.active::after {
+        content: "";
+        position: absolute;
+        bottom: -11px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #c62828;
+        border-radius: 2px;
+    }
 
-        .hero h3 {
-            font-size: 1.2rem;
-            font-weight: 400;
-        }
+    /* -------- SECTION D'ÉQUIPE -------- */
+    .team-section {
+        display: none;
+    }
 
-        /* Candidats Section */
-        .candidats {
-            padding: 4rem 5%;
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            /* flex-direction: column; */
-            gap: 3rem;
-        }
+    .team-section.visible {
+        display: block;
+    }
 
-        .candidat {
-            background: white;
-            border-radius: 20px;
-            width: 40%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            flex: 0 0 40%;
-            /* flex-grow | flex-shrink | flex-basis */
-            /* ou une approche basée sur la largeur si votre design le permet */
-            /*width: calc(50% - 1rem); /* Exemple pour deux éléments avec un gap de 1rem */
-            overflow: hidden;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
+    .team-header {
+        padding: 20px;
+        background: #fff5f5;
+        border: 1px solid #f4d7d7;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
 
-        .candidat:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(255, 107, 107, 0.15);
-        }
+    .team-header h3 {
+        color: #c62828;
+        margin-bottom: 8px;
+    }
 
-        .candidat-header {
-            background: linear-gradient(135deg, #FFE5E5, #FFF0F0);
-            padding: 2.5rem;
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            border-bottom: 3px solid #FF6B6B;
-        }
+    .team-desc {
+        color: #555;
+    }
 
-        .candidat-header img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 4px solid #FF6B6B;
-            object-fit: cover;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-        }
+    /* -------- POSTE -------- */
+    .poste-title {
+        margin-top: 35px;
+        margin-bottom: 15px;
+        font-size: 20px;
+        font-weight: 600;
+    }
 
-        .candidat-info h3 {
-            color: #FF6B6B;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
+    /* -------- CARTE CANDIDAT -------- */
+    .candidate-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        max-width: 850px;
+        margin: auto;
+        transform: translateX(-25%);
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+    }
 
-        .candidat-info p {
-            color: #666;
-            font-size: 1.1rem;
-            font-style: italic;
-        }
+    .candidate-left {
+        display: flex;
+        gap: 15px;
+    }
 
-        .candidat-body {
-            padding: 2.5rem;
-            display: grid;
-            gap: 2rem;
-        }
+    .candidate-photo {
+        width: 90px;
+        height: 90px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
 
-        .section-block {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 12px;
-            border-left: 4px solid #FF6B6B;
-        }
+    .candidate-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 5px;
+    }
 
-        .section-block h3 {
-            color: #FF6B6B;
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    .candidate-name {
+        font-size: 18px;
+        margin: 0;
+    }
 
-        .section-block h3::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: #FF6B6B;
-            border-radius: 50%;
-        }
+    .role-badge {
+        background: #c62828;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        width: fit-content;
+    }
 
-        .programme p {
-            color: #555;
-            line-height: 1.8;
-            text-align: justify;
-        }
+    .team-label {
+        color: #c62828;
+        font-size: 14px;
+        font-weight: 600;
+    }
 
-        .experience ul {
-            list-style: none;
-            padding-left: 0;
-        }
+    /* -------- DÉTAILS DU CANDIDAT -------- */
+    .candidate-details h6 {
+        font-size: 15px;
+        margin-top: 10px;
+        font-weight: 600;
+    }
 
-        .experience li {
-            color: #555;
-            padding: 0.5rem 0;
-            padding-left: 1.5rem;
-            position: relative;
-        }
+    .candidate-details p {
+        color: #444;
+    }
 
-        .experience li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #FF6B6B;
-            font-weight: bold;
-        }
+    /* -------- PRIORITÉS -------- */
+    .priority-badge {
+        /* background: #ffd54f; */
+        background: #eee;
+        padding: 5px 10px;
+        border-radius: 10px;
+        font-size: 12px;
+    }
 
-        .priorite ul {
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            padding-left: 0;
-        }
+    .priorities {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+    }
+</style>
+<h2 class="title-page">Les Équipes Candidates</h2>
+<p class="subtitle">Découvrez les différentes équipes et leurs candidats pour chaque poste</p>
+<?php
 
-        .priorite li {
-            background: #FF6B6B;
-            color: white;
-            padding: 0.6rem 1.5rem;
-            border-radius: 25px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: transform 0.2s;
-        }
+?>
+<!-- Onglets -->
+<div class="tabs">
+    <?php foreach ($equipes as $eq): ?>
+        <button class="tab <?= ($eq['id'] == array_key_first($equipes)) ? 'active' : '' ?>"
+            data-target="equipe-<?= $eq['id'] ?>">
+            <?= htmlspecialchars($eq['nom']) ?>
+        </button>
+    <?php endforeach; ?>
+</div>
 
-        .priorite li:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
-        }
+<!-- Contenu des équipes -->
+<?php foreach ($equipes as $eq): ?>
+    <section id="equipe-<?= $eq['id'] ?>"
+        class="team-section <?= ($eq['id'] == array_key_first($equipes)) ? 'visible' : '' ?>">
 
+        <div class="team-header">
+            <h3><?= htmlspecialchars($eq['nom']) ?></h3>
+            <p class="team-desc">
+                Découvrez les membres de l'équipe <?= htmlspecialchars($eq['nom']) ?> et leurs candidatures.
+            </p>
+        </div>
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h2 {
-                font-size: 1.8rem;
-            }
+        <!-- Postes -->
+        <?php foreach ($eq['postes'] as $poste): ?>
 
-            .hero h3 {
-                font-size: 1rem;
-            }
+            <?php foreach ($poste['candidats'] as $c): ?>
+                <div class="candidate-card">
 
-            .candidat-header {
-                flex-direction: column;
-                text-align: center;
-            }
+                    <div class="candidate-left">
+                        <img src="/uploads/<?= $c['photo'] ?>" class="candidate-photo">
 
-            .candidat-header img {
-                width: 100px;
-                height: 100px;
-            }
-
-            .priorite ul {
-                justify-content: center;
-            }
-        }
-    </style>
-
-   
-        <section class="hero">
-            <h2>Les Candidats</h2>
-            <h3>Découvrez les profils des candidats à la présidence de l'ASSET.</h3>
-        </section>
-
-        <section class="candidats">
-            <!-- Candidat 1 -->
-
-            <?php foreach ($candidats as $key => $candidat) : ?>
-                <div class="candidat">
-                    <div class="candidat-header">
-<!--                         <img src="<?= $candidat['photo'] ?>" alt="Photo de <?= $candidat['nom'] ?> <?= $candidat['prenom'] ?>">
- -->                        <div class="candidat-info">
-                            <h3> <?= $candidat['prenom'] ?> <?= $candidat['nom'] ?> </h3>
-                            <p> <?= $candidat['description'] ?> </p>
+                        <div class="candidate-info">
+                            <h5 class="candidate-name"><?= $c['prenom'] . " " . $c['nom'] ?></h5>
+                            <span class="role-badge"><?= $poste['intitule'] ?></span>
+                            <span class="team-label"><?= htmlspecialchars($eq['nom']) ?></span>
                         </div>
                     </div>
-                    <div class="candidat-body">
-                        <div class="section-block programme">
-                            <h3>Programme</h3>
-                            <p> <?= $candidat['programme'] ?></p>
-                        </div>
-                        <?php $candidat['experiences'] = explode('||', $candidat['experiences']); ?>
-                        <?php $candidat['priorites'] = explode('||', $candidat['priorites']); ?>
-                        <div class="section-block experience">
-                            <h3>Expérience</h3>
-                            <ul>
-                                <?php foreach ($candidat['experiences'] as $key => $experience) : ?>
-                                    <li><?= $experience ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                        <div class="section-block priorite">
-                            <h3>Priorités</h3>
-                            <ul>
-                                <?php foreach ($candidat['priorites'] as $key => $priorite) : ?>
-                                    <li><?= $priorite ?></li>
-                                <?php endforeach; ?>
-                            </ul>
+
+                    <div class="candidate-details">
+                        <h6>Programme</h6>
+                        <p><?= htmlspecialchars($c['programme']) ?></p>
+
+                        <h6>Expérience</h6>
+                        <ul>
+                            <?php foreach ($c['experiences'] as $exp): ?>
+                                <li><?= htmlspecialchars($exp) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+
+                        <h6>Priorités</h6>
+                        <div class="priorities">
+                            <?php foreach ($c['priorites'] as $prio): ?>
+                                <span class="priority-badge"><?= htmlspecialchars($prio) ?></span>
+                            <?php endforeach; ?>
                         </div>
                     </div>
+
                 </div>
             <?php endforeach; ?>
-        </section>
-    
+        <?php endforeach; ?>
+
+    </section>
+<?php endforeach; ?>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+        const tabs = document.querySelectorAll(".tab");
+        const sections = document.querySelectorAll(".team-section");
+
+        tabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                const target = tab.getAttribute("data-target");
+
+                // Désactiver tous les onglets
+                tabs.forEach(t => t.classList.remove("active"));
+
+                // Cacher toutes les sections
+                sections.forEach(sec => sec.classList.remove("visible"));
+
+                // Activer l'onglet cliqué
+                tab.classList.add("active");
+
+                // Afficher la section correspondante
+                document.getElementById(target).classList.add("visible");
+            });
+        });
+
+    });
+</script>
+<script src="/js/tabs.js"></script>

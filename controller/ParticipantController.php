@@ -24,15 +24,29 @@ class ParticipantController
         if(!$_SERVER['REQUEST_METHOD'] === "POST"){
             Response::redirect('/403', CODE_RESPONSE::FORBIDDEN);
         }
+        $uploads_dir = dirname(__DIR__, 1) . '/uploads';
+        
         $nom = $_POST['nom'] ?? '';
         $prenom = $_POST['prenom'] ?? '';
         $email = $_POST['email'] ?? '';
-        $code_qr = '';
+        if($nb = random_int(16, 100) < 99)
+            $code_qr = 'QR' . '-' . $nb;
+        else
+            $code_qr = 'QR' . $nb;
         $phone = $_POST['phone'] ?? '';
         $type_document = $_POST['type-documenr'] ?? '';
         $numero_document = $_POST['numero-document'] ?? '';
         $photo_document = '';
+
+        $file = $_FILES;
+        $fileName = $file['document-officiel']['name'] ?? '';
+        $fileSize = $file['document-officiel']['size'];
+        $fileNameServeur = $file['document-officiel']['tmp_name'] ?? '';
+        $fileError = $file['document-officiel']['error'];
         
+        move_uploaded_file($_FILES['document-officiel']['tmp_name'], $uploads_dir);
+        //if (is_uploaded_file($_FILES['document-officiel']['tmp_name'])) {}
+
         $data = compact('nom', 'prenom', 'email', 'code_qr', 'phone', 'type_document', 'numero_document', 'photo_document');
         if($this->participantRepository->insert($data)) {
             Response::json([

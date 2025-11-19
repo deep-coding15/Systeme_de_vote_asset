@@ -212,14 +212,16 @@ class CandidatRepository
 
             // Ajouter expérience
             if ($row['experience']) {
-                $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['experiences'][] =
-                    $row['experience'];
+                if(!in_array($row['experience'], $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['experiences']))
+                    $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['experiences'][] =
+                        $row['experience'];
             }
 
             // Ajouter priorité
             if ($row['priorite']) {
-                $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['priorites'][] =
-                    $row['priorite'];
+                if(!in_array($row['priorite'], $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['priorites']))
+                    $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['priorites'][] =
+                        $row['priorite'];
             }
         }
 

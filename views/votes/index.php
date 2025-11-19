@@ -242,6 +242,7 @@
 
                 <div class="form-group">
                     <label for="document-officiel">Document Officiel (PDF, JPG, PNG) *</label>
+                    <input type="hidden" name="MAX_FILE_SIZE" value="30000" />
                     <input type="file" name="document-officiel" id="document-officiel" accept=".pdf,.jpg,.jpeg,.png" required>
                 </div>
 

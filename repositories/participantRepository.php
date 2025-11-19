@@ -21,7 +21,7 @@ class participantRepository
      */
     public function findAll()
     {
-        $sql = "SELECT * FROM participant ORDER BY nom ASC prenom ASC";
+        $sql = "SELECT * FROM participant ORDER BY nom ASC, prenom ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
