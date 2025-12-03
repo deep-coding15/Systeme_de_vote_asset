@@ -1,23 +1,41 @@
 <style>
+    :root {
+        --bg: #f6f7fb;
+        --card: #ffffff;
+        --muted: #6b7280;
+        --accent: #2563eb;
+        --radius: 12px;
+        --gap: 16px;
+        --pad: 16px;
+        --shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+    }
+
     /* -------- TITRES -------- */
     .title-page {
-        font-size: 28px;
+        font-size: 40px;
         font-weight: bold;
-        margin-bottom: 5px;
+        text-align: center;
+        margin: 0 0 10px 0;
     }
 
     .subtitle {
         color: #555;
-        margin-bottom: 25px;
+        text-align: center;
+        font-size: 22px;
+        margin-bottom: 30px;
     }
 
     /* -------- ONGLET DES ÉQUIPES -------- */
     .tabs {
         display: flex;
-        gap: 20px;
-        margin-bottom: 25px;
+        justify-content: center;
+        gap: 40px;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto 25px auto;
         border-bottom: 2px solid #eee;
         padding-bottom: 10px;
+        flex-wrap: wrap;
     }
 
     .tab {
@@ -25,9 +43,14 @@
         border: none;
         font-size: 17px;
         cursor: pointer;
-        padding: 10px 0;
+        padding: 10px 5px;
         color: #777;
         position: relative;
+        transition: 0.2s;
+    }
+
+    .tab:hover {
+        color: #c62828;
     }
 
     .tab.active {
@@ -49,32 +72,48 @@
     /* -------- SECTION D'ÉQUIPE -------- */
     .team-section {
         display: none;
+        flex-direction: column;
+        gap: 40px;
     }
 
     .team-section.visible {
-        display: block;
+        display: flex;
+        gap: var(--gap);
+        /* align-items: flex-start; */
+        /* ou center selon besoin */
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        /* permet d'aller à la ligne sur petits écrans */
+        max-width: 1200px;
+        margin: 24px auto;
     }
 
+    /* -------- HEADER ÉQUIPE -------- */
     .team-header {
+        text-align: center;
         padding: 20px;
         background: #fff5f5;
         border: 1px solid #f4d7d7;
         border-radius: 8px;
-        margin-bottom: 25px;
+        margin-bottom: 5px;
     }
 
     .team-header h3 {
         color: #c62828;
-        margin-bottom: 8px;
+        margin-bottom: 5px;
     }
 
     .team-desc {
+        text-align: center;
+        font-weight: 400;
+        font-family: 100px;
         color: #555;
+        margin: 0;
     }
 
     /* -------- POSTE -------- */
     .poste-title {
-        margin-top: 35px;
+        margin-top: 25px;
         margin-bottom: 15px;
         font-size: 20px;
         font-weight: 600;
@@ -82,18 +121,30 @@
 
     /* -------- CARTE CANDIDAT -------- */
     .candidate-card {
+        flex: 1 1 calc(50% - var(--gap)/2);
         background: white;
         border-radius: 12px;
         padding: 25px;
-        max-width: 850px;
-        margin: auto;
-        transform: translateX(-25%);
+        max-width: 900px;
+        margin: 0 auto;
         box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
     }
 
+    /* .candidate-card{
+    flex: 1 1 calc(50% - var(--gap)/2); /* deux colonnes en desktop * /
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:var(--pad);
+  box-shadow:var(--shadow);
+  border:1px solid rgba(15,23,42,0.04);
+  min-height:90px;
+  transition:transform .18s ease, box-shadow .18s ease;
+} */
     .candidate-left {
         display: flex;
-        gap: 15px;
+        gap: 20px;
+        align-items: center;
+        margin-bottom: 15px;
     }
 
     .candidate-photo {
@@ -106,12 +157,11 @@
     .candidate-info {
         display: flex;
         flex-direction: column;
-        gap: 6px;
-        margin-top: 5px;
+        gap: 4px;
     }
 
     .candidate-name {
-        font-size: 18px;
+        font-size: 20px;
         margin: 0;
     }
 
@@ -133,17 +183,18 @@
     /* -------- DÉTAILS DU CANDIDAT -------- */
     .candidate-details h6 {
         font-size: 15px;
-        margin-top: 10px;
+        margin-top: 15px;
         font-weight: 600;
     }
 
-    .candidate-details p {
+    .candidate-details p,
+    .candidate-details li {
         color: #444;
+        line-height: 1.4;
     }
 
     /* -------- PRIORITÉS -------- */
     .priority-badge {
-        /* background: #ffd54f; */
         background: #eee;
         padding: 5px 10px;
         border-radius: 10px;
@@ -152,8 +203,34 @@
 
     .priorities {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
         margin-top: 8px;
+    }
+
+    /* -------- RESPONSIVE -------- */
+    @media (max-width: 700px) {
+
+        .candidate-left {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .candidate-info {
+            align-items: center;
+        }
+
+        .candidate-card {
+            padding: 20px;
+        }
+
+        .tabs {
+            gap: 20px;
+        }
+
+        .title-page {
+            font-size: 32px;
+        }
     }
 </style>
 <h2 class="title-page">Les Équipes Candidates</h2>

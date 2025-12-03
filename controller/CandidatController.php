@@ -38,9 +38,9 @@ class CandidatController
      */
     public function vote()
     {
-        $candidats = $this->candidatRepository->findAll();
-
-        Response::render('candidats/vote', ['titre' => 'Candidats - ASSET 2025', 'candidats' => $candidats]);
+        //$candidats = $this->candidatRepository->findAll();
+        $postes = $this->candidatRepository->getCandidatsGroupedByPoste();
+        Response::render('candidats/vote', ['titre' => 'Candidats - ASSET 2025', 'postes' => $postes]);
     }
 
     /**

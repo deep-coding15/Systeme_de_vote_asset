@@ -225,8 +225,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="type-document">Type de document *</label>
-                    <select name="type-document" id="type-document" required>
+                    <label for="type_document">Type de document *</label>
+                    <select name="type_document" id="type-document" required>
                         <option value="" disabled selected>Sélectionnez un type de document</option>
                         <option value="CNI">Carte Nationale d'Identité (CNI)</option>
                         <option value="carte-etudiant">Carte d'Étudiant</option>
@@ -236,14 +236,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="numero-document">Numéro du document *</label>
-                    <input type="text" name="numero-document" id="numero-document" placeholder="Ex: AB123456" required>
+                    <label for="numero_document">Numéro du document *</label>
+                    <input type="text" name="numero_document" id="numero-document" placeholder="Ex: AB123456" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="document-officiel">Document Officiel (PDF, JPG, PNG) *</label>
-                    <input type="hidden" name="MAX_FILE_SIZE" value="30000" />
-                    <input type="file" name="document-officiel" id="document-officiel" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <label for="photo_document">Document Officiel (PDF, JPG, PNG) *</label>
+                    <input type="hidden" name="MAX_FILE_SIZE" value="5000000">
+                    <input type="file" name="photo_document" id="document-officiel" accept=".pdf,.jpg,.jpeg,.png" required>
                 </div>
 
                 <button type="submit" class="submit-button">Vérifier mon identité</button>

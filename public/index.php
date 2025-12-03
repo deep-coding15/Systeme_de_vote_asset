@@ -1,15 +1,17 @@
 <?php
 
-use Controller\AdminController;
-use Controller\CandidatController;
-use Controller\VoteController;
-use Core\Response;
-
 require_once __DIR__ . '/../router.php';
 require_once __DIR__ . '/../controller/AdminController.php';
 require_once __DIR__ . '/../controller/VoteController.php';
 require_once __DIR__ . '/../controller/ParticipantController.php';
 require_once __DIR__ . '/../controller/CandidatController.php';
+
+use Controller\AdminController;
+use Controller\CandidatController;
+use Controller\VoteController;
+use Core\Response;
+use Core\Session;
+
 
 /*
  |---------------------------------------------------------
@@ -31,6 +33,7 @@ get('/votes', function(){
 });
 post('/participants/add', [ParticipantController::class, 'store']);
 get('/candidats/vote', [CandidatController::class, 'vote']);
+post('/candidats/vote', [CandidatController::class, 'vote']);
 
 
 get('/test', [CandidatController::class, 'test']);

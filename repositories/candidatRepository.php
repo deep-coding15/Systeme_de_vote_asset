@@ -227,4 +227,82 @@ class CandidatRepository
 
         return $grouped;
     }
+    public function getCandidatsGroupedByPoste(): array
+    {
+        $sql = "SELECT 
+                e.id_equipe, e.nom_equipe, e.logo AS logo_equipe,
+                p.id_poste, p.intitule AS poste,
+                c.id_candidat, c.nom, c.prenom, c.email, c.description,
+                c.programme, c.photo,
+                ex.description AS experience,
+                pr.priorite AS priorite
+            FROM equipe e
+            LEFT JOIN candidat c ON c.id_equipe = e.id_equipe
+            LEFT JOIN poste p ON p.id_poste = c.id_poste
+            LEFT JOIN experiences_candidat ex ON ex.id_candidat = c.id_candidat
+            LEFT JOIN priorites_candidat pr ON pr.id_candidat = c.id_candidat
+            ORDER BY e.id_equipe, p.id_poste, c.id_candidat";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+
+        $grouped = [];
+
+        foreach ($rows as $row) {
+            $equipeId = $row['id_equipe'];
+            $posteId = $row['id_poste'];
+            $candidatId = $row['id_candidat'];
+
+            // Initialiser le poste
+            if (!isset($grouped[$posteId])) {
+                $grouped[$posteId] = [
+                    'id' => $equipeId,
+                    'logo' => $row['logo_equipe'],
+                    'intitule' => $row['poste'],
+                    'equipes' => []
+                ];
+            }
+
+            // Initialiser le poste
+            if (!isset($grouped[$posteId]['equipes'][$equipeId])) {
+                $grouped[$posteId]['equipes'][$equipeId] = [
+                    'id' => $equipeId,
+                    'nom' => $row['nom_equipe'],
+                    'candidats' => []
+                ];
+            }
+
+            // Initialiser le candidat
+            if (!isset($grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId])) {
+                $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId] = [
+                    'id' => $candidatId,
+                    'nom' => $row['nom'],
+                    'prenom' => $row['prenom'],
+                    'email' => $row['email'],
+                    'description' => $row['description'],
+                    'programme' => $row['programme'],
+                    'photo' => $row['photo'],
+                    'experiences' => [],
+                    'priorites' => []
+                ];
+            }
+
+            // Ajouter expérience
+            if ($row['experience']) {
+                if(!in_array($row['experience'], $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId]['experiences']))
+                    $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId]['experiences'][] =
+                        $row['experience'];
+            }//$grouped[$posteId]['equipes'][$equipeId]
+
+            // Ajouter priorité
+            if ($row['priorite']) {
+                if(!in_array($row['priorite'], $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId]['priorites']))
+                    $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId]['priorites'][] =
+                        $row['priorite'];
+            }
+        }
+
+        return $grouped;
+    }
 }
