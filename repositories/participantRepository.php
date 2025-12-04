@@ -1,4 +1,5 @@
 <?php
+
 namespace Repositories;
 
 use Database\Database;
@@ -56,8 +57,16 @@ class participantRepository
         $stmt->bindParam(":numero_document", $data['numero_document']);
         $stmt->bindParam(":photo_document", $data['photo_document']);
         $stmt->bindParam(":est_valide", $data['est_valide']);
-        $stmt->bindParam(":a_vote", $data['a_vote']);        
-        return $stmt->execute();
+        $stmt->bindParam(":a_vote", $data['a_vote']);
+        
+        // Exécute l'insertion
+        if ($stmt->execute()) {
+            // Retourne l'ID inséré
+            return $this->db->lastInsertId();
+        }
+
+        // En cas d'échec
+        return false;
     }
 
     /**

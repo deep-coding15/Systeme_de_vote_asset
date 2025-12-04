@@ -21,7 +21,7 @@ class ParticipantController
     public function index()
     {
         $participants = $this->participantRepository->findAll();
-        Response::render('participants/liste', ['participants' => $participants]);
+        Response::render('participants/index', ['participants' => $participants]);
     }
 
     public function store()
@@ -100,9 +100,9 @@ class ParticipantController
         error_log("📦 Données envoyées au repository : " . print_r($data, true));
 
         // === Tentative d’insertion ===
-        $result = $this->participantRepository->insert($data);
+        $participantId = $this->participantRepository->insert($data);
 
-        if (!$result) {
+        if (!$participantId) {
             error_log("❌ Échec insertion participant.");
             return Response::redirect('/votes');
         }
@@ -110,6 +110,7 @@ class ParticipantController
         // === Succès ===
         global $session;
         $session->set('user', [
+            'id' => $participantId,
             'nom' => $nom,
             'prenom' => $prenom,
             'email' => $email,

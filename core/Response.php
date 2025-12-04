@@ -15,7 +15,7 @@ class Response
     {
         $fullPath = BASE_URL .  $url;
         http_response_code($statusCode->value);
-        header("Location: $fullPath", true, $statusCode->value);
+        header("Location: $fullPath", false, $statusCode->value);
         exit;
     }
 

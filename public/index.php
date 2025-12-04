@@ -5,10 +5,12 @@ require_once __DIR__ . '/../controller/AdminController.php';
 require_once __DIR__ . '/../controller/VoteController.php';
 require_once __DIR__ . '/../controller/ParticipantController.php';
 require_once __DIR__ . '/../controller/CandidatController.php';
+require_once __DIR__ . '/../controller/Controller.php';
 
 use Controller\AdminController;
 use Controller\CandidatController;
 use Controller\VoteController;
+use Controller\Controller;
 use Core\Response;
 use Core\Session;
 
@@ -23,6 +25,9 @@ use Core\Session;
 get('/', function () {
     Response::render('index', ['titre' => 'Accueil']);
 });
+
+// Divers
+get('/redirect', [Controller::class, 'redirect']);
 
 // Candidats : OKAY
 get('/candidats', [CandidatController::class, 'index']);
@@ -49,6 +54,7 @@ post('/participants/validate/:id', [ParticipantController::class, 'validate']);
 
 
 // Votes
+post('/participant/vote', [VoteController::class, 'vote']);
 post('/vote/:poste/:candidat/:participant', [VoteController::class, 'store']);
 get('/resultats', [VoteController::class, 'results']);
 

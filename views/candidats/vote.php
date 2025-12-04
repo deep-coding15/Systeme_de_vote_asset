@@ -6,8 +6,11 @@ use Core\CODE_RESPONSE;
 
 $session = new Session();
 
-if (!$session->has('user')) {
-    Response::redirect('/votes', CODE_RESPONSE::UNAUTHORIZED);
+if (!$session->has('user')) { ?>
+    <script>
+        redirect_unauthorized()
+    </script>
+<?php
 }
 
 /* if(isset($_POST)){
@@ -17,13 +20,13 @@ if (!$session->has('user')) {
     echo '</pre>';
 } */
 
-/* if($session->has('user')){
+if ($session->has('user')) {
     echo 'session: ';
     echo '<pre>';
     //$session->get('user');
     print_r($session->getAll());
     echo '</pre>';
-} */
+}
 ?>
 <div class="top-bar">
     <button class="verified-btn">✔ Identité vérifiée ✓</button>
@@ -49,7 +52,8 @@ if (!$session->has('user')) {
         <section id="poste-<?= $key ?>" class="poste">
             <!-- Postes -->
             <h2 class="post-title"><?= htmlspecialchars($pos['intitule']) ?></h2>
-            <div class="post-cards">
+            <div class="post-cards" data-id-poste="<?= $key ?>" data-group="<?= $pos['intitule'] ?>" data-group-id="<?= $pos['id'] ?>" data-participant-id="<?= $session->get('user')['id'] ?>">
+                <!-- <div class="candidats-poste"> -->
                 <?php foreach ($pos['equipes'] as $eq): ?>
 
                     <?php foreach ($eq['candidats'] as $c): ?>
@@ -92,23 +96,24 @@ if (!$session->has('user')) {
                             <button type="button" class="select-btn" data-id-poste="<?= $key ?>" data-id-candidat="<?= $c['id'] ?>">Sélectionner</button>
                         </div>
                     <?php endforeach; ?>
-
                 <?php endforeach; ?>
+                <!-- </div> -->
             </div>
         </section>
     <?php endforeach; ?>
 
-    <button type="submit" class="select-btn" data-id-poste="<?= $key ?>" data-id-candidat="<?= $c['id'] ?>">Sélectionner</button>
+    <button type="submit" id="valider-choix" class="select-btn">Valider mon choix</button>
     </form>
 </div>
 
 
 </div>
 <style>
-    .first{
+    .first {
         text-align: center;
         margin-bottom: 20px;
     }
+
     /* --- Bar / Alert --- */
     .top-bar {
         display: flex;
@@ -147,7 +152,7 @@ if (!$session->has('user')) {
         margin-top: 60px;
         margin-bottom: 80px;
     }
-    
+
     .post-title {
         text-decoration: underline;
         text-align: center;
@@ -179,6 +184,7 @@ if (!$session->has('user')) {
         cursor: pointer;
     }
 
+    .selected,
     .candidate-card.selected {
         border-color: #3A7BDF;
         box-shadow: 0px 0px 12px rgba(58, 123, 223, 0.35);
@@ -271,6 +277,7 @@ if (!$session->has('user')) {
         background: #e4e6ea;
     }
 
+    #valider-choix .active,
     .candidate-card.selected .select-btn {
         background: #3a7bdf;
         color: white;
@@ -300,28 +307,105 @@ if (!$session->has('user')) {
     }
 </style>
 <script>
-    document.querySelectorAll(".vote-group").forEach(group => {
-        const cards = group.querySelectorAll(".candidate-card");
 
-        cards.forEach(card => {
-            card.addEventListener("click", () => {
+</script>
+<script>
+    function slugify(str) {
+        return str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    }
 
-                // Remove selection from others
-                cards.forEach(c => {
-                    c.classList.remove("selected");
-                    c.querySelector(".select-btn").textContent = "Sélectionner";
+    function redirect_unauthorized() {
+        fetch('/redirect/votes/index', {
+                method: "POST",
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                body: JSON.stringify({
+                    'url': '/votes/index',
+                    'statusCode': 401
+                })
+            })
+            .then(res => {
+                if (res.status === 401) { //UNAUTHORIZED
+                    return res.json().then(data => {
+                        window.location.href = data.url;
+                    });
+                }
+                return res.json();
+            });
+    }
+</script>
+<script>
+    //let memoire = [];
+    const memoire = new Map();
+
+    const btn_choix = document.getElementById('valider-choix');
+
+    document.querySelectorAll(".post-cards").forEach(
+        group => {
+            const cards = group.querySelectorAll(".candidate-card");
+            console.log('cards: ', cards);
+            console.log('groups: ', group);
+            cards.forEach(card => {
+                card.addEventListener("click", () => {
+
+                    // Remove selection from others
+                    cards.forEach(c => {
+                        c.classList.remove("selected");
+                        c.querySelector(".select-btn").textContent = "Sélectionner";
+                    });
+
+                    // Add selection to clicked
+                    card.classList.add("selected");
+                    card.querySelector(".select-btn").textContent = "Sélectionné ✓";
+
+                    // Save choice
+                    const groupName = group.dataset.group;
+                    const candidateId = card.dataset.candidate;
+                    const postId = group.dataset.idPoste;
+                    const participantId = group.dataset.participantId;
+
+                    /* memoire[slugify(groupName)] = {
+                        postId: postId,
+                        candidateId: candidateId
+                    }; */
+
+                    memoire.set(slugify(groupName), { postId: postId, candidateId: candidateId });
+
+
+                    console.log(`Choix enregistré : poste = ${groupName}, candidat = ${candidateId}, poste= ${postId}`);
+
+                    if (memoire.size == 1) {
+                        btn_choix.classList.add('active')
+                        console.log('hello');
+                        console.log('btn', btn_choix);
+                        btn_choix.addEventListener('click', () => {
+                            //console.log('memoire: ', memoire, Object.keys(memoire).length);
+                            console.log(typeof memoire);
+                            const objMemoire = Object.fromEntries(memoire);
+                            fetch('../participant/vote', {
+                                    method: 'POST',
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        memoire: objMemoire,
+                                        participantId: participantId
+                                    })
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+
+                                })
+                                .catch(err => console.error(err));
+                        });
+                    }
                 });
-
-                // Add selection to clicked
-                card.classList.add("selected");
-                card.querySelector(".select-btn").textContent = "Sélectionné ✓";
-
-                // Save choice
-                const groupName = group.dataset.group;
-                const candidateId = card.dataset.candidate;
-
-                console.log(`Choix enregistré : poste = ${groupName}, candidat = ${candidateId}`);
             });
         });
-    });
 </script>

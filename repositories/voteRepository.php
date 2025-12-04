@@ -5,9 +5,9 @@ use Database\Database;
 use PDO;
 use PDOException;
 
-require_once dirname(__DIR__) . '/config/database.php';
+require_once dirname(__DIR__) . '/Database/database.php';
 
-class Vote
+class voteRepository
 {
     private $db;
 
@@ -119,4 +119,7 @@ class Vote
         return $result['total'];
     }
 
+    public function rollback(){
+        $this->db->rollBack();
+    }
 }

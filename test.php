@@ -1,5 +1,6 @@
 <?php
 $_SESSION['user'] = [
+    'id',
     'nom',
     'email',
     'a_vote',
