@@ -52,7 +52,7 @@ class Response
     }
 
 
-    public static function json($data, CODE_RESPONSE $statusCode = CODE_RESPONSE::OK)
+    public static function json(array $data, CODE_RESPONSE $statusCode = CODE_RESPONSE::OK)
     {
         http_response_code($statusCode->value);
 

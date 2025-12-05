@@ -771,7 +771,8 @@ if ($session->has('user')) {
                                 })
                                 .then(res => res.json())
                                 .then(data => {
-
+                                    //Implementé la notif de vote reussit
+                                    window.location.href = data.url;
                                 })
                                 .catch(err => console.error(err));
                         });

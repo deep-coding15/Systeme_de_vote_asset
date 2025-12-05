@@ -43,6 +43,10 @@ class CandidatController
         Response::render('candidats/vote', ['titre' => 'Candidats - ASSET 2025', 'postes' => $postes]);
     }
 
+    public function voteCandidats(){
+        
+    }
+
     /**
      * Voir un candidat
      */

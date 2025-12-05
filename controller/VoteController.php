@@ -2,6 +2,7 @@
 
 namespace Controller;
 
+use Core\CODE_RESPONSE;
 use Core\Response;
 use Exception;
 use Repositories\voteRepository;
@@ -21,17 +22,21 @@ class VoteController
             $data = json_decode($json, true);
 
             error_log("Données reçues : " . print_r($data, true));
-
-            if(!isset($data['president'], $data['vice-president'], $data['secretaire-general'], $data['tresorier'], $data['participantId'])){
+            $participantId = $data['participantId']; 
+            $data = $data['memoire'];
+            if(!isset($data['president'], $data['vice-president'], $data['secretaire-general'], $data['tresorier'])){
+                error_log("Données reçues dans if: " . print_r($data, true));
                 return;
             }
+            //error_log("Données reçues hors de if : " . print_r($data, true));
+           
+            
 
-            $participantId = $data['participant_id']; 
-            unset($data['participant_id']);
+            unset($data['participantId']);
 
             foreach ($data as $key => $value) {
                 $postId = $data[$key]['postId'];
-                $candidatId = $data[$key]['candidatId'];
+                $candidatId = $data[$key]['candidateId'];
                 
                 $this->voteRepository->insert([
                     'id_participant' => $participantId, 
@@ -39,6 +44,7 @@ class VoteController
                     'id_poste' => $postId
                 ]);
             }
+            return Response::json(["message" => "vote effectué", "url" => "/"], CODE_RESPONSE::CREATED);
 
         }
         catch(Exception $error){
