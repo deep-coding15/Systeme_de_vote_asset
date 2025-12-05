@@ -47,6 +47,7 @@ class ParticipantController
         $nom = $_POST['nom'] ?? '';
         $prenom = $_POST['prenom'] ?? '';
         $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
         $code_qr = 'QR-' . random_int(100, 1000);
         $phone = $_POST['phone'] ?? '';
         $type_document = $_POST['type_document'] ?? '';
@@ -88,6 +89,7 @@ class ParticipantController
             'nom',
             'prenom',
             'email',
+            'password',
             'code_qr',
             'phone',
             'type_document',
@@ -120,6 +122,51 @@ class ParticipantController
         ]);
 
         error_log("✔️ Participant inséré et session créée.");
+        return Response::redirect('/candidats/vote');
+    }
+    
+    public function login()
+    {
+        // === Vérification méthode HTTP ===
+        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+            error_log("❌ Mauvaise méthode HTTP : " . $_SERVER['REQUEST_METHOD']);
+            Response::redirect('/403', statusCode: CODE_RESPONSE::FORBIDDEN);
+            exit;
+        }
+
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+         
+        // === Données à insérer ===
+        $data = compact(
+            'email',
+            'password',
+        );
+
+        error_log("📦 Données envoyées au repository : " . print_r($data, true));
+
+        // === Tentative d’insertion ===
+        $participant = $this->participantRepository->login($data);
+
+        if (!$participant) {
+            error_log("❌ Échec insertion participant.");
+            return Response::redirect('/votes');
+        }
+        extract($participant);
+
+        // === Succès ===
+        global $session;
+        $session->set('user', [
+            'id' => $participant['id'],
+            'nom' => $nom,
+            'prenom' => $prenom,
+            'email' => $email,
+            'est_valide' => $est_valide,
+            'a_vote' => $a_vote,
+            'code_qr' => $code_qr,
+        ]);
+
+        error_log("✔️ Participant connecte et session créée.");
         return Response::redirect('/candidats/vote');
     }
 

@@ -39,25 +39,36 @@ class participantRepository
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function findByEmail($email)
+    {
+        $sql = "SELECT * FROM participant WHERE email = :email";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(":email", $email, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     /**
      * Insérer un nouveau candidat
      */
     public function insert($data)
     {
-        $sql = "INSERT INTO participant (nom, prenom, email, code_qr, phone, type_document, numero_document, photo_document, est_valide, a_vote, date_inscription)
-                VALUES (:nom, :prenom, :email, :code_qr, :phone, :type_document, :numero_document, :photo_document, :est_valide, :a_vote, NOW())";
+        $data['password_hash'] = '1234'; //Juste pour le test
+
+        $sql = "INSERT INTO participant (nom, prenom, email, password_hash, code_qr, phone, type_document, numero_document, photo_document, est_valide, a_vote, date_inscription)
+                VALUES (:nom, :prenom, :email, :password_hash, :code_qr, :phone, :type_document, :numero_document, :photo_document, :est_valide, :a_vote, NOW())";
         $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(":nom", $data['nom']);
-        $stmt->bindParam(":prenom", $data['prenom']);
-        $stmt->bindParam(":email", $data['email']);
-        $stmt->bindParam(":code_qr", $data['code_qr']);
-        $stmt->bindParam(":phone", $data['phone']);
-        $stmt->bindParam(":type_document", $data['type_document']);
-        $stmt->bindParam(":numero_document", $data['numero_document']);
-        $stmt->bindParam(":photo_document", $data['photo_document']);
-        $stmt->bindParam(":est_valide", $data['est_valide']);
-        $stmt->bindParam(":a_vote", $data['a_vote']);
+        $stmt->bindParam(":nom", $data['nom'], PDO::PARAM_STR);
+        $stmt->bindParam(":prenom", $data['prenom'], PDO::PARAM_STR);
+        $stmt->bindParam(":email", $data['email'], PDO::PARAM_STR);
+        $stmt->bindParam(":password_hash", $data['password'], PDO::PARAM_STR);
+        $stmt->bindParam(":code_qr", $data['code_qr'], PDO::PARAM_STR);
+        $stmt->bindParam(":phone", $data['phone'], PDO::PARAM_STR);
+        $stmt->bindParam(":type_document", $data['type_document'], PDO::PARAM_STR);
+        $stmt->bindParam(":numero_document", $data['numero_document'], PDO::PARAM_STR);
+        $stmt->bindParam(":photo_document", $data['photo_document'], PDO::PARAM_STR);
+        $stmt->bindParam(":est_valide", $data['est_valide'], PDO::PARAM_BOOL);
+        $stmt->bindParam(":a_vote", $data['a_vote'], PDO::PARAM_BOOL);
         
         // Exécute l'insertion
         if ($stmt->execute()) {
@@ -68,15 +79,34 @@ class participantRepository
         // En cas d'échec
         return false;
     }
+    public function login($data)
+    {
+        //$data['password_hash'] = '1234'; //Juste pour le test
+        $participant = $this->findByEmail($data['email']);
+        error_log(print_r($participant, true));
+        if($participant['password_hash'] === $data['password'])
+            return $participant;
+        return false;
+        
+    }
 
     /**
      * Modifier les informations d’un candidat
      */
     public function update($id, $data)
     {
+        $participant = $this->findById($id);
+        
+        if (!$participant) {
+            return false;
+        }
+
+        $data = array_merge($participant, $data);
+        $data['date_inscription'] = $data['date_inscription'] ?? new \DateTime();
+
         $sql = "UPDATE participant 
                 SET nom = :nom, prenom = :prenom, email = :email, code_qr = :code_qr, 
-                    est_valide = :est_valide, a_vote = :a_vote, date_inscription = NOW()
+                    est_valide = :est_valide, a_vote = :a_vote, date_inscription = :date_inscription
                 WHERE id_participant = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(":nom", $data['nom']);
@@ -87,7 +117,11 @@ class participantRepository
         $stmt->bindParam(":a_vote", $data['a_vote']);
         $stmt->bindParam(":date_inscription", $data['date_inscription']);
         $stmt->bindParam(":id", $id);
-        return $stmt->execute();
+        
+        if (!$stmt->execute()) {
+            return false;
+        }
+        return $stmt->rowCount();
     }
 
     /**
@@ -98,7 +132,10 @@ class participantRepository
         $sql = "DELETE FROM participant WHERE id_participant = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(":id", $id, PDO::PARAM_INT);
-        return $stmt->execute();
+        if (!$stmt->execute()) {
+            return false;
+        }
+        return $stmt->rowCount();
     }
 
     /**

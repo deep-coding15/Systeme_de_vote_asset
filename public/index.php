@@ -33,10 +33,16 @@ get('/redirect', [Controller::class, 'redirect']);
 get('/candidats', [CandidatController::class, 'index']);
 
 // Participants : OKAY
-get('/votes', function(){
-    Response::render('/votes/index', ['titre' => 'Voter - ASSET 2025']);
+get('/votes/auth', function(){
+    Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
 });
+get('/votes', function(){
+    Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
+});
+
+
 post('/participants/add', [ParticipantController::class, 'store']);
+post('/participants/login', [ParticipantController::class, 'login']);
 get('/candidats/vote', [CandidatController::class, 'vote']);
 post('/candidats/vote', [CandidatController::class, 'vote']);
 

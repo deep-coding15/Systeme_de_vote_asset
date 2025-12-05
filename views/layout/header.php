@@ -1,4 +1,7 @@
-<?php use Core\Session;
+<?php
+
+use Core\Session;
+
 require_once __DIR__ . '/../../core/Session.php';
 $session = new Session();
 ?>
@@ -8,12 +11,12 @@ $session = new Session();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php if(isset($_GET['titre'])) $titre = $_GET['titre'] ?? "ASEET";?>
+    <?php if (isset($_GET['titre'])) $titre = $_GET['titre'] ?? "ASSET"; ?>
     <title><?= $titre ?></title>
     <style>
         :root {
             /* ================================================
-     COULEURS PRINCIPALES — Identité ASEET
+     COULEURS PRINCIPALES — Identité ASSET
   ================================================= */
             --navy: #072F59;
             /* Couleur corporate principale — Titres importants, header, sections clés */
@@ -121,7 +124,7 @@ $session = new Session();
             --radius-lg: 16px;
             /* Sections arrondies, grosses cartes */
             --radius-xl: 22px;
-            /* Design premium pour le site ASEET */
+            /* Design premium pour le site ASSET */
 
         }
 
@@ -261,6 +264,145 @@ $session = new Session();
             height: 20px;
         }
 
+        /* ===============================
+   TOPBAR ÉLECTIONS
+=============================== */
+        .ASSET-topbar {
+            background: var(--navy);
+            color: white;
+            padding: 6px 20px;
+            font-size: 14px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--gray-bg-muted);
+            font-family: var(--font-sans);
+        }
+
+        .topbar-right .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* ===============================
+   HEADER PRINCIPAL ASSET
+=============================== */
+        .asset-header {
+            padding: 25px 40px;
+            background: var(--bg-main);
+            display: flex;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .asset-logo {
+            width: 90px;
+            height: auto;
+            border-radius: var(--radius-md);
+        }
+
+        .asset-title-block {
+            text-align: left;
+        }
+
+        .asset-title {
+            font-family: var(--font-serif);
+            font-size: 28px;
+            font-weight: var(--fw-bold);
+            color: var(--navy);
+            margin-bottom: 4px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .asset-title::after {
+            content: "";
+            display: block;
+            width: 45px;
+            height: 2px;
+            background: var(--gold);
+            margin-top: 6px;
+        }
+
+        .asset-subtitle {
+            color: var(--gray-muted);
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        .asset-values {
+            font-family: var(--font-serif);
+            margin-top: 15px;
+            color: var(--navy-light);
+            letter-spacing: 2px;
+            font-size: 13px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .asset-values .dot {
+            color: var(--gold-dark);
+        }
+
+        /* Ligne séparatrice */
+        .asset-header-divider {
+            border: none;
+            border-top: 1px solid var(--gray-borders);
+            margin: 0 0 15px 0;
+            opacity: 0.4;
+        }
+
+        /* ===============================
+   NAVIGATION
+=============================== */
+        .asset-nav {
+            display: flex;
+            gap: 25px;
+            padding: 10px 40px 20px 40px;
+            background: var(--bg-main);
+            border-bottom: 1px solid var(--gray-borders);
+            font-family: var(--font-sans);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gold-dark);
+            font-size: 14px;
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .nav-item:hover {
+            background: var(--gray-bg-muted);
+            color: var(--navy);
+        }
+
+        /* Onglet actif */
+        .nav-active {
+            background: var(--navy);
+            color: white !important;
+            font-weight: var(--fw-semibold);
+        }
+
+
         /* ================================================
      MAIN CONTENT
   ================================================= */
@@ -355,28 +497,58 @@ $session = new Session();
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 </head>
 
 <body>
-    <header>
-        <div class="logo-section">
-            <img src="logo_asset.png" alt="logo ASSET">
-            <div class="logo-text">
-                <h1>ASSET</h1>
-                <p>Association des Étudiants et Stagiaires de Tétouan</p>
-            </div>
+
+    <!-- Bandeau supérieur -->
+    <div class="asset-topbar">
+        <div class="topbar-right">
+            <span class="dot"></span>
+            <span>Élections Officielles 2025</span>
         </div>
-        <div class="profile-section">
-            <img src="photo_avatar.png" alt="photo avatar">
-            <span>Profile</span>
+    </div>
+
+    <!-- Header principal -->
+    <header class="asset-header">
+        <div class="header-left">
+            <img src="logo.png" alt="Logo ASSET" class="asset-logo">
+
+            <div class="asset-title-block">
+                <h1 class="asset-title">ASSET</h1>
+                <p class="asset-subtitle">Association des Étudiants et Stagiaires de Tétouan</p>
+
+                <div class="asset-values">
+                    <span>FRATERNITÉ</span>
+                    <span class="dot">•</span>
+                    <span>DISCIPLINE</span>
+                    <span class="dot">•</span>
+                    <span>TRAVAIL</span>
+                </div>
+            </div>
         </div>
     </header>
 
-    <nav>
-        <a href="<?= BASE_URL ?>/" class="nav-btn outline">🏠 Accueil</a>
-        <a href="<?= BASE_URL ?>/candidats" class="nav-btn outline">👥 Candidats</a>
-        <a href="<?= BASE_URL ?>/votes" class="nav-btn outline">☑️ Voter</a>
-        <a href="<?= BASE_URL ?>/resultats" class="nav-btn primary">📊 Résultats</a>
+    <hr class="asset-header-divider">
+
+    <!-- Navigation -->
+    <nav class="asset-nav">
+        <a href="<?= BASE_URL ?>/" class="nav-btn outline nav-item">
+            <i class="icon">🏠</i> Accueil
+        </a>
+
+        <a href="<?= BASE_URL ?>/candidats" class="nav-btn outline nav-item">
+            <i class="icon">👥</i> Candidats
+        </a>
+
+        <a href="<?= BASE_URL ?>/votes" class="nav-btn outline nav-item">
+            <i class="icon">🗳️</i> Voter
+        </a>
+
+        <a href="<?= BASE_URL ?>/resultats" class="nav-btn primary nav-item nav-active">
+            <i class="icon">📊</i> Résultats
+        </a>
     </nav>
 
     <main>

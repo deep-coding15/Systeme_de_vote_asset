@@ -72,7 +72,14 @@ class CandidatRepository
         $stmt->bindParam(":photo", $data['photo'], PDO::PARAM_STR);
         $stmt->bindParam(":id_equipe", $data['id_equipe'], PDO::PARAM_INT);
         $stmt->bindParam(":id_poste", $data['id_poste'], PDO::PARAM_INT);
-        return $stmt->execute();
+
+        if ($stmt->execute()) {
+            // Retourne l'ID inséré
+            return $this->db->lastInsertId();
+        }
+
+        // En cas d'échec
+        return false;
     }
 
     /**
@@ -80,6 +87,20 @@ class CandidatRepository
      */
     public function update($id, $data)
     {
+        $candidat = $this->findById($id);
+
+        if (!$candidat) {
+            return false;
+        }
+
+        /* if($candidat){
+            foreach ($candidat as $key => $value) {
+                $data[$key] = $data[$key] ?? $value;
+            }
+        } */
+
+        $data = array_merge($candidat, $data);
+
         $sql = "UPDATE candidat
                 SET nom = :nom, prenom = :prenom, description = :description, email = :email, photo = :photo, id_equipe = :id_equipe, id_poste = :id_poste, updated_at = NOW()
                 WHERE id_candidat = :id";
@@ -91,8 +112,12 @@ class CandidatRepository
         $stmt->bindParam(":photo", $data['photo'], PDO::PARAM_STR);
         $stmt->bindParam(":id_equipe", $data['id_equipe'], PDO::PARAM_INT);
         $stmt->bindParam(":id_poste", $data['id_poste'], PDO::PARAM_INT);
-        $stmt->bindParam(":id", $id);
-        return $stmt->execute();
+        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+
+        if (!$stmt->execute()) {
+            return false;
+        }
+        return $stmt->rowCount();
     }
 
     /**
@@ -212,14 +237,14 @@ class CandidatRepository
 
             // Ajouter expérience
             if ($row['experience']) {
-                if(!in_array($row['experience'], $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['experiences']))
+                if (!in_array($row['experience'], $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['experiences']))
                     $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['experiences'][] =
                         $row['experience'];
             }
 
             // Ajouter priorité
             if ($row['priorite']) {
-                if(!in_array($row['priorite'], $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['priorites']))
+                if (!in_array($row['priorite'], $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['priorites']))
                     $grouped[$equipeId]['postes'][$posteId]['candidats'][$candidatId]['priorites'][] =
                         $row['priorite'];
             }
@@ -254,20 +279,20 @@ class CandidatRepository
             $posteId = $row['id_poste'];
             $candidatId = $row['id_candidat'];
 
-            // Initialiser le poste
+            // Initialiser le POSTE
             if (!isset($grouped[$posteId])) {
                 $grouped[$posteId] = [
-                    'id' => $equipeId,
-                    'logo' => $row['logo_equipe'],
+                    'id' => $posteId,
                     'intitule' => $row['poste'],
                     'equipes' => []
                 ];
             }
 
-            // Initialiser le poste
+            // Initialiser l'EQUIPE dans le POSTE
             if (!isset($grouped[$posteId]['equipes'][$equipeId])) {
                 $grouped[$posteId]['equipes'][$equipeId] = [
                     'id' => $equipeId,
+                    'logo' => $row['logo_equipe'],
                     'nom' => $row['nom_equipe'],
                     'candidats' => []
                 ];
@@ -290,14 +315,14 @@ class CandidatRepository
 
             // Ajouter expérience
             if ($row['experience']) {
-                if(!in_array($row['experience'], $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId]['experiences']))
+                if (!in_array($row['experience'], $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId]['experiences']))
                     $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId]['experiences'][] =
                         $row['experience'];
-            }//$grouped[$posteId]['equipes'][$equipeId]
+            } //$grouped[$posteId]['equipes'][$equipeId]
 
             // Ajouter priorité
             if ($row['priorite']) {
-                if(!in_array($row['priorite'], $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId]['priorites']))
+                if (!in_array($row['priorite'], $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId]['priorites']))
                     $grouped[$posteId]['equipes'][$equipeId]['candidats'][$candidatId]['priorites'][] =
                         $row['priorite'];
             }
