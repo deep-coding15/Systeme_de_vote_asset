@@ -157,7 +157,7 @@ class ParticipantController
         // === Succès ===
         global $session;
         $session->set('user', [
-            'id' => $participant['id'],
+            'id' => $participant['id_participant'],
             'nom' => $nom,
             'prenom' => $prenom,
             'email' => $email,

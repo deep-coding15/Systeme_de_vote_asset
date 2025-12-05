@@ -40,6 +40,12 @@ get('/votes', function(){
     Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
 });
 
+get('/resultats/test', function(){
+    Response::render('/resultats/test', ['titre' => 'Resultats — ASSET Vote']);
+});
+get('/votes/waiting', function(){
+    Response::render('/votes/waiting', ['titre' => 'Waiting — ASSET Vote']);
+});
 
 post('/participants/add', [ParticipantController::class, 'store']);
 post('/participants/login', [ParticipantController::class, 'login']);

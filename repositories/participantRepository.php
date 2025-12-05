@@ -69,7 +69,7 @@ class participantRepository
         $stmt->bindParam(":photo_document", $data['photo_document'], PDO::PARAM_STR);
         $stmt->bindParam(":est_valide", $data['est_valide'], PDO::PARAM_BOOL);
         $stmt->bindParam(":a_vote", $data['a_vote'], PDO::PARAM_BOOL);
-        
+
         // Exécute l'insertion
         if ($stmt->execute()) {
             // Retourne l'ID inséré
@@ -84,10 +84,9 @@ class participantRepository
         //$data['password_hash'] = '1234'; //Juste pour le test
         $participant = $this->findByEmail($data['email']);
         error_log(print_r($participant, true));
-        if($participant['password_hash'] === $data['password'])
+        if ($participant['password_hash'] === $data['password'])
             return $participant;
         return false;
-        
     }
 
     /**
@@ -96,7 +95,7 @@ class participantRepository
     public function update($id, $data)
     {
         $participant = $this->findById($id);
-        
+
         if (!$participant) {
             return false;
         }
@@ -117,6 +116,34 @@ class participantRepository
         $stmt->bindParam(":a_vote", $data['a_vote']);
         $stmt->bindParam(":date_inscription", $data['date_inscription']);
         $stmt->bindParam(":id", $id);
+
+        if (!$stmt->execute()) {
+            return false;
+        }
+        return $stmt->rowCount();
+    }
+
+    public function update_a_vote(int $id_participant)
+    {
+        $participant = $this->findById($id_participant);
+
+        if (!$participant) {
+            return false;
+        }
+
+        if (!$participant['est_valide']) {
+            return false;
+        }
+
+        $sql = "UPDATE participant 
+                SET a_vote = :a_vote
+                WHERE id_participant = :id";
+
+        $a_vote = 1;
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(":id", $id_participant, PDO::PARAM_STR);
+        $stmt->bindParam(":a_vote", $a_vote, PDO::PARAM_INT);
         
         if (!$stmt->execute()) {
             return false;

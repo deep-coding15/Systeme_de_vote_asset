@@ -36,6 +36,7 @@ $session = new Session();
             --gray-muted: #3C4350;
             /* Texte secondaire — Sous-titres, infos complémentaires */
             --gray-tertiary: #4A5568;
+            --gray-text: #555;
             /* Texte tertiaire — Placeholders, petites indications */
             --gray-bg-secondary: #E8EAED;
             /* Arrière-plan secondaire — Sections légères, tableaux */
@@ -126,6 +127,10 @@ $session = new Session();
             --radius-xl: 22px;
             /* Design premium pour le site ASSET */
 
+            --green: #2ecc71;
+            --green-dark: #239b56;
+            --blue: #3498db;
+            --blue-dark: #2c81ba;
         }
 
         /* ================================================

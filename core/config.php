@@ -17,6 +17,8 @@ define('DB_HOST', 'localhost');
 define('DB_NAME', 'systeme_vote_aseet');
 define('DB_USER', 'root');
 define('DB_PASS', '');
+define('BOOL_TRUE', true);
+define('BOOL_FALSE', false);
 
 $serverName = DB_HOST;
 $bdName = DB_NAME;

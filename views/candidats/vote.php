@@ -6,28 +6,26 @@ use Core\CODE_RESPONSE;
 
 $session = new Session();
 
-/* if (!$session->has('user')) { ?>
-    <script>
-        redirect_unauthorized()
-    </script> */
-/* <?php
-} */
-
-/* if(isset($_POST)){
-    echo 'post: ';
-    echo '<pre>';
-    print_r($_POST);
-    echo '</pre>';
-} */
-
 if ($session->has('user')) {
     echo 'session: ';
     echo '<pre>';
     //$session->get('user');
     print_r($session->getAll());
     echo '</pre>';
+    $user = $session->get('user');
+    if ($user['a_vote']) {
+        $url = BASE_URL . '/votes/waiting';
+        header('Location: ' . $url);
+    }
 }
-?>
+
+if (!$session->has('user')) { ?>
+    <script>
+        redirect_unauthorized()
+    </script> */
+<?php } ?>
+
+
 <style>
     /* === TOP BAR & ALERT === */
     .top-bar {
@@ -392,6 +390,7 @@ if ($session->has('user')) {
         }
     }
 </style>
+
 <div class="top-bar">
     <button class="verified-btn">✔ Identité vérifiée ✓</button>
 </div>
@@ -403,8 +402,8 @@ if ($session->has('user')) {
         <div class="security-title"></div>
         <div class="security-text">
             <span class="icon">ℹ</span>
-            Sélectionnez un candidat pour chaque poste du bureau exécutif. 
-             Votre vote est définitif et ne pourra pas être modifié après confirmation.
+            Sélectionnez un candidat pour chaque poste du bureau exécutif.
+            Votre vote est définitif et ne pourra pas être modifié après confirmation.
         </div>
     </div>
 </div>
@@ -414,13 +413,14 @@ if ($session->has('user')) {
     <!-- <form action="" method="post"> -->
     <?php
     /* echo '<pre>';
-            print_r($postes);
-        echo '</pre>'; */
+    print_r($postes);
+    echo '</pre>'; */
     foreach ($postes as $idPoste => $pos): ?>
         <section id="poste-<?= $idPoste ?>" class="poste">
             <!-- Postes -->
             <h2 class="post-title"><?= htmlspecialchars($pos['intitule']) ?></h2>
-            <div class="post-cards" data-id-poste="<?= $idPoste ?>" data-group="<?= $pos['intitule'] ?>" data-group-id="<?= $pos['id'] ?>" data-participant-id="<?= $session->get('user')['id'] ?>">
+            <div class="post-cards" data-id-poste="<?= $idPoste ?>" data-poste-name="<?= $pos['intitule'] ?>"
+                data-participant-id="<?= $session->get('user')['id'] ?>">
                 <!-- <div class="candidats-poste"> -->
                 <?php foreach ($pos['equipes'] as $idEquipe => $eq): ?>
 
@@ -459,9 +459,10 @@ if ($session->has('user')) {
                                 </div>
                             </div>
 
-                            <input type="hidden" class="select-btn" name="id-candidat-<?= $idCandidat ?>" value="<?= $idCandidat ?>">
+                            <!-- <input type="hidden" class="select-btn" name="id-candidat-<?= $idCandidat ?>" value="<?= $idCandidat ?>">
                             <input type="hidden" class="select-btn" name="id-poste-<?= $idPoste ?>" value="<?= $idPoste ?>" data-id-candidat="<?= $c['id'] ?>">
-                            <button type="button" class="select-btn" data-id-poste="<?= $idPoste ?>" data-id-candidat="<?= $c['id'] ?>">Sélectionner</button>
+                             -->
+                            <button type="button" class="select-btn" data-equipe-id="<?= $idEquipe ?>" data-equipe-nom="<?= $eq['nom'] ?>" data-id-poste="<?= $idPoste ?>" data-id-candidat="<?= $c['id'] ?>" data-candidat-nom="<?= $c['nom'] ?> <?= $c['prenom'] ?>">Sélectionner</button>
                         </div>
                     <?php endforeach; ?>
                 <?php endforeach; ?>
@@ -474,209 +475,158 @@ if ($session->has('user')) {
     </form>
 </div>
 
+<style>
+    /* ===================== */
+    /* POPUP STYLES ASEET     */
+    /* ===================== */
 
-</div>
-<!-- <style>
-    .first {
-        text-align: center;
-        margin-bottom: 20px;
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        backdrop-filter: blur(2px);
+        background: rgba(0, 0, 0, 0.25);
+        z-index: 50;
     }
 
-    /* --- Bar / Alert --- */
-    .top-bar {
+    .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 520px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.18);
+        z-index: 100;
+        overflow: hidden;
+        font-family: var(--font-sans);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    /* TITLE */
+    .modal-header {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 22px 26px;
+        color: var(--gray-foreground);
+        border-bottom: 1px solid var(--gray-borders);
+    }
+
+    /* CONTENT */
+    .modal-body {
+        padding: 22px 26px;
+    }
+
+    .modal-info {
+        color: var(--gray-muted);
+        margin-bottom: 14px;
+    }
+
+    .votes-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 22px;
+    }
+
+    .votes-list li {
+        margin-bottom: 8px;
+        font-size: 1rem;
+    }
+
+    .votes-list li span.role {
+        font-weight: 700;
+        color: var(--gray-foreground);
+    }
+
+    .votes-list li span.name {
+        font-weight: 500;
+        color: var(--gray-foreground);
+    }
+
+    .votes-list li span.team {
+        font-weight: 400;
+        color: var(--gray-muted);
+    }
+
+    /* WARNING */
+    .modal-warning {
+        color: var(--gray-muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* FOOTER BUTTONS */
+    .modal-footer {
         display: flex;
         justify-content: flex-end;
+        padding: 18px 26px;
+        gap: 12px;
+        background: var(--gray-bg-muted);
+        border-top: 1px solid var(--gray-borders);
     }
 
-    .verified-btn {
-        background: #e9fbe9;
-        color: #1f7e1f;
-        border: 1px solid #bfe7bf;
-        padding: 8px 16px;
-        border-radius: 8px;
-    }
-
-    .alert {
-        background: #f2f5fc;
-        border: 1px solid #d7dceb;
-        padding: 12px 15px;
-        border-radius: 10px;
-        margin-left: 30px;
-        margin-right: 30px;
-        margin-bottom: 30px;
-    }
-
-    /* --- Cards Layout --- */
-
-    .cards-container {
-        display: block;
-        width: 95%;
-        margin: auto;
-    }
-
-    /* --- Conteneur des cartes pour un poste --- */
-    .poste {
-        margin: 20px;
-        margin-top: 60px;
-        margin-bottom: 80px;
-    }
-
-    .post-title {
-        text-decoration: underline;
-        text-align: center;
-        color: #FF6B6B;
-    }
-
-    .post-cards {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 40px;
-        width: 80%;
-        margin: auto;
-        /* espace entre candidats */
-        align-items: stretch;
-    }
-
-    /* --- Candidate Cards --- */
-
-    .candidate-card {
+    .btn-cancel {
         background: white;
-        width: 31%;
-        width: 400px;
-        padding: 22px;
-        border-radius: 14px;
-        border: 2px solid transparent;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.06);
-        transition: 0.25s;
+        border: 1px solid var(--gray-borders);
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--gray-foreground);
+    }
+
+    .btn-cancel:hover {
+        background: var(--gray-bg-secondary);
+    }
+
+    .btn-confirm {
+        background: var(--gold);
+        border: 1px solid var(--gold-dark);
+        padding: 10px 22px;
+        color: white;
+        font-weight: 600;
+        border-radius: 6px;
         cursor: pointer;
     }
 
-    .selected,
-    .candidate-card.selected {
-        border-color: #3A7BDF;
-        box-shadow: 0px 0px 12px rgba(58, 123, 223, 0.35);
-        transform: scale(1.02);
+    .btn-confirm:hover {
+        background: var(--gold-dark);
     }
+</style>
 
-    /* --- Card Header --- */
+<div id="vote-modal-overlay" class="modal-overlay hidden"></div>
 
-    .header {
-        display: flex;
-        gap: 16px;
-    }
+<div id="vote-modal" class="modal hidden">
+    <div class="modal-header">
+        Confirmer vos votes
+    </div>
 
-    .avatar {
-        width: 85px;
-        height: 85px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
+    <div class="modal-body">
+        <p class="modal-info">Vous êtes sur le point de voter pour :</p>
 
-    .badge {
-        color: white;
-        font-size: 12px;
-        padding: 3px 7px;
-        border-radius: 8px;
-    }
+        <ul id="votes-summary" class="votes-list">
+            <!-- Contenu généré dynamiquement -->
+        </ul>
 
-    .red {
-        background: #d9534f;
-    }
+        <p class="modal-warning">
+            Cette action est définitive et ne pourra pas être annulée.<br>
+            Voulez-vous vraiment confirmer ces votes ?
+        </p>
+    </div>
 
-    .blue {
-        background: #3f7bd8;
-    }
+    <div class="modal-footer">
+        <button id="cancel-votes" class="btn-cancel">Annuler</button>
+        <button id="confirm-votes" class="btn-confirm">Confirmer mes votes</button>
+    </div>
+</div>
 
-    .green {
-        background: #28a745;
-    }
 
-    .red-text {
-        color: #c0392b;
-    }
-
-    .blue-text {
-        color: #316ad8;
-    }
-
-    .green-text {
-        color: #1e8a3b;
-    }
-
-    .tags {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .tag {
-        font-size: 11px;
-        padding: 4px 9px;
-        border-radius: 8px;
-        color: white;
-    }
-
-    .red-bg {
-        background: #d9534f;
-    }
-
-    .blue-bg {
-        background: #3f7bd8;
-    }
-
-    .green-bg {
-        background: #28a745;
-    }
-
-    /* --- Select Button --- */
-
-    .select-btn {
-        margin-top: 18px;
-        width: 100%;
-        padding: 10px;
-        border: none;
-        background: #f0f2f5;
-        border-radius: 8px;
-        transition: 0.2s;
-    }
-
-    .select-btn:hover {
-        background: #e4e6ea;
-    }
-
-    #valider-choix .active,
-    .candidate-card.selected .select-btn {
-        background: #3a7bdf;
-        color: white;
-    }
-
-    .priority-badge {
-        /* background: #ffd54f; */
-        background: #eee;
-        padding: 5px 10px;
-        border-radius: 10px;
-        font-size: 12px;
-    }
-
-    /* --- Ajustement responsive --- */
-
-    @media (max-width: 1100px) {
-        .candidate-card {
-            gap: 18px;
-        }
-    }
-
-    @media (max-width: 900px) {
-        .candidate-card {
-            flex-direction: column;
-            /* Les cartes passent en colonne */
-        }
-    }
-</style> -->
-<script>
-
-</script>
 <script>
     function slugify(str) {
         return str
@@ -721,7 +671,8 @@ if ($session->has('user')) {
             console.log('groups: ', group);
             cards.forEach(card => {
                 card.addEventListener("click", () => {
-
+                    const selectBtn = card.querySelector('.select-btn');
+                    console.log(selectBtn);
                     // Remove selection from others
                     cards.forEach(c => {
                         c.classList.remove("selected");
@@ -733,51 +684,110 @@ if ($session->has('user')) {
                     card.querySelector(".select-btn").textContent = "Sélectionné ✓";
 
                     // Save choice
-                    const groupName = group.dataset.group;
-                    const candidateId = card.dataset.candidate;
                     const postId = group.dataset.idPoste;
+                    const posteName = group.dataset.posteName;
+                    const candidateId = card.dataset.candidate;
+                    const equipeId = selectBtn.dataset.equipeId;
+                    const equipeNom = selectBtn.dataset.equipeNom;
+                    const candidateNom = selectBtn.dataset.candidatNom;
                     const participantId = group.dataset.participantId;
 
-                    /* memoire[slugify(groupName)] = {
+                    /* memoire[slugify(posteName)] = {
                         postId: postId,
                         candidateId: candidateId
                     }; */
 
-                    memoire.set(slugify(groupName), {
+                    memoire.set(slugify(posteName), {
                         postId: postId,
-                        candidateId: candidateId
+                        candidateId: candidateId,
+                        candidateNom: candidateNom,
+                        equipeNom: equipeNom
                     });
 
 
-                    console.log(`Choix enregistré : poste = ${groupName}, candidat = ${candidateId}, poste= ${postId}`);
+                    console.log(`Choix enregistré : poste = ${posteName}, candidat = ${candidateId}, poste= ${postId}`);
 
-                    if (memoire.size == 1) {
+                    if (memoire.size == 4) {
                         btn_choix.classList.add('active')
                         console.log('hello');
                         console.log('btn', btn_choix);
-                        btn_choix.addEventListener('click', () => {
-                            //console.log('memoire: ', memoire, Object.keys(memoire).length);
-                            console.log(typeof memoire);
-                            const objMemoire = Object.fromEntries(memoire);
-                            fetch('../participant/vote', {
-                                    method: 'POST',
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify({
-                                        memoire: objMemoire,
-                                        participantId: participantId
-                                    })
-                                })
-                                .then(res => res.json())
-                                .then(data => {
-                                    //Implementé la notif de vote reussit
-                                    window.location.href = data.url;
-                                })
-                                .catch(err => console.error(err));
+                        console.log(typeof memoire);
+                        const objMemoire = Object.fromEntries(memoire);
+
+                        openVoteModal(objMemoire, participantId);
+                        document.getElementById("confirm-votes").addEventListener("click", () => {
+                            vote(objMemoire, participantId);
+                            console.log("Votes confirmés !");
                         });
+                        console.log('donnes: ', objMemoire);
+                        console.log('partId: ', participantId);
+                        btn_choix.addEventListener('click', () => {
+                            vote(objMemoire, participantId
+                            );
+                        });
+
                     }
                 });
             });
         });
+
+    function vote(objMemoire, participantId) {
+        /* if (!Array.isArray(data))
+            return; */
+        fetch('../participant/vote', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    memoire: objMemoire,
+                    participantId: participantId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                //Implementé la notif de vote reussit
+                window.location.href = data.url;
+            })
+            .catch(err => {
+                console.error(err);
+                
+            });
+
+    }
+
+    function openVoteModal(choices, participantId) {
+        const overlay = document.getElementById("vote-modal-overlay");
+        const modal = document.getElementById("vote-modal");
+        const list = document.getElementById("votes-summary");
+
+        list.innerHTML = ""; // reset
+
+        for (const poste in choices) {
+
+            const c = choices[poste];
+
+            list.innerHTML += `
+            <li>
+                <span class="role">${poste}:</span>
+                <span class="name"> ${c.candidateNom} </span>
+                <span class="team"> (${c.equipeNom})</span>
+            </li>
+        `;
+        }
+
+
+        overlay.classList.remove("hidden");
+        modal.classList.remove("hidden");
+    }
+
+    document.getElementById("cancel-votes").addEventListener("click", () => {
+        document.getElementById("vote-modal-overlay").classList.add("hidden");
+        document.getElementById("vote-modal").classList.add("hidden");
+    });
+
+    document.getElementById("confirm-votes").addEventListener("click", () => {
+        document.getElementById("vote-modal-overlay").classList.add("hidden");
+        document.getElementById("vote-modal").classList.add("hidden");
+    });
 </script>
