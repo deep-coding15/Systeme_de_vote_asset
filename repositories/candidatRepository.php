@@ -330,4 +330,13 @@ class CandidatRepository
 
         return $grouped;
     }
+    public function getAllPostes() : array | null{
+        $sql = "SELECT id_poste, intitule FROM poste";
+        $stmt = $this->db->query($sql);
+        $result = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        if(!$result){
+            return null;
+        }
+        return $result;
+    }
 }

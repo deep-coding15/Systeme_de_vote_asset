@@ -412,9 +412,9 @@ if (!$session->has('user')) { ?>
     <!-- Contenu des équipes -->
     <!-- <form action="" method="post"> -->
     <?php
-    /* echo '<pre>';
+    echo '<pre>';
     print_r($postes);
-    echo '</pre>'; */
+    echo '</pre>';
     foreach ($postes as $idPoste => $pos): ?>
         <section id="poste-<?= $idPoste ?>" class="poste">
             <!-- Postes -->

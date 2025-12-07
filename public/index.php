@@ -43,6 +43,9 @@ get('/votes', function(){
 get('/resultats/test', function(){
     Response::render('/resultats/test', ['titre' => 'Resultats — ASSET Vote']);
 });
+get('/resultats/test2', function(){
+    Response::render('/resultats/test2', ['titre' => 'Resultats — ASSET Vote']);
+});
 get('/votes/waiting', function(){
     Response::render('/votes/waiting', ['titre' => 'Waiting — ASSET Vote']);
 });
@@ -70,6 +73,9 @@ post('/participant/vote', [VoteController::class, 'vote']);
 post('/vote/:poste/:candidat/:participant', [VoteController::class, 'store']);
 get('/resultats', [VoteController::class, 'results']);
 
+
+// API
+get('/api/candidats/poste', [CandidatController::class, 'candidatsPoste']);
 // Route introuvable
 any('/404', function () {
     http_response_code(404);

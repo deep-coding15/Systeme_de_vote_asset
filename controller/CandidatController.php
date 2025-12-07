@@ -121,4 +121,15 @@ class CandidatController
             "code" => CODE_RESPONSE::OK,
         ]);
     }
+
+    public function candidatsPoste(){
+        $postes = $this->candidatRepository->getCandidatsGroupedByPoste();
+        if (!$postes) {
+            return Response::json([
+                "postes" => $postes,
+                "message" => "Postes introuvable.",
+                "code" => CODE_RESPONSE::NOT_FOUND
+            ]);
+        }
+    }
 }

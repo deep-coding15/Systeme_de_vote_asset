@@ -6,10 +6,12 @@ use Core\CODE_RESPONSE;
 use Core\Response;
 use Core\Session;
 use Exception;
-use Repositories\participantRepository;
 use Repositories\voteRepository;
+use Repositories\candidatRepository;
+use Repositories\participantRepository;
 
 require_once __DIR__ . '/../repositories/voteRepository.php';
+require_once __DIR__ . '/../repositories/candidatRepository.php';
 require_once __DIR__ . '/../repositories/participantRepository.php';
 require_once __DIR__ . '/../core/Session.php';
 $session = new Session();
@@ -17,10 +19,12 @@ class VoteController
 {
     private $voteRepository;
     private $participantRepository;
+    private $candidatRepository;
     public function __construct()
     {
         $this->voteRepository = new voteRepository();
         $this->participantRepository = new participantRepository();
+        $this->candidatRepository = new candidatRepository();
     }
     public function vote()
     {
@@ -70,9 +74,88 @@ class VoteController
     {
         echo "Vote enregistré : poste=$poste, candidat=$candidat, participant=$participant";
     }
+function removeAccents($str) {
+    $unwanted = [
+        'Á'=>'A','À'=>'A','Â'=>'A','Ä'=>'A','á'=>'a','à'=>'a','ä'=>'a','â'=>'a',
+        'É'=>'E','È'=>'E','Ê'=>'E','Ë'=>'E','é'=>'e','è'=>'e','ê'=>'e','ë'=>'e',
+        'Í'=>'I','Ì'=>'I','Î'=>'I','Ï'=>'I','í'=>'i','ì'=>'i','î'=>'i','ï'=>'i',
+        'Ó'=>'O','Ò'=>'O','Ô'=>'O','Ö'=>'O','ó'=>'o','ò'=>'o','ô'=>'o','ö'=>'o',
+        'Ú'=>'U','Ù'=>'U','Û'=>'U','Ü'=>'U','ú'=>'u','ù'=>'u','û'=>'u','ü'=>'u',
+        'Ç'=>'C','ç'=>'c','Ñ'=>'N','ñ'=>'n', ' ' => '_', '-' => '_'
+    ];
+    return strtr($str, $unwanted);
+}
+
+    public function transformPosteData(array $posteData)
+{
+    $posteKey = strtolower($this->removeAccents($posteData['intitule'])); // ex : "président" -> "président"
+    
+    $result = [
+        $posteKey => [
+            "title" => ucfirst($posteData['intitule']),
+            "candidates" => []
+        ]
+    ];
+
+
+    foreach ($posteData['equipes'] as $equipe) {
+        foreach ($equipe['candidats'] as $candidat) {
+
+            $result[$posteKey]["candidates"][] = [
+                "id" => $candidat['id'],
+                "name" => $candidat['nom'] . " " . $candidat['prenom'],
+                "team" => $equipe['nom'],
+                "photo" => $candidat['photo'],
+                "votes" => $candidat['votes'] ?? 0 // si tu veux, tu peux calculer les votes
+            ];
+        }
+    }
+
+    return [$result];
+}
+
 
     public function results()
     {
-        Response::render('resultats/index');
+        $total_votes = $this->voteRepository->countAll();
+        $postes = $this->candidatRepository->getAllPostes();
+        $teamDistribution = [];
+        /* foreach ($postes as $idPoste => $intitule) {
+            $teamDistribution[$intitule] = $this->voteRepository->findAllVoteById(['id_poste' => $idPoste]);
+            
+        } */
+        $results = [];
+        $candidatesGroupedByPostes = $this->candidatRepository->getCandidatsGroupedByPoste();
+        //error_log('donnees recu votecontroller candidateGroupedByPoste: ' . print_r($candidatesGroupedByPostes, true));
+            
+        /* foreach($candidatesGroupedByPostes as $idPoste => $poste) {
+            $nomPoste   = $poste['intitule'];
+            $candidates = $poste['equipes'];
+            error_log('donnees recu votecontroller candidateGroupedByPoste: ' . print_r($poste, true));
+
+            $results[$nomPoste]['title'] = $nomPoste;
+            foreach ($candidates as $idEquipe => $candidat) {
+                $results[$nomPoste]['candidates'] = [
+                        'id' => $candidat['id'],
+                        'team' => $candidat['nom'],
+                ];
+                foreach ($candidat as $key => $value) {
+                    
+                    $results[$nomPoste]['candidates'] = [
+                        'name' => $value,
+                        'votes' => 0
+                    ];
+                }
+            }
+        } */
+       foreach ($candidatesGroupedByPostes as $key => $value) {        
+           $resultsIn = $this->transformPosteData($value);
+           $results[] = array_pop(($resultsIn));
+       }
+
+        Response::render('resultats/test', [
+            'total_votes' => $total_votes,
+            'resultDataGraphs' => $results
+        ]);
     }
 }

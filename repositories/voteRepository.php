@@ -27,29 +27,32 @@ class voteRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+   
+
     /**
      * Récupère tous les votes : une seule condition à la fois
      * @param array $data = ['id_participant', 'id_candidat', 'id_poste']
      */
     public function findAllVoteById(array $data)
     {        
-        if($data['id_participant']){
-            $sql = "SELECT * FROM vote ORDER BY date_vote DESC WHERE id_participant = ?";
+        if(isset($data['id_participant'])){
+            $sql = "SELECT * FROM vote WHERE id_participant = :id ORDER BY date_vote DESC";
             $condition = $data['id_participant'];
         }
-        elseif($data['id_candidat']){
-            $sql = "SELECT * FROM vote ORDER BY date_vote DESC WHERE id_candidat = ?";
+        elseif(isset($data['id_candidat'])){
+            $sql = "SELECT * FROM vote  WHERE id_candidat = :id ORDER BY date_vote DESC";
             $condition = $data['id_candidat'];
         }
-        elseif($data['id_poste']){
-            $sql = "SELECT * FROM vote ORDER BY date_vote DESC WHERE id_poste = ?";
+        elseif(isset($data['id_poste'])){
+            $sql = "SELECT * FROM vote  WHERE id_poste = :id ORDER BY date_vote DESC";
             $condition = $data['id_poste'];
         }
         else
             throw new \Exception("Condition non autorisée.");
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$condition]);
+        $stmt->bindParam(':id', $condition, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
