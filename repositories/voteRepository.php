@@ -5,9 +5,9 @@ use Database\Database;
 use PDO;
 use PDOException;
 
-require_once dirname(__DIR__) . '/config/database.php';
+require_once dirname(__DIR__) . '/Database/database.php';
 
-class Vote
+class voteRepository
 {
     private $db;
 
@@ -27,29 +27,32 @@ class Vote
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+   
+
     /**
      * Récupère tous les votes : une seule condition à la fois
      * @param array $data = ['id_participant', 'id_candidat', 'id_poste']
      */
     public function findAllVoteById(array $data)
     {        
-        if($data['id_participant']){
-            $sql = "SELECT * FROM vote ORDER BY date_vote DESC WHERE id_participant = ?";
+        if(isset($data['id_participant'])){
+            $sql = "SELECT * FROM vote WHERE id_participant = :id ORDER BY date_vote DESC";
             $condition = $data['id_participant'];
         }
-        elseif($data['id_candidat']){
-            $sql = "SELECT * FROM vote ORDER BY date_vote DESC WHERE id_candidat = ?";
+        elseif(isset($data['id_candidat'])){
+            $sql = "SELECT * FROM vote  WHERE id_candidat = :id ORDER BY date_vote DESC";
             $condition = $data['id_candidat'];
         }
-        elseif($data['id_poste']){
-            $sql = "SELECT * FROM vote ORDER BY date_vote DESC WHERE id_poste = ?";
+        elseif(isset($data['id_poste'])){
+            $sql = "SELECT * FROM vote  WHERE id_poste = :id ORDER BY date_vote DESC";
             $condition = $data['id_poste'];
         }
         else
             throw new \Exception("Condition non autorisée.");
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$condition]);
+        $stmt->bindParam(':id', $condition, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -119,4 +122,25 @@ class Vote
         return $result['total'];
     }
 
+    public function rollback(){
+        $this->db->rollBack();
+    }
+
+    public function results_in_view_pourcentage(): array {
+        $sql = "SELECT * FROM resultats_en_direct_pourcentage";
+        $stmt = $this->db->query($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Donne le nombre de condidats, de votes et de participants au processus de vote
+     * @return array
+     */
+    public function statistiquesGlobales(){
+        $sql = "SELECT * FROM statistiques_globales";
+        $stmt = $this->db->query($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

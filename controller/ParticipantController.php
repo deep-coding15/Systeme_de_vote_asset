@@ -1,11 +1,17 @@
 <?php
+
+use Core\Session;
+
 require_once dirname(__DIR__, 1) . '/repositories/participantRepository.php';
 require_once dirname(__DIR__, 1) . '/core/CODE_RESPONSE.php';
+require_once dirname(__DIR__, 1) . '/core/Session.php';
 
 use Core\CODE_RESPONSE;
 use Core\Response;
+use Models\Participant;
 use Repositories\participantRepository;
 
+$session = new Session();
 class ParticipantController
 {
     private $participantRepository;
@@ -16,46 +22,156 @@ class ParticipantController
     public function index()
     {
         $participants = $this->participantRepository->findAll();
-        Response::render('participants/liste', ['participants' => $participants]);
+        Response::render('participants/index', ['participants' => $participants]);
     }
 
     public function store()
     {
-        if(!$_SERVER['REQUEST_METHOD'] === "POST"){
-            Response::redirect('/403', CODE_RESPONSE::FORBIDDEN);
+        // === Vérification méthode HTTP ===
+        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+            error_log("❌ Mauvaise méthode HTTP : " . $_SERVER['REQUEST_METHOD']);
+            Response::redirect('/403', statusCode: CODE_RESPONSE::FORBIDDEN);
+            exit;
         }
+
         $uploads_dir = dirname(__DIR__, 1) . '/uploads';
-        
+
+        // Créer le dossier uploads si inexistant
+        if (!is_dir($uploads_dir)) {
+            if (!mkdir($uploads_dir, 0777, true)) {
+                error_log("❌ Impossible de créer le dossier uploads : $uploads_dir");
+                Response::redirect('/votes');
+                exit;
+            }
+        }
+
         $nom = $_POST['nom'] ?? '';
         $prenom = $_POST['prenom'] ?? '';
         $email = $_POST['email'] ?? '';
-        if($nb = random_int(16, 100) < 99)
-            $code_qr = 'QR' . '-' . $nb;
-        else
-            $code_qr = 'QR' . $nb;
+        $password = $_POST['password'] ?? '';
+        $code_qr = 'QR-' . random_int(100, 1000);
         $phone = $_POST['phone'] ?? '';
-        $type_document = $_POST['type-documenr'] ?? '';
-        $numero_document = $_POST['numero-document'] ?? '';
+        $type_document = $_POST['type_document'] ?? '';
+        $numero_document = $_POST['numero_document'] ?? '';
+
+        // === Gestion du fichier uploadé ===
         $photo_document = '';
+        if (!isset($_FILES['photo_document'])) {
+            error_log("❌ Aucun fichier photo_document envoyé.");
+        } else {
+            $file = $_FILES['photo_document'];
+            $fileName = $file['name'] ?? '';
+            $fileSize = $file['size'] ?? 0;
+            $fileError = $file['error'] ?? 1;
+            $tmpName = $file['tmp_name'] ?? '';
 
-        $file = $_FILES;
-        $fileName = $file['document-officiel']['name'] ?? '';
-        $fileSize = $file['document-officiel']['size'];
-        $fileNameServeur = $file['document-officiel']['tmp_name'] ?? '';
-        $fileError = $file['document-officiel']['error'];
-        
-        move_uploaded_file($_FILES['document-officiel']['tmp_name'], $uploads_dir);
-        //if (is_uploaded_file($_FILES['document-officiel']['tmp_name'])) {}
+            if ($fileError !== UPLOAD_ERR_OK) {
+                error_log("❌ Erreur upload : code $fileError pour $fileName");
+            } else {
+                // Générer un nom unique pour éviter les collisions
+                $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+                $safeName = uniqid('doc_') . '.' . $ext;
+                $destination = $uploads_dir . '/' . $safeName;
 
-        $data = compact('nom', 'prenom', 'email', 'code_qr', 'phone', 'type_document', 'numero_document', 'photo_document');
-        if($this->participantRepository->insert($data)) {
-            Response::json([
-                "message" => "Participant ajouté avec succès.",
-                "code" => CODE_RESPONSE::CREATED,
-            ]);
-            return Response::redirect('/candidats/vote');
+                if (!move_uploaded_file($tmpName, $destination)) {
+                    error_log("❌ Impossible de déplacer le fichier vers $destination");
+                } else {
+                    $photo_document = $destination;
+                    error_log("✔️ Fichier déplacé vers $destination ($fileSize octets)");
+                }
+            }
         }
+
+        $a_vote = false;
+        $est_valide = false;
+
+        // === Données à insérer ===
+        $data = compact(
+            'nom',
+            'prenom',
+            'email',
+            'password',
+            'code_qr',
+            'phone',
+            'type_document',
+            'numero_document',
+            'photo_document',
+            'a_vote',
+            'est_valide'
+        );
+
+        error_log("📦 Données envoyées au repository : " . print_r($data, true));
+
+        // === Tentative d’insertion ===
+        $participantId = $this->participantRepository->insert($data);
+
+        if (!$participantId) {
+            error_log("❌ Échec insertion participant.");
+            return Response::redirect('/votes');
+        }
+
+        // === Succès ===
+        global $session;
+        $session->set('user', [
+            'id' => $participantId,
+            'nom' => $nom,
+            'prenom' => $prenom,
+            'email' => $email,
+            'est_valide' => $est_valide,
+            'a_vote' => $a_vote,
+            'code_qr' => $code_qr,
+        ]);
+
+        error_log("✔️ Participant inséré et session créée.");
+        return Response::redirect('/candidats/vote');
     }
+    
+    public function login()
+    {
+        // === Vérification méthode HTTP ===
+        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+            error_log("❌ Mauvaise méthode HTTP : " . $_SERVER['REQUEST_METHOD']);
+            Response::redirect('/403', statusCode: CODE_RESPONSE::FORBIDDEN);
+            exit;
+        }
+
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+         
+        // === Données à insérer ===
+        $data = compact(
+            'email',
+            'password',
+        );
+
+        error_log("📦 Données envoyées au repository : " . print_r($data, true));
+
+        // === Tentative d’insertion ===
+        $participant = $this->participantRepository->login($data);
+
+        if (!$participant) {
+            error_log("❌ Échec insertion participant.");
+            return Response::redirect('/votes');
+        }
+        extract($participant);
+
+        // === Succès ===
+        global $session;
+        $session->set('user', [
+            'id' => $participant['id_participant'],
+            'nom' => $nom,
+            'prenom' => $prenom,
+            'email' => $email,
+            'est_valide' => $est_valide,
+            'a_vote' => $a_vote,
+            'code_qr' => $code_qr,
+        ]);
+
+        error_log("✔️ Participant connecte et session créée.");
+        return Response::redirect('/candidats/vote');
+    }
+
+
 
     public function validate($id)
     {

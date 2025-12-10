@@ -1,2 +1,4 @@
 /brouillon
-/vendor
+vendor/
+.vscode/
+.git

@@ -38,9 +38,13 @@ class CandidatController
      */
     public function vote()
     {
-        $candidats = $this->candidatRepository->findAll();
+        //$candidats = $this->candidatRepository->findAll();
+        $postes = $this->candidatRepository->getCandidatsGroupedByPoste();
+        Response::render('candidats/vote', ['titre' => 'Candidats - ASSET 2025', 'postes' => $postes]);
+    }
 
-        Response::render('candidats/vote', ['titre' => 'Candidats - ASSET 2025', 'candidats' => $candidats]);
+    public function voteCandidats(){
+        
     }
 
     /**
@@ -116,5 +120,16 @@ class CandidatController
             "message" => "Candidat supprimé.",
             "code" => CODE_RESPONSE::OK,
         ]);
+    }
+
+    public function candidatsPoste(){
+        $postes = $this->candidatRepository->getCandidatsGroupedByPoste();
+        if (!$postes) {
+            return Response::json([
+                "postes" => $postes,
+                "message" => "Postes introuvable.",
+                "code" => CODE_RESPONSE::NOT_FOUND
+            ]);
+        }
     }
 }

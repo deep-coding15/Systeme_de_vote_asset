@@ -13,8 +13,9 @@ class Response
      */
     public static function redirect(string $url, CODE_RESPONSE $statusCode = CODE_RESPONSE::REDIRECT)
     {
+        $fullPath = BASE_URL .  $url;
         http_response_code($statusCode->value);
-        header("Location: $url");
+        header("Location: $fullPath", false, $statusCode->value);
         exit;
     }
 
@@ -51,7 +52,7 @@ class Response
     }
 
 
-    public static function json($data, CODE_RESPONSE $statusCode = CODE_RESPONSE::OK)
+    public static function json(array $data, CODE_RESPONSE $statusCode = CODE_RESPONSE::OK)
     {
         http_response_code($statusCode->value);
 

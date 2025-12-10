@@ -1,15 +1,19 @@
 <?php
 
-use Controller\AdminController;
-use Controller\CandidatController;
-use Controller\VoteController;
-use Core\Response;
-
 require_once __DIR__ . '/../router.php';
 require_once __DIR__ . '/../controller/AdminController.php';
 require_once __DIR__ . '/../controller/VoteController.php';
 require_once __DIR__ . '/../controller/ParticipantController.php';
 require_once __DIR__ . '/../controller/CandidatController.php';
+require_once __DIR__ . '/../controller/Controller.php';
+
+use Controller\AdminController;
+use Controller\CandidatController;
+use Controller\VoteController;
+use Controller\Controller;
+use Core\Response;
+use Core\Session;
+
 
 /*
  |---------------------------------------------------------
@@ -22,19 +26,39 @@ get('/', function () {
     Response::render('index', ['titre' => 'Accueil']);
 });
 
+// Divers
+get('/redirect', [Controller::class, 'redirect']);
+
 // Candidats : OKAY
 get('/candidats', [CandidatController::class, 'index']);
 
 // Participants : OKAY
-get('/votes', function(){
-    Response::render('/votes/index', ['titre' => 'Voter - ASSET 2025']);
+get('/votes/auth', function(){
+    Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
 });
+get('/votes', function(){
+    Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
+});
+
+get('/resultats/test', function(){
+    Response::render('/resultats/test', ['titre' => 'Resultats — ASSET Vote']);
+});
+
+
+get('/resultats/test2', [VoteController::class, 'results_view']);
+get('/votes/waiting', function(){
+    Response::render('/votes/waiting', ['titre' => 'Waiting — ASSET Vote']);
+});
+
 post('/participants/add', [ParticipantController::class, 'store']);
+post('/participants/login', [ParticipantController::class, 'login']);
 get('/candidats/vote', [CandidatController::class, 'vote']);
+post('/candidats/vote', [CandidatController::class, 'vote']);
 
 
 get('/test', [CandidatController::class, 'test']);
 //get('/resultats', [CandidatController::class, 'test']);
+
 
 //get('/resultats', [ResultatController::class, 'test']); //Résultats - ASSET 2025
 // Auth admin
@@ -46,9 +70,14 @@ post('/participants/validate/:id', [ParticipantController::class, 'validate']);
 
 
 // Votes
+post('/participant/vote', [VoteController::class, 'vote']);
 post('/vote/:poste/:candidat/:participant', [VoteController::class, 'store']);
-get('/resultats', [VoteController::class, 'results']);
+get('/resultats', [VoteController::class, 'results_view']);
+//get('/resultats', [VoteController::class, 'results_view']);
 
+
+// API
+get('/api/candidats/poste', [CandidatController::class, 'candidatsPoste']);
 // Route introuvable
 any('/404', function () {
     http_response_code(404);
