@@ -157,3 +157,14 @@ INSERT INTO participant (nom, prenom, email, code_qr, est_valide) VALUES
 INSERT INTO vote (id_participant, id_candidat, id_poste) VALUES
 (1, 1, 1), (2, 2, 1),
 (1, 3, 2), (2, 4, 2);
+
+-- Comptage des enregistrements
+CREATE OR REPLACE VIEW statistiques_globales AS
+SELECT 'nombre_votes' AS table_name, COUNT(*) AS total
+FROM vote
+UNION ALL
+SELECT 'nombre_candidats', COUNT(*) AS total
+FROM candidat
+UNION ALL
+SELECT 'nombre_participants', COUNT(*) AS total
+FROM participant;

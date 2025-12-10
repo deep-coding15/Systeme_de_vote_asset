@@ -158,4 +158,14 @@ function removeAccents($str) {
             'resultDataGraphs' => $results
         ]);
     }
+
+    public function results_view() {
+        $results_vote = $this->voteRepository->results_in_view_pourcentage();
+        $stats_globales = $this->voteRepository->statistiquesGlobales();
+        Response::render('resultats/index', [
+            'titre' => 'Résultats - ASSET Vote',
+            'stats_globales' => $stats_globales,
+            'results_vote' => $results_vote
+        ]);
+    }
 }

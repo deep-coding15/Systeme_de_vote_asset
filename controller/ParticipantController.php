@@ -8,6 +8,7 @@ require_once dirname(__DIR__, 1) . '/core/Session.php';
 
 use Core\CODE_RESPONSE;
 use Core\Response;
+use Models\Participant;
 use Repositories\participantRepository;
 
 $session = new Session();

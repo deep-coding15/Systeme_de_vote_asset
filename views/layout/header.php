@@ -537,23 +537,64 @@ $session = new Session();
 
     <hr class="asset-header-divider">
 
+    <?php
+    function isActive($url)
+    {
+        // This is a simplified check. You may need a more robust URL parser
+        // depending on your exact routing setup in PHP.
+        $current_uri = $_SERVER['REQUEST_URI'];
+        $base_url = BASE_URL; // Assumes BASE_URL is defined elsewhere
+
+        // Check if the current URI ends with the link URL segment
+        if ($url === $current_uri || ($url === $base_url . '/' && $current_uri === $base_url)) {
+            return 'nav-active';
+        }
+        return '';
+    }
+    ?>
     <!-- Navigation -->
     <nav class="asset-nav">
-        <a href="<?= BASE_URL ?>/" class="nav-btn outline nav-item">
+        <a href="<?= BASE_URL ?>/" class="nav-btn outline nav-item <?= isActive(BASE_URL . '/') ?>">
             <i class="icon">🏠</i> Accueil
         </a>
 
-        <a href="<?= BASE_URL ?>/candidats" class="nav-btn outline nav-item">
+        <a href="<?= BASE_URL ?>/candidats" class="nav-btn outline nav-item <?= isActive(BASE_URL . '/candidats') ?>">
             <i class="icon">👥</i> Candidats
         </a>
 
-        <a href="<?= BASE_URL ?>/votes" class="nav-btn outline nav-item">
+        <a href="<?= BASE_URL ?>/votes" class="nav-btn outline nav-item <?= isActive(BASE_URL . '/votes') ?>">
             <i class="icon">🗳️</i> Voter
         </a>
 
-        <a href="<?= BASE_URL ?>/resultats" class="nav-btn primary nav-item nav-active">
+        <a href="<?= BASE_URL ?>/resultats" class="nav-btn primary nav-item <?= isActive(BASE_URL . '/resultats') ?>">
             <i class="icon">📊</i> Résultats
         </a>
     </nav>
 
-    <main>
+    
+    <script>
+            // ==================================
+            // SYSTEME DE TABS
+            // ==================================
+            document.querySelectorAll(".nav-btn").forEach(tab => {
+                tab.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    // 1. Retirer active sur tous les tabs
+                    document.querySelectorAll(".nav-btn").forEach(t => t.classList.remove("nav-active"));
+
+                    // 2. Activer celui qui a été cliqué
+                    tab.classList.add("nav-active");
+
+                    const destinationUrl = tab.getAttribute("href");
+
+                    // Manually change the browser location
+                    setTimeout(window.location.href = destinationUrl, 2000);
+                    // 3. Récupérer le poste cible
+                    //const key = tab.dataset.poste; // ex: "vice_president"
+
+                    // 4. Charger les candidats pour ce poste
+                    //renderPoste(key);
+                });
+            });
+        </script>
+            <main>

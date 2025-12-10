@@ -125,4 +125,22 @@ class voteRepository
     public function rollback(){
         $this->db->rollBack();
     }
+
+    public function results_in_view_pourcentage(): array {
+        $sql = "SELECT * FROM resultats_en_direct_pourcentage";
+        $stmt = $this->db->query($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Donne le nombre de condidats, de votes et de participants au processus de vote
+     * @return array
+     */
+    public function statistiquesGlobales(){
+        $sql = "SELECT * FROM statistiques_globales";
+        $stmt = $this->db->query($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
