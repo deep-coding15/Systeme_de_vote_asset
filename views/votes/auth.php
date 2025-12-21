@@ -1,25 +1,5 @@
 <style>
-    /* :root {
-      --navy: #072F59;
-      --navy-light: #103B72;
-      --gold: #C8A24B;
-      --gold-dark: #A98732;
-      --gray-foreground: #1C1F27;
-      --gray-muted: #3C4350;
-      --gray-tertiary: #4A5568;
-      --gray-bg-secondary: #E8EAED;
-      --gray-bg-muted: #F2F3F5;
-      --gray-borders: #D1D5DB;
-      --gray-card-bg: #F5F7FA;
-      --status-success: #10B981;
-      --font-serif: 'Playfair Display', serif;
-      --font-sans: 'Inter', sans-serif;
-      --shadow-soft: 0 4px 12px rgba(0,0,0,0.08);
-      --shadow-medium: 0 6px 20px rgba(0,0,0,0.12);
-      --radius-md: 10px;
-      --radius-lg: 16px;
-    } */
-
+    
     body {
         font-family: var(--font-sans);
         margin: 0;
@@ -240,6 +220,7 @@
         cursor: pointer;
     }
 
+    .login-btn,
     .submit-btn {
         width: 100%;
         padding: 14px;
@@ -280,12 +261,13 @@ if ($session->has('user')) {
     echo '<pre>';
     //$session->get('user');
     print_r($session->getAll());
-    echo '</pre>'; */
-    /* $user = $session->get('user');
+    echo '</pre>';  */
+    $user = $session->get('user');
+    
     if ($user['a_vote']) {
         $url = BASE_URL . '/votes/waiting';
         header('Location: ' . $url);
-    } */
+    }
 }
 ?>
 
@@ -318,7 +300,7 @@ if ($session->has('user')) {
                     <label>Mot de passe</label>
                     <input type="password" name="password" placeholder="*********">
 
-                    <button class="login-btn">Se Connecter</button>
+                    <button class="login-btn" id="">Se Connecter</button>
                 </form>
             </div>
         </div>
@@ -432,9 +414,6 @@ if ($session->has('user')) {
             const sectionSignup = document.getElementById('signup-section');
 
             btnLogin.addEventListener('click', (e) => {
-                /* The code you provided is not valid PHP syntax. It appears to be a mix of different
-                programming languages and comments. The `e.preventDefault();` line looks like it
-                could be JavaScript code to prevent the default action of an event. The ` */
                 e.preventDefault();
                 if (nameAction === 'login-section') {
                     btnLogin.classList.add('active');

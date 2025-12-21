@@ -67,7 +67,12 @@ INSERT INTO logs (id_log, id_admin, action, description, date_action) VALUES
 (2, 2, 'Validation participant', 'Validation du participant Sarah', '2025-11-12 15:10:00'),
 (3, 1, 'Ouverture vote', 'Début officiel des votes', '2025-11-14 08:00:00');
 
-
+create table experiences_candidat(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_candidat INT,
+    description TEXT,
+    constraint fk_experiences_candidat foreign key (id_candidat) REFERENCES candidat(id_candidat)
+    )
 INSERT INTO experiences_candidat (id_candidat, description) VALUES
 -- 1. Nana Christelle (Présidente, Team Vision)
 (1, 'Déléguée de classe pendant 3 années consécutives'),
@@ -117,6 +122,12 @@ INSERT INTO experiences_candidat (id_candidat, description) VALUES
 (8, 'Organisateur d\'opérations de collecte de fonds'),
 (8, 'Expérience en suivi budgétaire et optimisation des dépenses');
 
+create table priorites_candidat(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_candidat INT,
+    priorite TEXT,
+    constraint fk_priorite_candidat foreign key (id_candidat) REFERENCES candidat(id_candidat)
+    );
 
 INSERT INTO priorites_candidat (id_candidat, priorite) VALUES
 -- 1. Nana Christelle (Présidente, Team Vision)

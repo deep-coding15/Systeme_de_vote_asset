@@ -1,8 +1,10 @@
 <?php
 
 use Core\Session;
+use Utils\QrCodeManager;
 
 require_once dirname(__DIR__, 1) . '/repositories/participantRepository.php';
+require_once dirname(__DIR__, 1) . '/utils/QrCodeManager.php';
 require_once dirname(__DIR__, 1) . '/core/CODE_RESPONSE.php';
 require_once dirname(__DIR__, 1) . '/core/Session.php';
 
@@ -112,6 +114,7 @@ class ParticipantController
 
         // === Succès ===
         global $session;
+        $is_admin = false;
         $session->set('user', [
             'id' => $participantId,
             'nom' => $nom,
@@ -120,12 +123,28 @@ class ParticipantController
             'est_valide' => $est_valide,
             'a_vote' => $a_vote,
             'code_qr' => $code_qr,
+            'is_admin' => $is_admin
         ]);
 
+        $dataQrcode = [
+            'nom' => $nom,
+            'prenom' => $prenom,
+            'email' => $email,
+            'a_vote' => $a_vote,
+            'role' => 'participant',
+        ];
+
+        $qrCodeManager = new QrCodeManager();
+        $qrPath = $qrCodeManager->generateForParticipant($dataQrcode);
+
+        // 4. Mettre à jour le chemin du QR dans la BD
+        $this->participantRepository->update($participantId, [
+            'code_qr' => $qrPath
+        ]);
         error_log("✔️ Participant inséré et session créée.");
         return Response::redirect('/candidats/vote');
     }
-    
+
     public function login()
     {
         // === Vérification méthode HTTP ===
@@ -137,7 +156,7 @@ class ParticipantController
 
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
-         
+
         // === Données à insérer ===
         $data = compact(
             'email',
@@ -157,6 +176,7 @@ class ParticipantController
 
         // === Succès ===
         global $session;
+        $is_admin = false;
         $session->set('user', [
             'id' => $participant['id_participant'],
             'nom' => $nom,
@@ -165,13 +185,22 @@ class ParticipantController
             'est_valide' => $est_valide,
             'a_vote' => $a_vote,
             'code_qr' => $code_qr,
+            'is_admin' => $is_admin
         ]);
 
         error_log("✔️ Participant connecte et session créée.");
         return Response::redirect('/candidats/vote');
     }
 
-
+    public function logout()
+    {
+        $session = new Session();
+        if ($session->isLoggedIn()) {
+            $session->remove('user');
+            $session->destroy();
+        }
+        return Response::redirect('/');
+    }
 
     public function validate($id)
     {

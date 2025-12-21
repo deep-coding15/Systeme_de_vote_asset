@@ -24,6 +24,9 @@ CREATE TABLE participant (
     id_participant INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
+    description text,
+    programme text,
+    
     email VARCHAR(150) NOT NULL UNIQUE,
     code_qr VARCHAR(255) NOT NULL UNIQUE,
     est_valide BOOLEAN DEFAULT FALSE,
@@ -63,6 +66,26 @@ CREATE TABLE candidat (
     id_poste INT NOT NULL,
     FOREIGN KEY (id_equipe) REFERENCES equipe(id_equipe) ON DELETE CASCADE,
     FOREIGN KEY (id_poste) REFERENCES poste(id_poste) ON DELETE CASCADE
+);
+
+-- ========================================
+-- Table : experiences_candidat
+-- ========================================
+create table experiences_candidat(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_candidat INT,
+    description TEXT,
+    constraint fk_experiences_candidat foreign key (id_candidat) REFERENCES candidat(id_candidat)
+);
+
+-- ========================================
+-- Table : priorites_candidat
+-- ========================================
+create table priorites_candidat(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_candidat INT,
+    priorite TEXT,
+    constraint fk_priorite_candidat foreign key (id_candidat) REFERENCES candidat(id_candidat)
 );
 
 -- ========================================

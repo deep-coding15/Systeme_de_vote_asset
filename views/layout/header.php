@@ -504,6 +504,18 @@ $session = new Session();
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 </head>
+<?php if ($session->has('user')) {
+    echo 'session: ';
+    echo '<pre>';
+    //$session->get('user');
+    print_r($session->getAll());
+    echo '</pre>';
+    /* $user = $session->get('user');
+    if ($user['a_vote']) {
+        $url = BASE_URL . '/votes/waiting';
+        header('Location: ' . $url);
+    } */
+} ?>
 
 <body>
 
@@ -553,48 +565,120 @@ $session = new Session();
     }
     ?>
     <!-- Navigation -->
+    <!-- Navigation -->
     <nav class="asset-nav">
-        <a href="<?= BASE_URL ?>/" class="nav-btn outline nav-item <?= isActive(BASE_URL . '/') ?>">
-            <i class="icon">🏠</i> Accueil
-        </a>
 
-        <a href="<?= BASE_URL ?>/candidats" class="nav-btn outline nav-item <?= isActive(BASE_URL . '/candidats') ?>">
-            <i class="icon">👥</i> Candidats
-        </a>
+        <?php if ($session && $session->has('user') && $session->get('user')['is_admin']) : ?>
+            <a href="<?= BASE_URL ?>/candidats"
+                class="nav-item <?= isActive(BASE_URL . '/candidats') ?>">
+                <i class="fa-solid fa-users"></i>
+                <span>Candidats</span>
+            </a>
+            <a href="<?= BASE_URL ?>/resultats"
+                class="nav-item <?= isActive(BASE_URL . '/resultats') ?>">
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Résultats</span>
+            </a>
+            <a href="" id="voteTermine"
+                class="nav-item <?= isActive(BASE_URL . '/resultats') ?>">
+                <i class="fa-solid fa-chart-column"></i>
+                <span>VOTE TERMINE</span>
+            </a>
+            <a href="<?= BASE_URL ?>/participants/logout"
+                class="nav-item <?= isActive(BASE_URL . '/participants/logout') ?>">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </a>
 
-        <a href="<?= BASE_URL ?>/votes" class="nav-btn outline nav-item <?= isActive(BASE_URL . '/votes') ?>">
-            <i class="icon">🗳️</i> Voter
-        </a>
+        <?php else : ?>
 
-        <a href="<?= BASE_URL ?>/resultats" class="nav-btn primary nav-item <?= isActive(BASE_URL . '/resultats') ?>">
-            <i class="icon">📊</i> Résultats
-        </a>
+            <a href="<?= BASE_URL ?>/"
+                class="nav-item <?= isActive(BASE_URL . '/') ?>">
+                <i class="fa-solid fa-house"></i>
+                <span>Accueil</span>
+            </a>
+
+            <a href="<?= BASE_URL ?>/candidats"
+                class="nav-item <?= isActive(BASE_URL . '/candidats') ?>">
+                <i class="fa-solid fa-users"></i>
+                <span>Candidats</span>
+            </a>
+
+            <a href="<?= BASE_URL ?>/votes"
+                class="nav-item <?= isActive(BASE_URL . '/votes') ?>">
+                <i class="fa-solid fa-check-to-slot"></i>
+                <span>Voter</span>
+            </a>
+
+            <a href="<?= BASE_URL ?>/resultats" style="display: none;" id="seeVoteTermine"
+                class="nav-item <?= isActive(BASE_URL . '/resultats') ?>">
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Résultats</span>
+            </a>
+
+            <a href="<?= BASE_URL ?>/administrateur/auth"
+                class="nav-item <?= isActive(BASE_URL . '/administrateur/auth') ?>">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Admin</span>
+            </a>
+
+        <?php endif; ?>
+
+        
+
     </nav>
 
-    
     <script>
-            // ==================================
-            // SYSTEME DE TABS
-            // ==================================
-            document.querySelectorAll(".nav-btn").forEach(tab => {
-                tab.addEventListener("click", (event) => {
-                    event.preventDefault();
-                    // 1. Retirer active sur tous les tabs
-                    document.querySelectorAll(".nav-btn").forEach(t => t.classList.remove("nav-active"));
+        document.querySelectorAll(".asset-nav .nav-item").forEach(item => {
 
-                    // 2. Activer celui qui a été cliqué
-                    tab.classList.add("nav-active");
+            item.addEventListener("click", e => {
+                // Empêche les clics instantanés du navigateur (effet fade possible)
+                //e.preventDefault();
 
-                    const destinationUrl = tab.getAttribute("href");
+                // Désactive tous
+                document.querySelectorAll(".asset-nav .nav-item")
+                    .forEach(i => i.classList.remove("nav-active"));
 
-                    // Manually change the browser location
-                    setTimeout(window.location.href = destinationUrl, 2000);
-                    // 3. Récupérer le poste cible
-                    //const key = tab.dataset.poste; // ex: "vice_president"
+                // Active l’élément cliqué
+                item.classList.add("nav-active");
 
-                    // 4. Charger les candidats pour ce poste
-                    //renderPoste(key);
-                });
+                const url = item.getAttribute("href");
+
+                // Correction du setTimeout (ancienne version NON fonctionnelle)
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 150);
             });
-        </script>
-            <main>
+
+        });
+        document.getElementById('voteTermine').addEventListener('click', () => {
+            const voteTermine = document.getElementById('seeVoteTermine');
+            voteTermine.style.display = 'block';
+        });
+    </script>
+
+
+
+
+    <!-- <script>
+        // ==================================
+        // SYSTEME DE TABS
+        // ==================================
+        document.querySelectorAll(".nav-btn").forEach(tab => {
+            tab.addEventListener("click", (event) => {
+                event.preventDefault();
+                // 1. Retirer active sur tous les tabs
+                document.querySelectorAll(".nav-btn").forEach(t => t.classList.remove("nav-active"));
+
+                // 2. Activer celui qui a été cliqué
+                tab.classList.add("nav-active");
+
+                const destinationUrl = tab.getAttribute("href");
+
+                // Manually change the browser location
+                setTimeout(window.location.href = destinationUrl, 2000);
+
+            });
+        });
+    </script> -->
+    <main>

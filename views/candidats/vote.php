@@ -7,22 +7,30 @@ use Core\CODE_RESPONSE;
 $session = new Session();
 
 if ($session->has('user')) {
-    echo 'session: ';
+    /* echo 'session: ';
     echo '<pre>';
     //$session->get('user');
     print_r($session->getAll());
-    echo '</pre>';
+    echo '</pre>'; */
     $user = $session->get('user');
-    if ($user['a_vote']) {
-        $url = BASE_URL . '/votes/waiting';
-        header('Location: ' . $url);
-    }
+    ?>
+    <script>
+        const BASE_URL = <?= json_encode(BASE_URL); ?>;
+        var user = <?= json_encode($user); ?>;
+        const url = BASE_URL + '/votes/waiting';
+        console.log('url: ', url);
+        console.log('user: ', user);
+        if(user && user.a_vote){
+            window.location.href = url;
+        }
+    </script>
+    <?php
 }
 
 if (!$session->has('user')) { ?>
     <script>
         redirect_unauthorized()
-    </script> */
+    </script> 
 <?php } ?>
 
 
@@ -37,7 +45,7 @@ if (!$session->has('user')) { ?>
 
     .verified-btn {
         background: #e9fbe9;
-        color: #1f7e1f;
+        color: #1f7e1f ;
         border: 1px solid #bfe7bf;
         padding: 10px 18px;
         border-radius: 8px;
@@ -105,11 +113,14 @@ if (!$session->has('user')) { ?>
 
     .post-title {
         text-align: center;
-        color: #FF6B6B;
+        color: /* The above code appears to be a mix of different programming languages and symbols. */
+        /* The above code appears to be a mix of PHP and CSS syntax. However, it is not valid
+        code as it seems to be a combination of different languages. */
+        var(--gold-dark);
         font-size: 1.8rem;
         font-weight: 700;
         margin-bottom: 30px;
-        border-bottom: 2px solid #FF6B6B;
+        border-bottom: 2px solid var(--gold-dark);
         padding-bottom: 15px;
     }
 
@@ -412,9 +423,9 @@ if (!$session->has('user')) { ?>
     <!-- Contenu des équipes -->
     <!-- <form action="" method="post"> -->
     <?php
-    echo '<pre>';
+    /* echo '<pre>';
     print_r($postes);
-    echo '</pre>';
+    echo '</pre>'; */
     foreach ($postes as $idPoste => $pos): ?>
         <section id="poste-<?= $idPoste ?>" class="poste">
             <!-- Postes -->

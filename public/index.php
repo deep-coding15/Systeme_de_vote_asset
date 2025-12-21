@@ -52,17 +52,15 @@ get('/votes/waiting', function(){
 
 post('/participants/add', [ParticipantController::class, 'store']);
 post('/participants/login', [ParticipantController::class, 'login']);
+get('/participants/logout', [ParticipantController::class, 'logout']);
 get('/candidats/vote', [CandidatController::class, 'vote']);
 post('/candidats/vote', [CandidatController::class, 'vote']);
 
 
 get('/test', [CandidatController::class, 'test']);
-//get('/resultats', [CandidatController::class, 'test']);
 
-
-//get('/resultats', [ResultatController::class, 'test']); //Résultats - ASSET 2025
-// Auth admin
-post('/admin/login', [AdminController::class, 'login']);
+get('/administrateur/auth', [AdminController::class, 'getLogin']);
+post('/administrateur/auth', [AdminController::class, 'login']);
 
 // Participants
 get('/participants', [ParticipantController::class, 'index']);
@@ -73,7 +71,6 @@ post('/participants/validate/:id', [ParticipantController::class, 'validate']);
 post('/participant/vote', [VoteController::class, 'vote']);
 post('/vote/:poste/:candidat/:participant', [VoteController::class, 'store']);
 get('/resultats', [VoteController::class, 'results_view']);
-//get('/resultats', [VoteController::class, 'results_view']);
 
 
 // API

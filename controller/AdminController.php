@@ -1,8 +1,16 @@
 <?php
 namespace Controller;
 require_once __DIR__ . '/../Database/Database.php';
+require_once __DIR__ . '/../core/Session.php';
+require_once __DIR__ . '/../utils/utils.php';
 
+use Core\CODE_RESPONSE;
+use Core\Response;
+use Core\Session;
 use Database\Database;
+use Utils\Utils;
+
+$session = new Session();
 
 class AdminController
 {
@@ -13,13 +21,22 @@ class AdminController
         $this->db = (new Database())->getConnection();
     }
 
+    public function getLogin(){
+        return Response::render('/administrateur/auth');
+    }
     /**
      * Connexion admin
      */
     public function login()
     {
-        $email = $_POST['email'] ?? null;
-        $password = $_POST['password'] ?? null;
+        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+            error_log("❌ Mauvaise méthode HTTP : " . $_SERVER['REQUEST_METHOD']);
+            Response::redirect('/403', statusCode: CODE_RESPONSE::FORBIDDEN);
+            exit;
+        }
+
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
 
         if (!$email || !$password) {
             echo "Veuillez remplir tous les champs.";
@@ -30,21 +47,39 @@ class AdminController
         $stmt->execute([$email]);
         $admin = $stmt->fetch(\PDO::FETCH_ASSOC);
 
+        error_log($email . ' ' . $password . $admin['mot_de_passe'], 3, dirname(__DIR__) . '/utils/error.log');
         if (!$admin) {
             echo "Admin introuvable.";
             return;
         }
 
+
         // ICI : remplace par password_verify si tu utilises password_hash
-        if ($password !== $admin['mot_de_passe']) {
+        if(!Utils::verifyPasswordBcrypt($password, $admin['mot_de_passe'])) {
+        //if ($password !== $admin['mot_de_passe']) {
             echo "Mot de passe incorrect.";
             return;
         }
 
         // connexion réussie
-        $_SESSION['admin_id'] = $admin['id_admin'];
+        //$_SESSION['admin_id'] = $admin['id_admin'];
 
+        global $session;
+        $is_admin = true;
+        $est_valide = true;
+        $code_qr = '';
+        $session->set('user', [
+            'id' => $admin['id_admin'],
+            'nom' => $admin['nom'],
+            'prenom' => $admin['prenom'],
+            'email' => $admin['email'],
+            'est_valide' => $est_valide,
+            'code_qr' => $code_qr,
+            'is_admin' => $is_admin
+        ]);
+        error_log("✔️ Admin " . $admin['nom'] . ' ' . $admin['prenom'] . " connecte et session créée.");
         echo "Connexion réussie, bienvenue " . $admin['prenom'] . " !";
+        return Response::redirect('/resultats');
     }
 
     /**
