@@ -145,8 +145,8 @@ use Controller\VoteController;
     <p>Participez à l’avenir de l’Association des Étudiants et Stagiaires de Tétouan.</p>
 
     <div class="cta-buttons">
-        <a href="<?= BASE_URL ?>/candidats/vote">Accéder au Vote</a>
-        <a href="#">Consulter les Candidats</a>
+        <a href="<?= Env::get('BASE_URL'); ?>votes">Accéder au Vote</a>
+        <a href="<?= Env::get('BASE_URL'); ?>candidats">Consulter les Candidats</a>
     </div>
 </div>
 

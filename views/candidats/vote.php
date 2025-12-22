@@ -11,7 +11,7 @@ $session = new Session();
 $user = $session->get('user');
 $base_url = Env::get("BASE_URL");
 var_dump($session->getAll());
-// var_dump($base_url);
+var_dump($base_url);
 // Vérifier si l'utilisateur est connecté et a voté
 if ($session->has('user') && $user && isset($user['a_vote']) && $user['a_vote']) {
     ?>
@@ -29,7 +29,7 @@ if ($session->has('user') && $user && isset($user['a_vote']) && $user['a_vote'])
 if (!$session->has('user')) {
     ?>
     <script>
-        const url_user_not_connected = <?= json_encode($base_url); ?>;
+        const url_user_not_connected = <?= json_encode($base_url); ?> + 'votes/auth';
         window.location.href = url_user_not_connected;
     </script>
     <?php

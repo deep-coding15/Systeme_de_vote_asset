@@ -6,6 +6,18 @@ use Core\Session;
 require_once __DIR__ . '/../../core/Session.php';
 $session = new Session();
 ?>
+
+<?php
+/* if ($session->has('user')) {
+    $user = $session->get('user');
+    if ($user['a_vote']) {
+        $url = BASE_URL . '/votes/waiting';
+        header('Location: ' . $url);
+        exit;
+    }
+} */
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -570,12 +582,12 @@ $session = new Session();
     <nav class="asset-nav">
 
         <?php if ($session && $session->has('user') && $session->get('user')['is_admin']) : ?>
-            <a href="<?= BASE_URL ?>/candidats"
+            <a href="<?= Env::get('BASE_URL'); ?>candidats"
                 class="nav-item <?= isActive(BASE_URL . '/candidats') ?>">
                 <i class="fa-solid fa-users"></i>
                 <span>Candidats</span>
             </a>
-            <a href="<?= Env::get('BASE_URL'); ?> <?= BASE_URL ?>/resultats"
+            <a href="<?= Env::get('BASE_URL'); ?>resultats"
                 class="nav-item <?= isActive(BASE_URL . '/resultats') ?>">
                 <i class="fa-solid fa-chart-column"></i>
                 <span>Résultats</span>
@@ -585,7 +597,7 @@ $session = new Session();
                 <i class="fa-solid fa-chart-column"></i>
                 <span>VOTE TERMINE</span>
             </a>
-            <a href="<?= BASE_URL ?>/participants/logout"
+            <a href="<?= Env::get('BASE_URL'); ?>participants/logout"
                 class="nav-item <?= isActive(BASE_URL . '/participants/logout') ?>">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Logout</span>

@@ -40,7 +40,7 @@ class VoteController
                 error_log("Données reçues dans if: " . print_r($data, true));
                 return;
             }
-            //error_log("Données reçues hors de if : " . print_r($data, true));
+            error_log("Données reçues hors de if : " . print_r($data, true));
 
 
 

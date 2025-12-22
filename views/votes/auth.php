@@ -254,7 +254,7 @@
 use Core\Session;
 
 $session = new Session();
-var_dump($session)
+// var_dump($session->getAll())
 ?>
 
 <script>
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script> 
 <?php
-if ($session->has('user')) {
+/* if ($session->has('user')) {
     $user = $session->get('user');
     
     if ($user['a_vote']) {
@@ -281,7 +281,7 @@ if ($session->has('user')) {
             window.location.href = url;
         </script>
     <?php }
-}
+} */
 ?>
 
 

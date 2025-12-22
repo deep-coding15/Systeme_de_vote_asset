@@ -1,16 +1,29 @@
 <?php
 namespace Core;
+
+use Config\Env;
+
 class Session
 {
     // Durée de vie de la session en secondes (optionnel)
-    private $timeout;
+    private int $timeout;
 
-    public function __construct(int $timeout = 1800) // 30 min par défaut
+    public function __construct() // 10 jours par défaut
     {
-        $this->timeout = $timeout;
+        $this->timeout = (trim(Env::get('SESSION_LIFETIME_SECONDS')) == '') ? 864000 : Env::get('SESSION_LIFETIME_SECONDS');
 
+        // Configuration du cookie de session
         // Démarre la session si elle n'est pas déjà démarrée
         if (session_status() === PHP_SESSION_NONE) {
+            // Configuration du cookie de session
+            session_set_cookie_params([
+                'lifetime' => $this->timeout,
+                'path' => '/',
+                'domain' => '', // Laisser vide pour le domaine courant
+                'secure' => false, // Mettez à true si vous utilisez HTTPS
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
             session_start();
         }
 

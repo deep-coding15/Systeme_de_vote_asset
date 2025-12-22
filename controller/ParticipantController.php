@@ -180,6 +180,7 @@ class ParticipantController
             return Response::redirect('/votes');
         }
         extract($participant);
+        // error_log('participant: ' . print_r($participant, true));
 
         // === Succès ===
         global $session;
