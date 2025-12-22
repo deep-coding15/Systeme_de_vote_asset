@@ -36,7 +36,7 @@ class VoteController
             $participantId = $data['participantId'];
             $data = $data['memoire'];
             
-            if (!isset($data['president'], $data['vice-president'], $data['secretaire-general'], $data['tresorier'])) {
+            if (!isset($data['president'], $data['vice-president'], $data['secretaire'], $data['tresorier'])) {
                 error_log("Données reçues dans if: " . print_r($data, true));
                 return;
             }
@@ -167,5 +167,9 @@ function removeAccents($str) {
             'stats_globales' => $stats_globales,
             'results_vote' => $results_vote
         ]);
+    }
+    public function results_view_view() {
+        $stats_accueil = $this->voteRepository->statistiquesAccueil();
+        return $stats_accueil;
     }
 }

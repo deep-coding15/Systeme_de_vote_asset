@@ -1,5 +1,6 @@
 <?php
 
+use Config\Env;
 use Core\Session;
 
 require_once __DIR__ . '/../../core/Session.php';
@@ -505,10 +506,10 @@ $session = new Session();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 </head>
 <?php if ($session->has('user')) {
-    echo 'session: ';
+    //echo 'session: ';
     echo '<pre>';
     //$session->get('user');
-    print_r($session->getAll());
+    //print_r($session->getAll());
     echo '</pre>';
     /* $user = $session->get('user');
     if ($user['a_vote']) {
@@ -574,7 +575,7 @@ $session = new Session();
                 <i class="fa-solid fa-users"></i>
                 <span>Candidats</span>
             </a>
-            <a href="<?= BASE_URL ?>/resultats"
+            <a href="<?= Env::get('BASE_URL'); ?> <?= BASE_URL ?>/resultats"
                 class="nav-item <?= isActive(BASE_URL . '/resultats') ?>">
                 <i class="fa-solid fa-chart-column"></i>
                 <span>Résultats</span>

@@ -253,23 +253,37 @@
 
 use Core\Session;
 
-$session = new Session();?>
+$session = new Session();
+var_dump($session)
+?>
 
+<script>
+const BASE_URL = <?= json_encode(BASE_URL) ?>;
+const aVote = <?= json_encode($session->get('user')['a_vote'] ?? false) ?>;
+console.log(BASE_URL, aVote);
+document.addEventListener('DOMContentLoaded', () => {
+    if(aVote){
+        const url = BASE_URL + '/votes/waiting';
+        window.location.href = url;
+    }
+});
+
+</script> 
 <?php
 if ($session->has('user')) {
-    /* echo 'session: ';
-    echo '<pre>';
-    //$session->get('user');
-    print_r($session->getAll());
-    echo '</pre>';  */
     $user = $session->get('user');
     
     if ($user['a_vote']) {
         $url = BASE_URL . '/votes/waiting';
-        header('Location: ' . $url);
-    }
+     ?>
+        <script>
+            const url = json_encode($url);
+            window.location.href = url;
+        </script>
+    <?php }
 }
 ?>
+
 
 <div class="wrapper">
     <div class="badge">Accès Sécurisé — Authentification Requise</div>
@@ -436,7 +450,7 @@ if ($session->has('user')) {
     });
 </script>
 <script>
-    const BASE_URL = <?= json_encode(BASE_URL) ?>;
+    /* const BASE_URL = <?= json_encode(BASE_URL) ?>;
     const aVote = <?= json_encode($session->get('user')['a_vote'] ?? false) ?>;
     
     document.addEventListener('DOMContentLoaded', () => {
@@ -444,5 +458,5 @@ if ($session->has('user')) {
             const url = BASE_URL + '/votes/waiting';
             window.location.href = url;
         }
-    })
+    }) */
 </script>

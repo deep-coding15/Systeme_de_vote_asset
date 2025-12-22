@@ -260,45 +260,62 @@
             </p>
         </div>
 
-        <!-- Postes -->
-        <?php foreach ($eq['postes'] as $poste): ?>
+        <style>
+            .team-candidates {
+                display: flex;
+                flex-wrap: wrap;
+                /* permet de revenir à la ligne si trop de cartes */
+                gap: 1rem;
+                /* espace entre les cartes */
+            }
 
-            <?php foreach ($poste['candidats'] as $c): ?>
-                <div class="candidate-card">
+            .candidate-card {
+                flex: 0 0 550px;
+                /* largeur fixe ou approximative */
+                /* ou: flex: 1 1 250px; pour une largeur flexible */
+            }
+        </style>
+        <div class="team-candidates">
+            <!-- Postes -->
+            <?php foreach ($eq['postes'] as $poste): ?>
 
-                    <div class="candidate-left">
-                        <img src="/uploads/<?= $c['photo'] ?>" class="candidate-photo">
+                <?php foreach ($poste['candidats'] as $c): ?>
+                    <div class="candidate-card">
 
-                        <div class="candidate-info">
-                            <h5 class="candidate-name"><?= $c['prenom'] . " " . $c['nom'] ?></h5>
-                            <span class="role-badge"><?= $poste['intitule'] ?></span>
-                            <span class="team-label"><?= htmlspecialchars($eq['nom']) ?></span>
+                        <div class="candidate-left">
+                            <img src="/uploads/<?= $c['photo'] ?>" class="candidate-photo">
+
+                            <div class="candidate-info">
+                                <h5 class="candidate-name"><?= $c['prenom'] . " " . $c['nom'] ?></h5>
+                                <span class="role-badge"><?= $poste['intitule'] ?></span>
+                                <span class="team-label"><?= htmlspecialchars($eq['nom']) ?></span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="candidate-details">
-                        <h6>Programme</h6>
-                        <p><?= htmlspecialchars($c['programme']) ?></p>
+                        <div class="candidate-details">
+                            <h6>Programme</h6>
+                            <p><?= htmlspecialchars($c['programme']) ?></p>
 
-                        <h6>Expérience</h6>
-                        <ul>
-                            <?php foreach ($c['experiences'] as $exp): ?>
-                                <li><?= htmlspecialchars($exp) ?></li>
-                            <?php endforeach; ?>
-                        </ul>
+                            <h6>Expérience</h6>
+                            <ul>
+                                <?php foreach ($c['experiences'] as $exp): ?>
+                                    <li><?= htmlspecialchars($exp) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
 
-                        <h6>Priorités</h6>
-                        <div class="priorities">
-                            <?php foreach ($c['priorites'] as $prio): ?>
-                                <span class="priority-badge"><?= htmlspecialchars($prio) ?></span>
-                            <?php endforeach; ?>
+                            <h6>Priorités</h6>
+                            <div class="priorities">
+                                <?php foreach ($c['priorites'] as $prio): ?>
+                                    <span class="priority-badge"><?= htmlspecialchars($prio) ?></span>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
+
+                    <?php endforeach; ?>
                     </div>
+                <?php endforeach; ?>
 
-                </div>
-            <?php endforeach; ?>
-        <?php endforeach; ?>
-
+        </div>
     </section>
 <?php endforeach; ?>
 <script>

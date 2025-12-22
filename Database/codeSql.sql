@@ -24,9 +24,6 @@ CREATE TABLE participant (
     id_participant INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
-    description text,
-    programme text,
-    
     email VARCHAR(150) NOT NULL UNIQUE,
     code_qr VARCHAR(255) NOT NULL UNIQUE,
     est_valide BOOLEAN DEFAULT FALSE,
@@ -60,6 +57,8 @@ CREATE TABLE candidat (
     id_candidat INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
+    description text,
+    programme text,
     email VARCHAR(150) NOT NULL UNIQUE,
     photo VARCHAR(255),
     id_equipe INT NOT NULL,

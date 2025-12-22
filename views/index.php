@@ -1,3 +1,9 @@
+<?php
+
+use Config\Env;
+use Controller\VoteController;
+
+?>
 <style>
     .banner {
         text-align: center;
@@ -144,11 +150,18 @@
     </div>
 </div>
 
+<?php 
+$stats = (new VoteController())->results_view_view();
+?>
 <section class="stats-section">
-    <div class="stat-item"><span>15 Novembre 2025</span>Date de Scrutin</div>
-    <div class="stat-item"><span>3 Équipes</span>Groupes Candidats</div>
-    <div class="stat-item"><span>4 Postes</span>Postes à Pourvoir</div>
-    <div class="stat-item"><span style="color: var(--status-success)">Vote Ouvert</span>Statut Actuel</div>
+    <div class="stat-item"><span><?php echo (new \DateTime(Env::get('SCRUTIN_START')))->format('d M Y') ?> </span>Date de Scrutin</div>
+    <div class="stat-item"><span><?= $stats[0]['nb_equipe'] ?> Équipes</span>Groupes Candidats</div>
+    <div class="stat-item"><span><?= $stats[0]['nb_poste'] ?> Postes</span>Postes à Pourvoir</div>
+    <?php if(Env::get("SCRUTIN_STATUS") == 'open' ) : ?>
+        <div class="stat-item"><span style="color: var(--status-success)">Vote Ouvert</span>Statut Actuel</div>
+    <?php else : ?>
+        <div class="stat-item"><span style="color: var(--status-error)">Vote Fermé</span>Statut Actuel</div>
+    <?php endif; ?>
 </section>
 
 <section class="content-sections">

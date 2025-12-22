@@ -1,6 +1,7 @@
 <?php
 namespace Database;
 
+use Config\Env;
 use PDO;
 use PDOException;
 
@@ -18,9 +19,9 @@ class Database
 
         try {
             $this->conn = new PDO(
-                "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
-                DB_USER,
-                DB_PASS,
+                "mysql:host=" . Env::get('DB_HOST') . ";dbname=" . Env::get('DB_DATABASE') . ";charset=utf8mb4",
+                Env::get('DB_USERNAME'),
+                Env::get('DB_PASSWORD'),
                 [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

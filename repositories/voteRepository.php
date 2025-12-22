@@ -143,4 +143,14 @@ class voteRepository
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
+    public function statistiquesAccueil(){
+        $sql = "SELECT 
+                    (SELECT COUNT(*) FROM equipe) AS nb_equipe,
+                    (SELECT COUNT(*) FROM poste) AS nb_poste;
+                ";
+        $stmt = $this->db->query($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

@@ -1,37 +1,51 @@
 <?php
 
+use Config\Env;
+require_once __DIR__ . '/../../config/Env.php';
 use Core\Session;
 use Core\Response;
 use Core\CODE_RESPONSE;
 
 $session = new Session();
 
-if ($session->has('user')) {
-    /* echo 'session: ';
-    echo '<pre>';
-    //$session->get('user');
-    print_r($session->getAll());
-    echo '</pre>'; */
-    $user = $session->get('user');
+$user = $session->get('user');
+$base_url = Env::get("BASE_URL");
+var_dump($session->getAll());
+// var_dump($base_url);
+// Vérifier si l'utilisateur est connecté et a voté
+if ($session->has('user') && $user && isset($user['a_vote']) && $user['a_vote']) {
     ?>
     <script>
-        const BASE_URL = <?= json_encode(BASE_URL); ?>;
-        var user = <?= json_encode($user); ?>;
+        const BASE_URL = <?= json_encode($base_url); ?>;
         const url = BASE_URL + '/votes/waiting';
         console.log('url: ', url);
-        console.log('user: ', user);
-        if(user && user.a_vote){
-            window.location.href = url;
-        }
+        console.log('user: ', <?= json_encode($user); ?>);
+        window.location.href = url;
     </script>
     <?php
 }
 
-if (!$session->has('user')) { ?>
+// Rediriger si non connecté
+if (!$session->has('user')) {
+    ?>
     <script>
-        redirect_unauthorized()
-    </script> 
-<?php } ?>
+        const url_user_not_connected = <?= json_encode($base_url); ?>;
+        window.location.href = url_user_not_connected;
+    </script>
+    <?php
+}
+
+// Rediriger si le scrutin n'est pas ouvert
+if (Env::get('SCRUTIN_STATUS') != 'open') {
+    ?>
+    <script>
+        const url_ = <?= json_encode($base_url); ?>;
+        window.location.href = url_;
+    </script>
+    <?php
+}
+?>
+
 
 
 <style>
@@ -45,7 +59,7 @@ if (!$session->has('user')) { ?>
 
     .verified-btn {
         background: #e9fbe9;
-        color: #1f7e1f ;
+        color: #1f7e1f;
         border: 1px solid #bfe7bf;
         padding: 10px 18px;
         border-radius: 8px;
@@ -113,10 +127,11 @@ if (!$session->has('user')) { ?>
 
     .post-title {
         text-align: center;
-        color: /* The above code appears to be a mix of different programming languages and symbols. */
-        /* The above code appears to be a mix of PHP and CSS syntax. However, it is not valid
+        color:
+            /* The above code appears to be a mix of different programming languages and symbols. */
+            /* The above code appears to be a mix of PHP and CSS syntax. However, it is not valid
         code as it seems to be a combination of different languages. */
-        var(--gold-dark);
+            var(--gold-dark);
         font-size: 1.8rem;
         font-weight: 700;
         margin-bottom: 30px;
@@ -733,8 +748,7 @@ if (!$session->has('user')) { ?>
                         console.log('donnes: ', objMemoire);
                         console.log('partId: ', participantId);
                         btn_choix.addEventListener('click', () => {
-                            vote(objMemoire, participantId
-                            );
+                            vote(objMemoire, participantId);
                         });
 
                     }
@@ -762,7 +776,7 @@ if (!$session->has('user')) { ?>
             })
             .catch(err => {
                 console.error(err);
-                
+
             });
 
     }

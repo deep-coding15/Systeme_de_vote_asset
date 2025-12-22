@@ -51,6 +51,10 @@ class ParticipantController
         $prenom = $_POST['prenom'] ?? '';
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
+
+        // Création du hash (le sel est généré et inclus dedans automatiquement)
+        //$password = password_hash($password, PASSWORD_DEFAULT);
+
         $code_qr = 'QR-' . random_int(100, 1000);
         $phone = $_POST['phone'] ?? '';
         $type_document = $_POST['type_document'] ?? '';
@@ -156,6 +160,9 @@ class ParticipantController
 
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
+
+        // Pour vérifier, on donne juste le mot de passe et le hash complet
+        //if(!password_verify($password, $hash_stocke_en_bdd))
 
         // === Données à insérer ===
         $data = compact(
