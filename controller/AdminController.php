@@ -1,8 +1,8 @@
 <?php
 namespace Controller;
-require_once __DIR__ . '/../Database/Database.php';
+/* require_once __DIR__ . '/../Database/Database.php';
 require_once __DIR__ . '/../core/Session.php';
-require_once __DIR__ . '/../utils/utils.php';
+require_once __DIR__ . '/../utils/utils.php'; */
 
 use Core\CODE_RESPONSE;
 use Core\Response;
@@ -10,15 +10,16 @@ use Core\Session;
 use Database\Database;
 use Utils\Utils;
 
-$session = new Session();
 
 class AdminController
 {
     private $db;
+    private $session;
 
     public function __construct()
     {
-        $this->db = (new Database())->getConnection();
+        $this->db      = (new Database())->getConnection();
+        $this->session = new Session();
     }
 
     public function getLogin(){
@@ -64,11 +65,11 @@ class AdminController
         // connexion réussie
         //$_SESSION['admin_id'] = $admin['id_admin'];
 
-        global $session;
+        //global $session;
         $is_admin = true;
         $est_valide = true;
         $code_qr = '';
-        $session->set('user', [
+        $this->session->set('user', [
             'id' => $admin['id_admin'],
             'nom' => $admin['nom'],
             'prenom' => $admin['prenom'],

@@ -1,11 +1,10 @@
 <?php
-
 namespace Controller;
 
-require_once __DIR__ . '/../Database/Database.php';
+/* require_once __DIR__ . '/../Database/Database.php';
 require_once __DIR__ . '/../repositories/candidatRepository.php';
 require_once dirname(__DIR__, 1) . '/core/Response.php';
-
+ */
 use Core\CODE_RESPONSE;
 use Core\Response as CoreResponse;
 use Database\Database;

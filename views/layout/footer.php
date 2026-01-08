@@ -96,11 +96,11 @@
         </div>
 
         <p class="aseet-footer-desc">Plateforme officielle de vote sécurisée</p>
-        <p class="aseet-footer-desc">Élections du Bureau Exécutif 2025</p>
+        <p class="aseet-footer-desc">Élections du Bureau Exécutif <?= (new DateTime("now"))->format('Y') ?> </p>
 
         <div class="aseet-footer-divider"></div>
 
-        <p class="aseet-footer-copy">© 2025 ASEET. Tous droits réservés.</p>
+        <p class="aseet-footer-copy">© <?= (new DateTime("now"))->format('Y') ?> ASEET. Tous droits réservés.</p>
     </div>
 </footer>
 </body>

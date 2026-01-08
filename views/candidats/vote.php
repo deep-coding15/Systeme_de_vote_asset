@@ -1,15 +1,18 @@
 <?php
 
 use Config\Env;
-require_once __DIR__ . '/../../config/Env.php';
+//require_once __DIR__ . '/../../config/Env.php';
 use Core\Session;
 use Core\Response;
 use Core\CODE_RESPONSE;
+use Utils\Utils;
 
 $session = new Session();
 
 $user = $session->get('user');
-$base_url = Env::get("BASE_URL");
+
+$base_url = rtrim(Env::get("BASE_URL"), '/');
+
 var_dump($session->getAll());
 var_dump($base_url);
 // Vérifier si l'utilisateur est connecté et a voté
@@ -36,7 +39,7 @@ if (!$session->has('user')) {
 }
 
 // Rediriger si le scrutin n'est pas ouvert
-if (Env::get('SCRUTIN_STATUS') != 'open') {
+if (!Utils::IsStatusVoteOpen()) {
     ?>
     <script>
         const url_ = <?= json_encode($base_url); ?>;
@@ -771,6 +774,7 @@ if (Env::get('SCRUTIN_STATUS') != 'open') {
             })
             .then(res => res.json())
             .then(data => {
+                console.log('url reçu du vote: ', data.url);
                 //Implementé la notif de vote reussit
                 window.location.href = data.url;
             })

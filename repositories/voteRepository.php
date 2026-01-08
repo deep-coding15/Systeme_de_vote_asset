@@ -5,16 +5,16 @@ use Database\Database;
 use PDO;
 use PDOException;
 
-require_once dirname(__DIR__) . '/Database/database.php';
+//require_once dirname(__DIR__) . '/Database/database.php';
 
-class voteRepository
+class VoteRepository extends Repository
 {
-    private $db;
+    /* private $db;
 
     public function __construct()
     {
         $this->db = (new Database())->getConnection();
-    }
+    } */
 
     /**
      * Récupère tous les votes
@@ -120,11 +120,7 @@ class voteRepository
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total'];
-    }
-
-    public function rollback(){
-        $this->db->rollBack();
-    }
+    }    
 
     public function results_in_view_pourcentage(): array {
         $sql = "SELECT * FROM resultats_en_direct_pourcentage";

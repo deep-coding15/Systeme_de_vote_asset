@@ -1,5 +1,4 @@
 <?php
-
 namespace Utils;
 
 use chillerlan\QRCode\QRCode;

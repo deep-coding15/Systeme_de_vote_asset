@@ -1,25 +1,27 @@
 <?php
+namespace Controller;
 
 use Core\Session;
 use Utils\QrCodeManager;
 
-require_once dirname(__DIR__, 1) . '/repositories/participantRepository.php';
+/* require_once dirname(__DIR__, 1) . '/repositories/participantRepository.php';
 require_once dirname(__DIR__, 1) . '/utils/QrCodeManager.php';
 require_once dirname(__DIR__, 1) . '/core/CODE_RESPONSE.php';
 require_once dirname(__DIR__, 1) . '/core/Session.php';
-
+ */
 use Core\CODE_RESPONSE;
 use Core\Response;
 use Models\Participant;
 use Repositories\participantRepository;
 
-$session = new Session();
 class ParticipantController
 {
     private $participantRepository;
+    private $session;
     public function __construct()
     {
         $this->participantRepository = new participantRepository();
+        $this->session = new Session();
     }
     public function index()
     {
@@ -117,9 +119,9 @@ class ParticipantController
         }
 
         // === Succès ===
-        global $session;
+        //global $session;
         $is_admin = false;
-        $session->set('user', [
+        $this->session->set('user', [
             'id' => $participantId,
             'nom' => $nom,
             'prenom' => $prenom,
@@ -183,9 +185,9 @@ class ParticipantController
         // error_log('participant: ' . print_r($participant, true));
 
         // === Succès ===
-        global $session;
+        //global $session;
         $is_admin = false;
-        $session->set('user', [
+        $this->session->set('user', [
             'id' => $participant['id_participant'],
             'nom' => $nom,
             'prenom' => $prenom,
@@ -202,10 +204,10 @@ class ParticipantController
 
     public function logout()
     {
-        $session = new Session();
-        if ($session->isLoggedIn()) {
-            $session->remove('user');
-            $session->destroy();
+        $this->session = new Session();
+        if ($this->session->isLoggedIn()) {
+            $this->session->remove('user');
+            $this->session->destroy();
         }
         return Response::redirect('/');
     }

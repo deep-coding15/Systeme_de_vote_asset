@@ -8,8 +8,20 @@ class Env
      * Charge le fichier .env
      * @param string $path Chemin vers le fichier .env
      */
-    public static function load(string $path = __DIR__ . '/../.env'): void
+    public static function load(?string $path = null): void
     {
+        if ($path === null) {
+            // Détection de l'environnement Docker 
+            $isDocker = file_exists('/.dockerenv');
+            $envFile = $isDocker ? '.env.docker' : '.env.local';
+            $path = __DIR__ . '/../' . $envFile;
+
+            //Fallback sur le .env standard si le fichier spécifique n'existe pas
+            if(!file_exists($path)) {
+                $path = __DIR__ . '/../.env';
+            }
+        }
+
         if (!file_exists($path)) {
             throw new \Exception("Le fichier .env est introuvable à l'emplacement: $path");
         }
@@ -20,11 +32,14 @@ class Env
             $line = trim($line);
 
             // Ignore les commentaires
-            if (str_starts_with($line, '#')) continue;
+            if (str_starts_with($line, '#') || !str_contains($line, '=')) continue;
 
             // Split key=value
             [$key, $value] = explode('=', $line, 2) + [null, null];
 
+            //supprime les guillemets entourants la valeur (" ou ')
+            $value = trim($value, "\"'");
+            
             if ($key !== null && $value !== null) {
                 self::$variables[trim($key)] = trim($value);
             }

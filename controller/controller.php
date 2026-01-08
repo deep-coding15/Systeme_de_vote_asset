@@ -1,5 +1,4 @@
 <?php
-
 namespace Controller;
 
 use Core\CODE_RESPONSE;
@@ -7,7 +6,7 @@ use Core\Response;
 
 use function PHPSTORM_META\type;
 
-require_once __DIR__ . '/../core/CODE_RESPONSE.php';
+//require_once __DIR__ . '/../core/CODE_RESPONSE.php';
 
 class Controller
 {

@@ -1,34 +1,37 @@
 <?php
-
 namespace Controller;
 
 use Core\CODE_RESPONSE;
 use Core\Response;
 use Core\Session;
 use Exception;
-use Repositories\voteRepository;
-use Repositories\candidatRepository;
-use Repositories\participantRepository;
+use Repositories\CandidatRepository;
+use Repositories\ParticipantRepository;
+use Repositories\VoteRepository;
+use Utils\Utils;
 
-require_once __DIR__ . '/../repositories/voteRepository.php';
+/* require_once __DIR__ . '/../repositories/voteRepository.php';
 require_once __DIR__ . '/../repositories/candidatRepository.php';
 require_once __DIR__ . '/../repositories/participantRepository.php';
-require_once __DIR__ . '/../core/Session.php';
-$session = new Session();
+require_once __DIR__ . '/../core/Session.php'; */
+//$session = new Session();
 class VoteController
 {
+    private $session;
     private $voteRepository;
     private $participantRepository;
     private $candidatRepository;
     public function __construct()
     {
-        $this->voteRepository = new voteRepository();
-        $this->participantRepository = new participantRepository();
-        $this->candidatRepository = new candidatRepository();
+        $this->session               = new Session();
+        $this->voteRepository        = new VoteRepository();
+        $this->participantRepository = new ParticipantRepository();
+        $this->candidatRepository    = new CandidatRepository();
     }
     public function vote()
     {
         try {
+            $this->voteRepository->
             $json = file_get_contents('php://input');
             $data = json_decode($json, true);
 
@@ -58,11 +61,11 @@ class VoteController
 
                 $this->participantRepository->update_a_vote($participantId);
             }
-            global $session;
-            $user = $session->get('user');
+            //global $session;
+            $user = $this->session->get('user');
             $user['a_vote'] = 1;
-            $session->set('user', $user);
-            $url = BASE_URL . '/votes/waiting';
+            $this->session->set('user', $user);
+            $url = Utils::getBaseUrl() . '/votes/waiting';
 
             return Response::json(["message" => "vote effectué", "url" => $url], CODE_RESPONSE::CREATED);
         } catch (Exception $error) {

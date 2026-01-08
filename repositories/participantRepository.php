@@ -1,5 +1,4 @@
 <?php
-
 namespace Repositories;
 
 use chillerlan\QRCode\Output\QROutputInterface;
@@ -13,18 +12,18 @@ use PDOException;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 use Utils\Utils;
-require_once dirname(__DIR__) . '/utils/utils.php';
+/* require_once dirname(__DIR__) . '/utils/utils.php';
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 require_once dirname(__DIR__) . '/Database/database.php';
-
-class participantRepository
+ */
+class ParticipantRepository extends Repository
 {
-	private $db;
+	/* private $db;
 
 	public function __construct()
 	{
 		$this->db = (new Database())->getConnection();
-	}
+	} */
 
 	/**
 	 * Récupère tous les participants

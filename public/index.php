@@ -1,20 +1,43 @@
 <?php
 
+date_default_timezone_set('UTC');
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
 require_once __DIR__ . '/../router.php';
-require_once __DIR__ . '/../controller/AdminController.php';
+/*require_once __DIR__ . '/../controller/AdminController.php';
 require_once __DIR__ . '/../controller/VoteController.php';
 require_once __DIR__ . '/../controller/ParticipantController.php';
 require_once __DIR__ . '/../controller/CandidatController.php';
 require_once __DIR__ . '/../controller/Controller.php';
+ */
 
-use Controller\AdminController;
+/* use Controller\AdminController;
 use Controller\CandidatController;
-use Controller\VoteController;
-use Controller\Controller;
-use Core\Response;
+use Controller\VoteController; */
+//use Controller\Controller;
+//use Core\Response;
+
+use Config\Env;
 use Core\Session;
 
+// Forcer les heures de l'application au format UTC
 
+// TEST DE DIAGNOSTIC
+if (!class_exists('Controller\Controller')) {
+    echo "L'autoloader ne trouve pas la classe. Voici les chemins vérifiés :<br>";
+    echo "Chemin attendu : " . realpath(__DIR__ . '/../Controller/VoteController.php');
+    die();
+}
+else
+    echo "L'autoloader a trouvé  la classe. ";
+
+try {
+    // On remonte d'un cran (../) car le .env est à la racine, pas dans public/
+    Env::load(__DIR__ . '/../.env');
+} catch (Exception $e) {
+    die("Erreur de configuration : " . $e->getMessage());
+}
 /*
  |---------------------------------------------------------
  | Définition des routes
@@ -23,58 +46,58 @@ use Core\Session;
 
 // Page d'accueil : OKAY
 get('/', function () {
-    Response::render('index', ['titre' => 'Accueil']);
+    \Core\Response::render('index', ['titre' => 'Accueil']);
 });
 
 // Divers
-get('/redirect', [Controller::class, 'redirect']);
+get('/redirect', [\Controller\Controller::class, 'redirect']);
 
 // Candidats : OKAY
-get('/candidats', [CandidatController::class, 'index']);
+get('/candidats', [\Controller\CandidatController::class, 'index']);
 
 // Participants : OKAY
 get('/votes/auth', function(){
-    Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
+    \Core\Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
 });
 get('/votes', function(){
-    Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
+    \Core\Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
 });
 
 get('/resultats/test', function(){
-    Response::render('/resultats/test', ['titre' => 'Resultats — ASSET Vote']);
+    \Core\Response::render('/resultats/test', ['titre' => 'Resultats — ASSET Vote']);
 });
 
 
-get('/resultats/test2', [VoteController::class, 'results_view']);
+get('/resultats/test2', [\Controller\VoteController::class, 'results_view']);
 get('/votes/waiting', function(){
-    Response::render('/votes/waiting', ['titre' => 'Waiting — ASSET Vote']);
+    \Core\Response::render('/votes/waiting', ['titre' => 'Waiting — ASSET Vote']);
 });
 
-post('/participants/add', [ParticipantController::class, 'store']);
-post('/participants/login', [ParticipantController::class, 'login']);
-get('/participants/logout', [ParticipantController::class, 'logout']);
-get('/candidats/vote', [CandidatController::class, 'vote']);
-post('/candidats/vote', [CandidatController::class, 'vote']);
+post('/participants/add', [\Controller\ParticipantController::class, 'store']);
+post('/participants/login', [\Controller\ParticipantController::class, 'login']);
+get('/participants/logout', [\Controller\ParticipantController::class, 'logout']);
+get('/candidats/vote', [\Controller\CandidatController::class, 'vote']);
+post('/candidats/vote', [\Controller\CandidatController::class, 'vote']);
 
 
-get('/test', [CandidatController::class, 'test']);
+get('/test', [\Controller\CandidatController::class, 'test']);
 
-get('/administrateur/auth', [AdminController::class, 'getLogin']);
-post('/administrateur/auth', [AdminController::class, 'login']);
+get('/administrateur/auth', [\Controller\AdminController::class, 'getLogin']);
+post('/administrateur/auth', [\Controller\AdminController::class, 'login']);
 
 // Participants
-get('/participants', [ParticipantController::class, 'index']);
-post('/participants/validate/:id', [ParticipantController::class, 'validate']);
+get('/participants', [\Controller\ParticipantController::class, 'index']);
+post('/participants/validate/:id', [\Controller\ParticipantController::class, 'validate']);
 
 
 // Votes
-post('/participant/vote', [VoteController::class, 'vote']);
-post('/vote/:poste/:candidat/:participant', [VoteController::class, 'store']);
-get('/resultats', [VoteController::class, 'results_view']);
+post('/participant/vote', [\Controller\VoteController::class, 'vote']);
+post('/vote/:poste/:candidat/:participant', [\Controller\VoteController::class, 'store']);
+get('/resultats', [\Controller\VoteController::class, 'results_view']);
 
 
 // API
-get('/api/candidats/poste', [CandidatController::class, 'candidatsPoste']);
+get('/api/candidats/poste', [\Controller\CandidatController::class, 'candidatsPoste']);
 // Route introuvable
 any('/404', function () {
     http_response_code(404);

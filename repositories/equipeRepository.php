@@ -5,16 +5,16 @@ use Database\Database;
 use PDO;
 use PDOException;
 
-require_once dirname(__DIR__) . '/Database/Database.php';
+//require_once dirname(__DIR__) . '/Database/Database.php';
 
-class EquipeRepository
+class EquipeRepository extends Repository
 {
-    private $db;
+    /* private $db;
 
     public function __construct()
     {
         $this->db = (new Database())->getConnection();
-    }
+    } */
 
     /**
      * Récupère tous les equipes
