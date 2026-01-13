@@ -89,3 +89,15 @@ docker compose exec php composer dump-autoload
 
 
 Il y'avait un probleme de chargement et je l'ai resolu en lisant les varibales dans le fichier d'environnement.
+
+# Pour se connecter au service db et executer des requêtes SQL.
+docker exec -it mysql_8-2 mysql -u root -p
+
+# Pour executer le code sql automatiquement à chaque reconstruction du conteneur
+Le dossier /docker-entrypoint-initdb.d ne s'exécute pas à chaque docker compose up. Il s'exécute uniquement si le dossier /var/lib/mysql dans le conteneur est vide.
+
+# docker compose down -v : 
+Arrête les conteneurs et supprime tous les disques de données associés
+Pour garder les données, on utilise seulement : docker compose down
+
+# entrer dans un controller :  docker exec -it php_8-2 bash

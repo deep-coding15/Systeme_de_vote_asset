@@ -73,6 +73,10 @@ class VoteRepository extends Repository
      */
     public function insert($data)
     {
+        /* $user_vote = $ $this->session->get('user');
+                if(!$user_vote){
+                    return Response::json(["error" => "Unauthorized"]);
+                } */
         $sql = "INSERT INTO vote (id_participant, id_candidat, id_poste, date_vote)
                 VALUES (:id_participant, :id_candidat, :id_poste, NOW())";
         $stmt = $this->db->prepare($sql);

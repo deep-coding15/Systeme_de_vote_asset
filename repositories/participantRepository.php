@@ -1,4 +1,5 @@
 <?php
+
 namespace Repositories;
 
 use chillerlan\QRCode\Output\QROutputInterface;
@@ -16,6 +17,7 @@ use Utils\Utils;
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 require_once dirname(__DIR__) . '/Database/database.php';
  */
+
 class ParticipantRepository extends Repository
 {
 	/* private $db;
@@ -92,12 +94,12 @@ class ParticipantRepository extends Repository
 	{
 		//$data['password_hash'] = '1234'; //Juste pour le test
 		$participant = $this->findByEmail($data['email']);
-		if(!$participant){
+		if (!$participant) {
 			return false;
 		}
 
 		error_log(print_r($participant, true));
-		if (Utils::verifyPasswordBcrypt($data['password'], $participant['password_hash'])){
+		if (Utils::verifyPasswordBcrypt($data['password'], $participant['password_hash'])) {
 			$this->update_est_valide($participant['id_participant']);
 			return $participant;
 		}
@@ -137,6 +139,27 @@ class ParticipantRepository extends Repository
 		}
 		return $stmt->rowCount();
 	}
+
+	public function lockForVote(int $id)
+	{
+		$stmt = $this->db->prepare(
+			"SELECT id_participant, a_vote
+         FROM participant
+         WHERE id_participant = ?
+         FOR UPDATE"
+		);
+		$stmt->execute([$id]);
+		return $stmt->fetch(PDO::FETCH_ASSOC);
+	}
+
+	public function markAsVoted(int $id)
+	{
+		$stmt = $this->db->prepare(
+			"UPDATE participant SET a_vote = 1 WHERE id_participant = ?"
+		);
+		return $stmt->execute([$id]);
+	}
+
 
 	public function update_a_vote(int $id_participant)
 	{

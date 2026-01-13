@@ -1,57 +1,55 @@
-version: '3.8'
+version: '3.8' # Version du format de fichier Docker Compose utilisé
 
-services:
-  # Service PHP
+services: # Définition des différents conteneurs (services) de l'application
+  
+  # --- Service PHP (Votre application) ---
   php:
-    build: .
-    container_name: php_8-2
+    build: . # Construit l'image à partir du Dockerfile présent dans le dossier courant
+    container_name: php_8-2 # Nom personnalisé du conteneur pour l'identifier facilement
     volumes:
-      - ./:/var/www/html
+      - ./:/var/www/html # Synchronise votre dossier local avec le dossier du serveur dans Docker
     ports:
-      - "8000:80"
-    environment:
-      - APACHE_DOCUMENT_ROOT=/var/www/html/public
-      - TZ=UTC # Pour le fuseau horaire UTC
-    command: >
-      bash -c "a2enmod rewrite &&
-      echo '<Directory /var/www/html>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-      </Directory>' > /etc/apache2/conf-available/docker-permissions.conf &&
-      a2enconf docker-permissions &&
-      apache2-foreground"
-    depends_on:
-      db:
-        condition: service_healthy
+      - "8000:80" # Relie le port 8000 de votre PC au port 80 (HTTP) du conteneur
+    environment: # Variables d'environnement injectées dans PHP (accessibles via getenv())
+      - TZ=UTC # Définit le fuseau horaire du serveur sur l'heure universelle
+      - APP_ENV=docker # Indique à votre code qu'il tourne sous Docker (pour choisir .env.docker)
+      - DB_HOST=db # Définit le nom de l'hôte MySQL (correspond au nom du service ci-dessous)
+      - DB_NAME=systeme_vote_aseet # Nom de la base de données utilisée par l'application
+      #- APACHE_DOCUMENT_ROOT=/var/www/html/public
+    depends_on: # Définit les dépendances entre les services
+      db: # Le service PHP dépend du service "db"
+        condition: service_healthy # PHP attend que MySQL ait fini son auto-test de santé avant de démarrer
 
-  # Service Base de données
+  # --- Service MySQL (Base de données) ---
   db:
-    image: mysql:8.0
-    container_name: mysql_8-2
-    environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_DATABASE: "systeme_vote_aseet"
+    image: mysql:8.0 # Utilise l'image officielle MySQL version 8.0
+    container_name: mysql_8-2 # Nom du conteneur pour la base de données
+    restart: always # Redémarre automatiquement le conteneur en cas de plantage ou reboot
+    environment: # Paramètres de configuration de MySQL
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # Autorise la connexion root sans mot de passe (pratique en dev)
+      MYSQL_DATABASE: "systeme_vote_aseet" # Crée automatiquement cette base au premier démarrage
     volumes:
-      - db_data:/var/lib/mysql
+      - systeme_vote_db_data:/var/lib/mysql # Stocke les données sur votre disque (évite de perdre vos votes au reboot)
     ports:
-      - "3308:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - "3308:3306" # Permet d'accéder à MySQL depuis votre PC via le port 3308 (ex: via DBeaver/HeidiSQL)
+    healthcheck: # Test de vérification pour savoir si MySQL est réellement prêt
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"] # Teste si MySQL répond au "ping"
+      interval: 5s # Effectue le test toutes les 5 secondes
+      timeout: 2s # Temps maximum accordé au test avant de le considérer en échec
+      retries: 10 # Nombre d'essais avant de déclarer le conteneur comme "malade" (unhealthy)
 
+  # --- Service PHPMyAdmin (Interface de gestion DB) ---
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin # Utilise l'image officielle de PHPMyAdmin
+    container_name: pma_8-2 # Nom du conteneur de l'interface graphique
     ports:
-      - "8082:80"
+      - "8082:80" # Accès à l'interface via http://localhost:8082
     depends_on:
-      - db
+      - db # S'assure que MySQL est listé avant de démarrer l'interface
     environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
+      PMA_HOST: db # Indique à PHPMyAdmin de se connecter au service "db"
+      PMA_PORT: 3306 # Utilise le port interne standard de MySQL
 
+# --- Définition des volumes persistants ---
 volumes:
-  db_data:
+  systeme_vote_db_data: # Déclare le volume nommé pour la persistance des données MySQL

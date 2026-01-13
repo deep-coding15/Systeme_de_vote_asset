@@ -260,19 +260,35 @@ use Core\Session;
 
 $session = new Session();
 $base_url = rtrim(Env::get('BASE_URL'), '/');
-// var_dump($session->getAll())
+var_dump($session->getAll())
 ?>
 
 <script>
-const BASE_URL = <?= json_encode($base_url) ?>;
-const aVote = <?= json_encode($session->get('user')['a_vote'] ?? false) ?>;
-console.log(BASE_URL, aVote);
-document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
+    const BASE_URL = <?= json_encode($base_url) ?>;
+    const aVote = <?= json_encode($session->get('user')['a_vote'] ?? false) ?>;
+    //const estValide = <?php //echo json_encode($session->get('user')['est_valide']) ?? false  ?>;
+    
     if(aVote){
-        const url = BASE_URL + 'votes/waiting';
+        const url = BASE_URL + '/votes/waiting';
         console.log('url',url);
         window.location.href = url;
-    }
+    } 
+    
+    var estValide = <?php 
+        if ($session->has('user') && $session->get('user')['est_valide']) {
+            echo json_encode($session->get('user')['est_valide']);
+        } else {
+            echo "false";
+        }
+    ?>;
+
+    if(estValide) {
+        const vote_url = BASE_URL + '/candidats/vote';
+        console.log('vote url: ', vote_url);
+        window.location.href = vote_url;
+    } 
+    console.log(BASE_URL, aVote, estValide);
 });
 
 </script> 

@@ -1,6 +1,23 @@
 -- ========================================
 -- Base de données : systeme_vote_aseet
 -- ========================================
+SET FOREIGN_KEY_CHECKS = 0; -- Désactive temporairement les contraintes pour éviter les erreurs lors du drop
+
+DROP TABLE IF EXISTS systeme_vote_aseet.admin;
+DROP TABLE IF EXISTS systeme_vote_aseet.participant;
+DROP TABLE IF EXISTS systeme_vote_aseet.equipe;
+DROP TABLE IF EXISTS systeme_vote_aseet.poste;
+DROP TABLE IF EXISTS systeme_vote_aseet.candidat;
+DROP TABLE IF EXISTS systeme_vote_aseet.experiences_candidat;
+DROP TABLE IF EXISTS systeme_vote_aseet.priorites_candidat;
+DROP TABLE IF EXISTS systeme_vote_aseet.vote;
+DROP TABLE IF EXISTS systeme_vote_aseet.logs;
+DROP VIEW IF EXISTS systeme_vote_aseet.resultats_en_direct;
+DROP TABLE IF EXISTS systeme_vote_aseet.resultats_en_direct_pourcentage;
+-- ... répétez pour chaque table
+
+SET FOREIGN_KEY_CHECKS = 1; -- Réactive les contraintes
+
 
 CREATE DATABASE IF NOT EXISTS systeme_vote_aseet;
 USE systeme_vote_aseet;
@@ -156,27 +173,27 @@ ORDER BY p.id_poste, total_votes DESC;
 
 
 
-INSERT INTO admin (nom, prenom, email, mot_de_passe) VALUES
+INSERT IGNORE  INTO admin (nom, prenom, email, mot_de_passe) VALUES
 ('Super', 'Admin', 'admin@aseet.org', 'hashed_password');
 
-INSERT INTO equipe (nom_equipe) VALUES
+INSERT IGNORE  INTO equipe (nom_equipe) VALUES
 ('Team Alpha'), ('Team Beta');
 
-INSERT INTO poste (intitule) VALUES
+INSERT IGNORE  INTO poste (intitule) VALUES
 ('Président'), ('Secrétaire');
 
-INSERT INTO candidat (nom, prenom, email, id_equipe, id_poste) VALUES
+INSERT IGNORE  INTO candidat (nom, prenom, email, id_equipe, id_poste) VALUES
 ('Alice', 'Dupont', 'alice@alpha.org', 1, 1),
 ('Bob', 'Martin', 'bob@beta.org', 2, 1),
 ('Carla', 'Durand', 'carla@alpha.org', 1, 2),
 ('David', 'Leroy', 'david@beta.org', 2, 2);
 
-INSERT INTO participant (nom, prenom, email, code_qr, est_valide) VALUES
+INSERT IGNORE  INTO participant (nom, prenom, email, code_qr, est_valide) VALUES
 ('Nana', 'Nalova', 'nana@example.com', 'QR123', TRUE),
 ('Doe', 'John', 'john@example.com', 'QR124', TRUE);
 
 -- Votes de test
-INSERT INTO vote (id_participant, id_candidat, id_poste) VALUES
+INSERT IGNORE  INTO vote (id_participant, id_candidat, id_poste) VALUES
 (1, 1, 1), (2, 2, 1),
 (1, 3, 2), (2, 4, 2);
 

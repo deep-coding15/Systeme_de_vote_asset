@@ -2,6 +2,7 @@
 
 use Config\Env;
 use Controller\VoteController;
+use Utils\Utils;
 
 ?>
 <style>
@@ -289,10 +290,10 @@ use Controller\VoteController;
 <div class="banner" style="z-index: 0;">
     <div class="badge">
         <i class="fa-chisel fa-solid fa-shield fa-lg"></i>
-        Sélection Officielle — Decembre 2025
+        Sélection Officielle —  <?= Utils::formatDateTimeEnFrancais(Env::get('SCRUTIN_START')) ?>
     </div>
     <h1>Élections du Bureau Exécutif</h1>
-    <p class="subtitle">ASSET 2025</p>
+    <p class="subtitle"><?= Utils::getAppNameShort() ?> <?= Utils::formatDateTimeEnFrancais(Env::get('SCRUTIN_START'), 'yyyy') ?></p>
     <p>Participez à l’avenir de l’Association des Étudiants et Stagiaires de Tétouan.</p>
 
     <div class="cta-buttons ">
@@ -319,7 +320,7 @@ $stats = (new VoteController())->results_view_view();
 
 <section class="content-sections">
     <div class="card">
-        <h3>À Propos de l’ASSET</h3>
+        <h3>À Propos de l'<?= Utils::getAppNameShort() ?></h3>
         <p>L’Association des Étudiants et Stagiaires de Tétouan œuvre pour la défense des intérêts...</p>
     </div>
 

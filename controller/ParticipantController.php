@@ -1,4 +1,5 @@
 <?php
+
 namespace Controller;
 
 use Core\Session;
@@ -151,6 +152,77 @@ class ParticipantController
         return Response::redirect('/candidats/vote');
     }
 
+    public function loginApi()
+    {
+        // 1️⃣ Méthode HTTP
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return Response::json(
+                ["error" => "Method Not Allowed"],
+                CODE_RESPONSE::METHOD_NOT_ALLOWED
+            );
+        }
+
+        // 2️⃣ Content-Type attendu
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        if (strpos($contentType, 'application/json') === false) {
+            return Response::json(
+                ["error" => "Content-Type must be application/json"],
+                CODE_RESPONSE::BAD_REQUEST
+            );
+        }
+
+        // 3️⃣ Lecture JSON
+        $raw = file_get_contents('php://input');
+        $data = json_decode($raw, true);
+
+        if ($data === null) {
+            return Response::json(
+                ["error" => "Invalid JSON"],
+                CODE_RESPONSE::BAD_REQUEST
+            );
+        }
+
+        $email = $data['email'] ?? null;
+        $password = $data['password'] ?? null;
+
+        if (!$email || !$password) {
+            return Response::json(
+                ["error" => "Email and password required"],
+                CODE_RESPONSE::BAD_REQUEST
+            );
+        }
+
+        // 4️⃣ Authentification
+        $participant = $this->participantRepository->login([
+            'email' => $email,
+            'password' => $password
+        ]);
+
+        if (!$participant) {
+            return Response::json(
+                ["error" => "Invalid credentials"],
+                CODE_RESPONSE::UNAUTHORIZED
+            );
+        }
+
+        // 5️⃣ Création de session (important pour le vote)
+        $this->session->set('user', [
+            'id' => $participant['id_participant'],
+            'nom' => $participant['nom'],
+            'prenom' => $participant['prenom'],
+            'email' => $participant['email'],
+            'a_vote' => $participant['a_vote'],
+            'is_admin' => false
+        ]);
+
+        // 6️⃣ Réponse API
+        return Response::json([
+            "message" => "Login successful",
+            "participantId" => $participant['id_participant']
+        ], CODE_RESPONSE::OK);
+    }
+
+
     public function login()
     {
         // === Vérification méthode HTTP ===
@@ -178,7 +250,11 @@ class ParticipantController
         $participant = $this->participantRepository->login($data);
 
         if (!$participant) {
-            error_log("❌ Échec insertion participant.");
+            error_log("❌ Échec log in participant.");
+            /*return Response::json(
+                ["error" => "Login failed"],
+                CODE_RESPONSE::UNAUTHORIZED
+            );*/
             return Response::redirect('/votes');
         }
         extract($participant);
@@ -199,6 +275,7 @@ class ParticipantController
         ]);
 
         error_log("✔️ Participant connecte et session créée.");
+        //Response::json(["message" => "Participant loggé avec succes."]);
         return Response::redirect('/candidats/vote');
     }
 

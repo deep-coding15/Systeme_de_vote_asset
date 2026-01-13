@@ -10,7 +10,10 @@ class Env
      */
     public static function load(?string $path = null): void
     {
+        error_log("Tentative de chargement du fichier .env : $path"); // Ajouté
         if ($path === null) {
+            $env = Env::get('APP_ENV') ?: 'local'; // Lit la variable APP_ENV
+            $envFile = ".env.$env"; //".env.$env";
             // Détection de l'environnement Docker 
             $isDocker = file_exists('/.dockerenv');
             $envFile = $isDocker ? '.env.docker' : '.env.local';
@@ -39,7 +42,7 @@ class Env
 
             //supprime les guillemets entourants la valeur (" ou ')
             $value = trim($value, "\"'");
-            
+
             if ($key !== null && $value !== null) {
                 self::$variables[trim($key)] = trim($value);
             }

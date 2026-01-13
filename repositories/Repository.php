@@ -19,7 +19,8 @@ abstract class Repository {
     }
 
     public function rollback(){
-        $this->db->rollBack();
+        if($this->db->inTransaction())
+            $this->db->rollBack();
     }
 
     public function transactionPrepared() {

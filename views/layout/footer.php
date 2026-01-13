@@ -1,3 +1,9 @@
+<?php
+
+use Config\Env;
+use Utils\Utils;
+
+?>
 <style>
     /* ============================
    FOOTER ASEET
@@ -96,7 +102,7 @@
         </div>
 
         <p class="aseet-footer-desc">Plateforme officielle de vote sécurisée</p>
-        <p class="aseet-footer-desc">Élections du Bureau Exécutif <?= (new DateTime("now"))->format('Y') ?> </p>
+        <p class="aseet-footer-desc">Élections du Bureau Exécutif <?= Utils::formatDateTimeEnFrancais(Env::get('SCRUTIN_START'), 'yyyy') ?></p> </p>
 
         <div class="aseet-footer-divider"></div>
 

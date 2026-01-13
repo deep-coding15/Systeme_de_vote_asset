@@ -25,7 +25,7 @@ APP_URL     : URL racine de l’application, utilisée pour les redirections, as
 DB_CONNECTION=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_DATABASE=systeme_vote_aseet
+DB_NAME=systeme_vote_aseet
 DB_USERNAME=root
 DB_PASSWORD=
 

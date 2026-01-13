@@ -760,6 +760,7 @@
 
 use Config\Env;
 use Core\Session;
+use Utils\Utils;
 
 $session = new Session(); ?>
 
@@ -805,7 +806,7 @@ $base_url = rtrim(Env::get('BASE_URL'), '/');
                 <div class="security-title">Confidentialité & Sécurité</div>
                 <div class="security-text">
                     Vos informations personnelles sont strictement confidentielles et sécurisées. Elles servent uniquement à vérifier votre éligibilité en tant que administrateur et garantir l’intégrité du scrutin.
-                    La plateforme ASSET respecte toutes les normes de protection des données.
+                    La plateforme <?= Utils::getAppNameShort(); ?> respecte toutes les normes de protection des données.
                 </div>
             </div>
         </div>

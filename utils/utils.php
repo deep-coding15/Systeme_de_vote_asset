@@ -5,15 +5,64 @@ namespace Utils;
 use Config\Env;
 use DateTime;
 use Exception;
+use IntlDateFormatter;
 
 class Utils
 {
+	private static $formatter;
+
+	/**
+	 * Returne l'url de base trimmer sans le '/' de la fin
+	 * @return string
+	 */
 	static function getBaseUrl()
 	{
 		// Si BASE_URL n'existe pas, on retourne une chaîne vide ou '/'
 		$url = Env::get('BASE_URL', '');
 		return rtrim($url, '/');
 	}
+
+	static function getAppNameShort() : string {
+		return Env::get('APP_NAME_SHORT');
+	}
+
+    /**
+     * Retourne une date formatée en français
+	 * Formate une date en français selon un motif spécifique.
+     *
+     * @param string|DateTime $date  La date à transformer (objet DateTime ou chaîne compatible).
+     *                                 Par défaut 'now' pour la date actuelle.
+     * @param string $pattern Le motif de formatage ICU (ex: 'MMMM yyyy').
+     *                                 @link unicode-org.github.io. (ex: 'MMMM yyyy' pour 'janvier 2026')
+     * @return string La date formatée avec la première lettre en majuscule.
+	 * 
+	 * @throws Exception Si la chaîne de date fournie est invalide.
+     * 
+     * @example Utils::formatDateTimeEnFrancais('2026-01-08', 'EEEE d MMMM yyyy') -> "Jeudi 8 janvier 2026"
+     *
+     */
+    public static function formatDateTimeEnFrancais($date = 'now', string $pattern = 'MMMM yyyy'): string
+    {
+        if (!$date instanceof DateTime) {
+            $date = new DateTime($date);
+        }
+
+        // Initialisation du formateur si nécessaire
+        if (self::$formatter === null) {
+            self::$formatter = new IntlDateFormatter(
+                'fr_FR',
+                IntlDateFormatter::FULL,
+                IntlDateFormatter::NONE,
+                date_default_timezone_get(),
+                IntlDateFormatter::GREGORIAN
+            );
+        }
+
+        self::$formatter->setPattern($pattern);
+        
+        // ucfirst pour mettre la première lettre en majuscule (Janvier 2026)
+        return ucfirst(self::$formatter->format($date));
+    }
 
 	static function hashPasswordBcrypt($password)
 	{

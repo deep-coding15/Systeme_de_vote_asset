@@ -6,7 +6,7 @@ use Config\Env;
 require_once __DIR__ . '/../config/Env.php';
  */
 // Charger le fichier .env
-Env::load(__DIR__ . '/../.env');
+Env::load();
 
 // Auto-detect BASE_URL based on current request
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';

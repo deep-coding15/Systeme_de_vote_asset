@@ -13,8 +13,8 @@ class Session
         $this->timeout = (trim(Env::get('SESSION_LIFETIME_SECONDS')) == '') ? 864000 : Env::get('SESSION_LIFETIME_SECONDS');
 
         // Configuration du cookie de session
-        // Démarre la session si elle n'est pas déjà démarrée
-        if (session_status() === PHP_SESSION_NONE) {
+        // Démarre la session si elle n'est pas déjà démarrée ET si aucun texte n'a été envoyé au navigateur
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
             // Configuration du cookie de session
             session_set_cookie_params([
                 'lifetime' => $this->timeout,

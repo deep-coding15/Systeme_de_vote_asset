@@ -2,6 +2,7 @@
 
 use Config\Env;
 use Core\Session;
+use Utils\Utils;
 
 //require_once __DIR__ . '/../../core/Session.php';
 $session = new Session();
@@ -25,7 +26,7 @@ $session = new Session();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php if (isset($_GET['titre'])) $titre = $_GET['titre'] ?? "ASSET"; ?>
+    <?php if (isset($_GET['titre'])) $titre = $_GET['titre'] ??  Utils::getAppNameShort(); ?>
     <title><?= $titre ?></title>
     <style>
         :root {
@@ -635,7 +636,7 @@ $session = new Session();
     <div class="asset-topbar">
         <div class="topbar-right">
             <span class="dot"></span>
-            <span>Élections Officielles 2025</span>
+            <span>Élections Officielles <?= (new DateTime())->format('Y') ?></span>
         </div>
     </div>
 
@@ -651,7 +652,7 @@ $session = new Session();
             <img src="logo.png" alt="Logo ASSET" class="asset-logo">
 
             <div class="asset-title-block">
-                <h1 class="asset-title">ASSET</h1>
+                <h1 class="asset-title"><?= Utils::getAppNameShort(); ?></h1>
                 <p class="asset-subtitle">Association des Étudiants et Stagiaires de Tétouan</p>
 
                 <div class="asset-values">
@@ -668,14 +669,16 @@ $session = new Session();
     <hr class="asset-header-divider">
 
     <?php //$cleanUrl = rtrim($url, "/");
-    $base_url = rtrim(Env::get('BASE_URL'), "/");
-    echo 'base_url: ' . $base_url;
+    $base_url = Utils::getBaseUrl();
+    //$base_url = rtrim(Env::get('BASE_URL'), "/");
+    //echo 'base_url: ' . $base_url;
     function isActive($url)
     {
         // This is a simplified check. You may need a more robust URL parser
         // depending on your exact routing setup in PHP.
         $current_uri = $_SERVER['REQUEST_URI'];
-        $base_url = Env::get('BASE_URL'); // Assumes BASE_URL is defined elsewhere
+        global $base_url;
+        //$base_url = Env::get('BASE_URL'); // Assumes BASE_URL is defined elsewhere
 
         // Check if the current URI ends with the link URL segment
         if ($url === $current_uri || ($url === $base_url . '/' && $current_uri === $base_url)) {
@@ -689,12 +692,12 @@ $session = new Session();
     <nav class="asset-nav">
 
         <?php if ($session && $session->has('user') && $session->get('user')['is_admin']) : ?>
-            <a href="<?= Env::get('BASE_URL'); ?>candidats"
+            <a href="<?= $base_url ?>/candidats"
                 class="nav-item <?= isActive($base_url . '/candidats') ?>">
                 <i class="fa-solid fa-users"></i>
                 <span>Candidats</span>
             </a>
-            <a href="<?= Env::get('BASE_URL'); ?>resultats"
+            <a href="<?= $base_url ?>/resultats"
                 class="nav-item <?= isActive($base_url . '/resultats') ?>">
                 <i class="fa-solid fa-chart-column"></i>
                 <span>Résultats</span>
@@ -704,7 +707,7 @@ $session = new Session();
                 <i class="fa-solid fa-chart-column"></i>
                 <span>VOTE TERMINE</span>
             </a>
-            <a href="<?= Env::get('BASE_URL'); ?>participants/logout"
+            <a href="<?= $base_url ?>participants/logout"
                 class="nav-item <?= isActive($base_url . '/participants/logout') ?>">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Logout</span>
