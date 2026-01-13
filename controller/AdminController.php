@@ -30,6 +30,7 @@ class AdminController
      */
     public function login()
     {
+        
         if ($_SERVER['REQUEST_METHOD'] !== "POST") {
             error_log("❌ Mauvaise méthode HTTP : " . $_SERVER['REQUEST_METHOD']);
             Response::redirect('/403', statusCode: CODE_RESPONSE::FORBIDDEN);

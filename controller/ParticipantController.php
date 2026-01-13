@@ -14,6 +14,7 @@ use Core\CODE_RESPONSE;
 use Core\Response;
 use Models\Participant;
 use Repositories\participantRepository;
+use Throwable;
 
 class ParticipantController
 {
@@ -277,6 +278,71 @@ class ParticipantController
         error_log("✔️ Participant connecte et session créée.");
         //Response::json(["message" => "Participant loggé avec succes."]);
         return Response::redirect('/candidats/vote');
+    }
+
+    public function apiLogin()
+    {
+        try {
+            // 1️⃣ Vérification de la méthode HTTP
+            if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+                return Response::json(
+                    ["error" => "Méthode non autorisée"],
+                    CODE_RESPONSE::METHOD_NOT_ALLOWED
+                );
+            }
+
+            // 2️⃣ Lecture des données JSON (courant en API) ou $_POST classique
+            $input = json_decode(file_get_contents('php://input'), true);
+            $email = $input['email'] ?? $_POST['email'] ?? '';
+            $password = $input['password'] ?? $_POST['password'] ?? '';
+
+            if (empty($email) || empty($password)) {
+                return Response::json(
+                    ["error" => "Email et mot de passe requis"],
+                    CODE_RESPONSE::BAD_REQUEST
+                );
+            }
+
+            // 3️⃣ Tentative de connexion via le repository
+            $data = ['email' => $email, 'password' => $password];
+            $participant = $this->participantRepository->login($data);
+
+            if (!$participant) {
+                error_log("❌ Échec API Login pour l'email : " . $email);
+                return Response::json(
+                    ["error" => "Identifiants invalides"],
+                    CODE_RESPONSE::UNAUTHORIZED
+                );
+            }
+
+            // 4️⃣ Création de la session (si vous utilisez toujours les sessions pour l'API)
+            $is_admin = false;
+            $userData = [
+                'id' => $participant['id_participant'],
+                'nom' => $participant['nom'],
+                'prenom' => $participant['prenom'],
+                'email' => $participant['email'],
+                'est_valide' => $participant['est_valide'],
+                'a_vote' => $participant['a_vote'],
+                'code_qr' => $participant['code_qr'],
+                'is_admin' => $is_admin
+            ];
+
+            $this->session->set('user', $userData);
+
+            // 5️⃣ Réponse JSON de succès
+            error_log("✔️ API Login réussi pour : " . $email);
+            return Response::json([
+                "message" => "Connexion réussie",
+                "user" => $userData // Optionnel : renvoyer les infos utilisateur pour le frontend
+            ], CODE_RESPONSE::OK);
+        } catch (Throwable $e) {
+            error_log("🔥 Erreur critique API Login : " . $e->getMessage());
+            return Response::json(
+                ["error" => "Une erreur interne est survenue"],
+                CODE_RESPONSE::SERVER_ERROR
+            );
+        }
     }
 
     public function logout()

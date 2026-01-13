@@ -6,3 +6,4 @@ vendor/
 .env.*
 .env.docker
 .env.infinityfree
+credentials/

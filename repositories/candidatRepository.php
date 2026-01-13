@@ -80,13 +80,11 @@ class CandidatRepository extends Repository
             $id = $this->db->lastInsertId();
 
             // On valide la transaction AVANT le return
-            $this->db->commit();
+            $this->commit();
             return $id;
         } catch (\Exception $e) {
             // En cas d'erreur, on annule tout
-            if ($this->db->inTransaction()) {
-                $this->db->rollBack();
-            }
+            $this->rollback();
             // Loggez l'erreur ici : error_log($e->getMessage());
             return false;
         }

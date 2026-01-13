@@ -1,6 +1,7 @@
 <?php
 namespace Repositories;
 
+use Config\Database as ConfigDatabase;
 use Database\Database;
 
 abstract class Repository {
@@ -8,7 +9,7 @@ abstract class Repository {
 
     public function __construct()
     {
-        $this->db = (new Database())->getConnection();
+        $this->db = ConfigDatabase::getInstance()->getConnection();
     }
     public function beginTransaction() {
         $this->db->beginTransaction();
@@ -21,9 +22,5 @@ abstract class Repository {
     public function rollback(){
         if($this->db->inTransaction())
             $this->db->rollBack();
-    }
-
-    public function transactionPrepared() {
-        
     }
 }

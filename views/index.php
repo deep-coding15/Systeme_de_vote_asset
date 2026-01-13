@@ -309,10 +309,12 @@ $stats = (new VoteController())->results_view_view();
     <div class="stat-item"><span><?php echo (new \DateTime(Env::get('SCRUTIN_START')))->format('d M Y') ?> </span>Date de Scrutin</div>
     <div class="stat-item"><span><?= $stats[0]['nb_equipe'] ?> Équipes</span>Groupes Candidats</div>
     <div class="stat-item"><span><?= $stats[0]['nb_poste'] ?> Postes</span>Postes à Pourvoir</div>
-    <?php if (Env::get("SCRUTIN_STATUS") == 'open') : ?>
+    <?php if (Utils::IsStatusVoteOpen()) : ?>
         <div class="stat-item"><span style="color: var(--status-success)">Vote Ouvert</span>Statut Actuel</div>
-    <?php else : ?>
+    <?php elseif (Utils::IsStatusVoteClose()) : ?>
         <div class="stat-item"><span style="color: var(--status-error)">Vote Fermé</span>Statut Actuel</div>
+    <?php else : ?>
+        <div class="stat-item"><span style="color: var(--status-warning)">Vote Pas encore commencé</span>Statut Actuel</div>
     <?php endif; ?>
     <!-- ! A verifier avec new Datetime - Date Scrutin de Env -->
 

@@ -1,5 +1,6 @@
 <?php
 
+use Config\Database;
 use Config\Env;
 
 /* require_once 'CODE_RESPONSE.php';
@@ -18,10 +19,6 @@ $basePath = dirname($scriptName);
 $baseUrl = $protocol . '://' . $host . $basePath;
 
 // Récupérer les variables
-$dbHost = Env::get('DB_HOST', 'localhost');
-$dbUser = Env::get('DB_USER', 'root');
-$dbPass = Env::get('DB_PASS', '');
-$dbName = Env::get('DB_NAME', 'systeme_vote_aseet');
 
 define('BASE_URL', $baseUrl);
 
@@ -34,30 +31,7 @@ $primaryHost = $isDocker ? "db" : $dbHost; // "db" est le nom classique du servi
 $bdName = DB_NAME; */
 
 // Connexion PDO par exemple
-try {
-  // Tentative de connexion à la base de données principale
-  $conn = new PDO("mysql:host=$primaryHost;dbname=$dbName;charset=utf8mb4", $dbUser, $dbPass);
-  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-  try {
-    // 2. Repli de sécurité (Fallback) si la détection automatique échoue
-    // En cas d'échec, tentative de connexion à la base locale (localhost)
-    // Si on a tenté "db" et que ça a échoué, on force "localhost"
-    $fallbackHost = ($primaryHost === "db") ? "localhost" : "127.0.0.1";
-    //$dbHostLocal = $primaryHost;
-    $dbNameLocal = $dbName; // Remplacez par le nom de votre base locale
-    $dbUserLocal = $dbUser;
-    $dbPassLocal = $dbPass;
-    //Localhost/IP : Sur certains systèmes, localhost cherche un fichier socket qui peut être manquant. 
-    //Utiliser 127.0.0.1 résout souvent ce problème.
-    $conn = new PDO("mysql:host=127.0.0.1;dbname=$dbNameLocal;charset=utf8mb4", $dbUserLocal, $dbPassLocal);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  } catch (PDOException $ex) {
-    // Si la connexion locale échoue aussi, on arrête le script
-    die("Erreur : Impossible de se connecter aux bases de données principale et locale. " . $ex->getMessage());
-  }
-}
-
+Database::getInstance();
 
 /* try {
   $conn = new PDO("mysql:host=$serverName;dbname=$bdName", DB_USER, DB_PASS);

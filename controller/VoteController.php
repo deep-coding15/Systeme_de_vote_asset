@@ -57,9 +57,11 @@ class VoteController
 
             if ($participant['a_vote'] == 1) {
                 $this->voteRepository->rollback();
+                error_log('Already voted: ' . print_r($participant, true));
                 return Response::json(["error" => "Already voted"], CODE_RESPONSE::CONFLICT);
             }
 
+            error_log('id participant: ' . $participantId . ' vote: ' . print_r($votes, true));
             // 5️⃣ Insert votes
             foreach ($votes as $vote) {
                 $this->voteRepository->insert([
@@ -72,8 +74,17 @@ class VoteController
             // 6️⃣ Update participant
             $this->participantRepository->markAsVoted($participantId);
 
+
             // 7️⃣ Commit
             $this->voteRepository->commit();
+
+            //$user = $this->session->get('user');
+            $user['a_vote'] = 1;
+            $this->session->set('user', $user);
+
+            error_log('COOKIE RECU : ' . print_r($_COOKIE, true));
+            error_log('SESSION ID : ' . session_id());
+            error_log('SESSION DATA : ' . print_r($_SESSION, true));
 
             return Response::json(["message" => "vote effectué"], CODE_RESPONSE::CREATED);
         } catch (Throwable $e) {

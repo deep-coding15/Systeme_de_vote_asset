@@ -10,19 +10,19 @@ class Env
      */
     public static function load(?string $path = null): void
     {
-        error_log("Tentative de chargement du fichier .env : $path"); // Ajouté
         if ($path === null) {
             $env = Env::get('APP_ENV') ?: 'local'; // Lit la variable APP_ENV
             $envFile = ".env.$env"; //".env.$env";
             // Détection de l'environnement Docker 
             $isDocker = file_exists('/.dockerenv');
-            $envFile = $isDocker ? '.env.docker' : '.env.local';
-            $path = __DIR__ . '/../' . $envFile;
-
+            $envFile = $isDocker ? '/.env.docker' : '/.env.local';
+            $path = dirname(__DIR__) . $envFile;
+            
             //Fallback sur le .env standard si le fichier spécifique n'existe pas
             if(!file_exists($path)) {
-                $path = __DIR__ . '/../.env';
-            }
+                $path = dirname(__DIR__) . '/.env';
+                }
+            error_log("Chargement du fichier .env : $path"); // Ajouté
         }
 
         if (!file_exists($path)) {

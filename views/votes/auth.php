@@ -257,9 +257,10 @@
 
 use Config\Env;
 use Core\Session;
+use Utils\Utils;
 
 $session = new Session();
-$base_url = rtrim(Env::get('BASE_URL'), '/');
+$base_url = Utils::getBaseUrl(); 
 var_dump($session->getAll())
 ?>
 
@@ -271,7 +272,7 @@ var_dump($session->getAll())
     
     if(aVote){
         const url = BASE_URL + '/votes/waiting';
-        console.log('url',url);
+        console.log('A voter url',url);
         window.location.href = url;
     } 
     
@@ -288,7 +289,7 @@ var_dump($session->getAll())
         console.log('vote url: ', vote_url);
         window.location.href = vote_url;
     } 
-    console.log(BASE_URL, aVote, estValide);
+    console.log(BASE_URL, aVote, estValide); 
 });
 
 </script> 
