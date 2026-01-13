@@ -2,22 +2,22 @@
 
 namespace Repositories;
 
-require_once __DIR__ . '/../Database/Database.php';
+//require_once __DIR__ . '/../Database/Database.php';
 
 use Database\Database;
 use PDO;
 use PDOException;
 
 
-class CandidatRepository
+class CandidatRepository extends Repository
 {
-    private $db;
+    /* private $db;
 
     public function __construct()
     {
         $this->db = (new Database())->getConnection();
         //$this->db = new Database();
-    }
+    } */
 
     /**
      * Récupère tous les candidats
@@ -62,24 +62,32 @@ class CandidatRepository
      */
     public function insert(array $data)
     {
-        $sql = "INSERT INTO candidat (nom, prenom, description, email, photo, id_equipe, id_poste)
-                VALUES (:nom, :prenom, :description, :email, :photo, :id_equipe, :id_poste)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(":nom", $data['nom'], PDO::PARAM_STR);
-        $stmt->bindParam(":prenom", $data['prenom'], PDO::PARAM_STR);
-        $stmt->bindParam(":description", $data['description'], PDO::PARAM_STR);
-        $stmt->bindParam(":email", $data['email'], PDO::PARAM_STR);
-        $stmt->bindParam(":photo", $data['photo'], PDO::PARAM_STR);
-        $stmt->bindParam(":id_equipe", $data['id_equipe'], PDO::PARAM_INT);
-        $stmt->bindParam(":id_poste", $data['id_poste'], PDO::PARAM_INT);
+        try {
+            $this->db->beginTransaction();
+            $sql = "INSERT INTO candidat (nom, prenom, description, email, photo, id_equipe, id_poste)
+                    VALUES (:nom, :prenom, :description, :email, :photo, :id_equipe, :id_poste)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(":nom", $data['nom'], PDO::PARAM_STR);
+            $stmt->bindParam(":prenom", $data['prenom'], PDO::PARAM_STR);
+            $stmt->bindParam(":description", $data['description'], PDO::PARAM_STR);
+            $stmt->bindParam(":email", $data['email'], PDO::PARAM_STR);
+            $stmt->bindParam(":photo", $data['photo'], PDO::PARAM_STR);
+            $stmt->bindParam(":id_equipe", $data['id_equipe'], PDO::PARAM_INT);
+            $stmt->bindParam(":id_poste", $data['id_poste'], PDO::PARAM_INT);
 
-        if ($stmt->execute()) {
-            // Retourne l'ID inséré
-            return $this->db->lastInsertId();
+            $stmt->execute();
+
+            $id = $this->db->lastInsertId();
+
+            // On valide la transaction AVANT le return
+            $this->commit();
+            return $id;
+        } catch (\Exception $e) {
+            // En cas d'erreur, on annule tout
+            $this->rollback();
+            // Loggez l'erreur ici : error_log($e->getMessage());
+            return false;
         }
-
-        // En cas d'échec
-        return false;
     }
 
     /**
@@ -330,11 +338,12 @@ class CandidatRepository
 
         return $grouped;
     }
-    public function getAllPostes() : array | null{
+    public function getAllPostes(): array | null
+    {
         $sql = "SELECT id_poste, intitule FROM poste";
         $stmt = $this->db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
-        if(!$result){
+        if (!$result) {
             return null;
         }
         return $result;

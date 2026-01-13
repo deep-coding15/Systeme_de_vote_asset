@@ -1,10 +1,11 @@
 <?php
 namespace Database;
 
+use Config\Env;
 use PDO;
 use PDOException;
 
-require_once __DIR__ . '/../core/config.php';
+//require_once __DIR__ . '/../core/config.php';
 
 class Database
 {
@@ -18,9 +19,9 @@ class Database
 
         try {
             $this->conn = new PDO(
-                "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
-                DB_USER,
-                DB_PASS,
+                "mysql:host=" . Env::get('DB_HOST') . ";dbname=" . Env::get('DB_NAME') . ";charset=utf8mb4",
+                Env::get('DB_USER'),
+                Env::get('DB_PASS'),
                 [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

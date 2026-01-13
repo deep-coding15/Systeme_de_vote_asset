@@ -2,3 +2,8 @@
 vendor/
 .vscode/
 .git
+.env
+.env.*
+.env.docker
+.env.infinityfree
+credentials/

@@ -1,0 +1,124 @@
+<?php
+
+namespace Utils;
+
+use Config\Env;
+use DateTime;
+use Exception;
+use IntlDateFormatter;
+
+class Utils
+{
+	private static $formatter;
+
+	/**
+	 * Returne l'url de base trimmer sans le '/' de la fin
+	 * @return string
+	 */
+	static function getBaseUrl()
+	{
+		// Si BASE_URL n'existe pas, on retourne une chaîne vide ou '/'
+		$url = Env::get('BASE_URL', '');
+		return rtrim($url, '/');
+	}
+
+	static function getAppNameShort() : string {
+		return Env::get('APP_NAME_SHORT');
+	}
+
+    /**
+     * Retourne une date formatée en français
+	 * Formate une date en français selon un motif spécifique.
+     *
+     * @param string|DateTime $date  La date à transformer (objet DateTime ou chaîne compatible).
+     *                                 Par défaut 'now' pour la date actuelle.
+     * @param string $pattern Le motif de formatage ICU (ex: 'MMMM yyyy').
+     *                                 @link unicode-org.github.io. (ex: 'MMMM yyyy' pour 'janvier 2026')
+     * @return string La date formatée avec la première lettre en majuscule.
+	 * 
+	 * @throws Exception Si la chaîne de date fournie est invalide.
+     * 
+     * @example Utils::formatDateTimeEnFrancais('2026-01-08', 'EEEE d MMMM yyyy') -> "Jeudi 8 janvier 2026"
+     *
+     */
+    public static function formatDateTimeEnFrancais($date = 'now', string $pattern = 'MMMM yyyy'): string
+    {
+        if (!$date instanceof DateTime) {
+            $date = new DateTime($date);
+        }
+
+        // Initialisation du formateur si nécessaire
+        if (self::$formatter === null) {
+            self::$formatter = new IntlDateFormatter(
+                'fr_FR',
+                IntlDateFormatter::FULL,
+                IntlDateFormatter::NONE,
+                date_default_timezone_get(),
+                IntlDateFormatter::GREGORIAN
+            );
+        }
+
+        self::$formatter->setPattern($pattern);
+        
+        // ucfirst pour mettre la première lettre en majuscule (Janvier 2026)
+        return ucfirst(self::$formatter->format($date));
+    }
+
+	static function hashPasswordBcrypt($password)
+	{
+		// Utilisation explicite de PASSWORD_BCRYPT
+		// Le 'cost' par défaut est de 10. Un coût de 12 est souvent recommandé.
+		$options = ['cost' => 12];
+		$hash = password_hash($password, PASSWORD_BCRYPT, $options);
+
+		if ($hash === false) {
+			die("Erreur lors du hachage bcrypt.");
+		}
+
+		return $hash;
+	}
+	static function verifyPasswordBcrypt($password, $storedHash)
+	{
+		// password_verify() détecte automatiquement qu'il s'agit d'un hachage bcrypt.
+		return password_verify($password, $storedHash);
+	}
+
+	static function IsStatusVoteOpen(): bool
+	{
+		$date_start_str = Env::get('SCRUTIN_START');
+		$date_fin_str   = Env::get('SCRUTIN_END');
+
+		//Vérifier si la variable eciste pour éviter un crash
+		if (!$date_start_str || !$date_fin_str) return false;
+
+		try {
+			$date_actuelle      = new DateTime();
+			$date_debut_scrutin = new DateTime($date_start_str);
+			$date_fin_scrutin   = new DateTime($date_fin_str);
+
+			if ($date_actuelle > $date_fin_scrutin) return false;
+
+			return $date_actuelle > $date_debut_scrutin;
+		} catch (\Exception $ex) {
+			// En cas de format de date invalide
+			error_log("Format de date SCRUTIN_START invalide : " . $ex->getMessage());
+			return false;
+		}
+	}
+	static function IsStatusVoteClose(): bool
+	{
+		$date_fin_str   = Env::get('SCRUTIN_END');
+		if (!$date_fin_str) return false;
+
+		try {
+			$date_actuelle    = new \DateTime();
+			$date_fin_scrutin = new \DateTime($date_fin_str);
+
+			// Est fermé si la date actuelle est > date fin scrutin
+			return $date_fin_scrutin < $date_actuelle;
+		} catch (Exception $ex) {
+			return true;
+		}
+	}
+
+}

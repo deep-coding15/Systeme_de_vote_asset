@@ -8,7 +8,7 @@
     </div>
 
     <h1 class="title">Vote Enregistré avec Succès</h1>
-    <p class="subtitle">Merci pour votre participation aux élections ASEET 2025</p>
+    <p class="subtitle">Merci pour votre participation aux élections ASEET <?= (new DateTime())->format('Y') ?></p>
 
     <button class="success-badge">✔ Votre vote a été comptabilisé</button>
 

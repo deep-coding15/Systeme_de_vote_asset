@@ -524,7 +524,7 @@
           <div class="tabs" role="tablist" aria-label="Postes">
               <div class="tab active" data-poste="president" role="tab" aria-selected="true">Président(e)</div>
               <div class="tab" data-poste="vice_president" role="tab">Vice-Président(e)</div>
-              <div class="tab" data-poste="secretaire_general" role="tab">Secrétaire Général(e)</div>
+              <div class="tab" data-poste="secretaire" role="tab">Secrétaire Général(e)</div>
               <div class="tab" data-poste="tresorier" role="tab">Trésorier(e)</div>
           </div>
 

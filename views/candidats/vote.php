@@ -1,29 +1,54 @@
 <?php
 
+use Config\Env;
+//require_once __DIR__ . '/../../config/Env.php';
 use Core\Session;
 use Core\Response;
 use Core\CODE_RESPONSE;
+use Utils\Utils;
 
 $session = new Session();
 
-if ($session->has('user')) {
-    echo 'session: ';
-    echo '<pre>';
-    //$session->get('user');
-    print_r($session->getAll());
-    echo '</pre>';
-    $user = $session->get('user');
-    if ($user['a_vote']) {
-        $url = BASE_URL . '/votes/waiting';
-        header('Location: ' . $url);
-    }
+$user = $session->get('user');
+
+$base_url = Utils::getBaseUrl();
+
+var_dump($session->getAll());
+var_dump($base_url);
+// Vérifier si l'utilisateur est connecté et a voté
+if ($session->has('user') && $user && isset($user['a_vote']) && $user['a_vote']) {
+?>
+    <script>
+        const BASE_URL = <?= json_encode($base_url); ?>;
+        const url = BASE_URL + '/votes/waiting';
+        console.log('url: ', url);
+        console.log('user: ', <?= json_encode($user); ?>);
+        window.location.href = url;
+    </script>
+<?php
 }
 
-if (!$session->has('user')) { ?>
+// Rediriger si non connecté
+if (!$session->has('user')) {
+?>
     <script>
-        redirect_unauthorized()
-    </script> */
-<?php } ?>
+        const url_user_not_connected = <?= json_encode($base_url); ?> + 'votes/auth';
+        window.location.href = url_user_not_connected;
+    </script>
+<?php
+}
+
+// Rediriger si le scrutin n'est pas ouvert
+if (!Utils::IsStatusVoteOpen()) {
+?>
+    <script>
+        const url_ = <?= json_encode($base_url); ?>;
+        window.location.href = url_;
+    </script>
+<?php
+}
+?>
+
 
 
 <style>
@@ -105,11 +130,15 @@ if (!$session->has('user')) { ?>
 
     .post-title {
         text-align: center;
-        color: #FF6B6B;
+        color:
+            /* The above code appears to be a mix of different programming languages and symbols. */
+            /* The above code appears to be a mix of PHP and CSS syntax. However, it is not valid
+        code as it seems to be a combination of different languages. */
+            var(--gold-dark);
         font-size: 1.8rem;
         font-weight: 700;
         margin-bottom: 30px;
-        border-bottom: 2px solid #FF6B6B;
+        border-bottom: 2px solid var(--gold-dark);
         padding-bottom: 15px;
     }
 
@@ -412,9 +441,9 @@ if (!$session->has('user')) { ?>
     <!-- Contenu des équipes -->
     <!-- <form action="" method="post"> -->
     <?php
-    echo '<pre>';
+    /* echo '<pre>';
     print_r($postes);
-    echo '</pre>';
+    echo '</pre>'; */
     foreach ($postes as $idPoste => $pos): ?>
         <section id="poste-<?= $idPoste ?>" class="poste">
             <!-- Postes -->
@@ -431,7 +460,7 @@ if (!$session->has('user')) { ?>
                                 <div>
                                     <h3><?= $c['prenom'] . " " . $c['nom'] ?></h3>
                                     <span class="badge red"><?= $pos['intitule'] ?></span>
-                                    <p class="subtitle">Ensemble pour une ASSET plus forte</p>
+                                    <p class="subtitle">Ensemble pour une <?= Utils::getAppNameShort(); ?> plus forte</p>
                                     <p class="team red-text"><?= htmlspecialchars($eq['nom']) ?></p>
                                 </div>
                             </div>
@@ -472,7 +501,7 @@ if (!$session->has('user')) { ?>
     <?php endforeach; ?>
 
     <button type="submit" id="valider-choix" class="select-btn">Valider mon choix</button>
-    </form>
+    <!-- </form> -->
 </div>
 
 <style>
@@ -722,8 +751,7 @@ if (!$session->has('user')) { ?>
                         console.log('donnes: ', objMemoire);
                         console.log('partId: ', participantId);
                         btn_choix.addEventListener('click', () => {
-                            vote(objMemoire, participantId
-                            );
+                            vote(objMemoire, participantId);
                         });
 
                     }
@@ -732,9 +760,11 @@ if (!$session->has('user')) { ?>
         });
 
     function vote(objMemoire, participantId) {
+        const fetch_url = <?= json_encode($base_url); ?> + '/participant/vote'
         /* if (!Array.isArray(data))
             return; */
-        fetch('../participant/vote', {
+        console.log('fetch url du vote: ', fetch_url);
+        fetch(fetch_url, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json"
@@ -746,12 +776,13 @@ if (!$session->has('user')) { ?>
             })
             .then(res => res.json())
             .then(data => {
+                console.log('url reçu du vote: ', data.url);
                 //Implementé la notif de vote reussit
                 window.location.href = data.url;
             })
             .catch(err => {
                 console.error(err);
-                
+
             });
 
     }

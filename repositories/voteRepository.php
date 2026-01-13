@@ -5,16 +5,16 @@ use Database\Database;
 use PDO;
 use PDOException;
 
-require_once dirname(__DIR__) . '/Database/database.php';
+//require_once dirname(__DIR__) . '/Database/database.php';
 
-class voteRepository
+class VoteRepository extends Repository
 {
-    private $db;
+    /* private $db;
 
     public function __construct()
     {
         $this->db = (new Database())->getConnection();
-    }
+    } */
 
     /**
      * Récupère tous les votes
@@ -73,6 +73,10 @@ class voteRepository
      */
     public function insert($data)
     {
+        /* $user_vote = $ $this->session->get('user');
+                if(!$user_vote){
+                    return Response::json(["error" => "Unauthorized"]);
+                } */
         $sql = "INSERT INTO vote (id_participant, id_candidat, id_poste, date_vote)
                 VALUES (:id_participant, :id_candidat, :id_poste, NOW())";
         $stmt = $this->db->prepare($sql);
@@ -120,11 +124,7 @@ class voteRepository
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total'];
-    }
-
-    public function rollback(){
-        $this->db->rollBack();
-    }
+    }    
 
     public function results_in_view_pourcentage(): array {
         $sql = "SELECT * FROM resultats_en_direct_pourcentage";
@@ -139,6 +139,16 @@ class voteRepository
      */
     public function statistiquesGlobales(){
         $sql = "SELECT * FROM statistiques_globales";
+        $stmt = $this->db->query($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    public function statistiquesAccueil(){
+        $sql = "SELECT 
+                    (SELECT COUNT(*) FROM equipe) AS nb_equipe,
+                    (SELECT COUNT(*) FROM poste) AS nb_poste;
+                ";
         $stmt = $this->db->query($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -1,4 +1,10 @@
 <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
     :root {
         --bg: #f6f7fb;
         --card: #ffffff;
@@ -208,6 +214,295 @@
         margin-top: 8px;
     }
 
+    @media (max-width: 640px) {
+        body {
+            padding: 0px;
+        }
+
+        .title-page {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+
+        .tabs-container {
+            overflow-x: visible;
+            margin-bottom: 32px;
+        }
+
+        .tabs {
+            justify-content: center;
+            gap: 16px;
+            padding: 0 0 10px 0;
+        }
+
+        .tab {
+            font-size: 16px;
+            padding: 12px 20px;
+        }
+
+        .team-header {
+            padding: 24px;
+        }
+
+        .team-header h3 {
+            font-size: 26px;
+        }
+
+        .team-desc {
+            font-size: 15px;
+        }
+
+        .team-candidates {
+            gap: 20px;
+        }
+
+        .candidate-card {
+            padding: 24px;
+            width: 300px;
+        }
+
+        .candidate-left {
+            flex-direction: row;
+            text-align: left;
+            gap: 16px;
+        }
+
+        .candidate-info {
+            align-items: flex-start;
+        }
+
+        .candidate-photo {
+            width: 80px;
+            height: 80px;
+        }
+
+        .candidate-name {
+            font-size: 22px;
+        }
+
+        .role-badge {
+            font-size: 13px;
+        }
+    }
+    /* ============================================
+           TABLET (min-width: 640px)
+        ============================================ */
+    @media (min-width: 640px) {
+        body {
+            padding: 0px;
+        }
+
+        .title-page {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+
+        .tabs-container {
+            overflow-x: visible;
+            margin-bottom: 32px;
+        }
+
+        .tabs {
+            justify-content: center;
+            gap: 16px;
+            padding: 0 0 10px 0;
+        }
+
+        .tab {
+            font-size: 16px;
+            padding: 12px 20px;
+        }
+
+        .team-header {
+            padding: 24px;
+        }
+
+        .team-header h3 {
+            font-size: 26px;
+        }
+
+        .team-desc {
+            font-size: 15px;
+        }
+
+        .team-candidates {
+            gap: 20px;
+        }
+
+        .candidate-card {
+            padding: 24px;
+            width: 500px;
+        }
+
+        .candidate-left {
+            flex-direction: row;
+            text-align: left;
+            gap: 16px;
+        }
+
+        .candidate-info {
+            align-items: flex-start;
+        }
+
+        .candidate-photo {
+            width: 90px;
+            height: 90px;
+        }
+
+        .candidate-name {
+            font-size: 22px;
+        }
+
+        .role-badge {
+            font-size: 13px;
+        }
+    }
+
+    /* ============================================
+           DESKTOP (min-width: 1024px)
+        ============================================ */
+    @media (min-width: 1024px) {
+        body {
+            padding: 0px;
+        }
+
+        .title-page {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            margin-bottom: 40px;
+        }
+
+        .tabs {
+            gap: 32px;
+        }
+
+        .tab {
+            font-size: 17px;
+        }
+
+        .team-section.visible {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .team-candidates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+        }
+
+        .candidate-card {
+            padding: 28px;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .candidate-photo {
+            width: 100px;
+            height: 100px;
+        }
+
+        .candidate-name {
+            font-size: 24px;
+        }
+
+        .role-badge {
+            font-size: 14px;
+            padding: 6px 14px;
+        }
+
+        .candidate-details h6 {
+            font-size: 17px;
+        }
+
+        .candidate-details p,
+        .candidate-details li {
+            font-size: 15px;
+        }
+    }
+
+    /* ============================================
+           LARGE DESKTOP (min-width: 1440px)
+        ============================================ */
+    @media (min-width: 1440px) {
+        .team-section.visible {
+            max-width: 1400px;
+        }
+
+        .team-candidates {
+            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+            gap: 28px;
+        }
+    }
+
+    /* ============================================
+           ANIMATIONS & AMÉLIORATIONS UX
+        ============================================ */
+    @media (prefers-reduced-motion: no-preference) {
+
+        .candidate-card,
+        .tab {
+            transition: all 0.2s ease;
+        }
+    }
+
+    /* Support du mode sombre (optionnel) */
+    /*@media (prefers-color-scheme: dark) {
+         :root {
+            --bg: #1a1a1a;
+            --card: #2a2a2a;
+            --muted: #9ca3af;
+        } 
+
+        body {
+            color: #f3f4f6;
+        }
+
+        .title-page,
+        .candidate-name,
+        .candidate-details h6 {
+            color: #f3f4f6;
+        }
+
+        .subtitle,
+        .team-desc {
+            color: #9ca3af;
+        }
+
+        .candidate-details p,
+        .candidate-details li {
+            color: #d1d5db;
+        }
+
+        .priority-badge {
+            background: #374151;
+            color: #d1d5db;
+            border-color: #4b5563;
+        }
+
+        .team-header {
+            background: rgba(198, 40, 40, 0.1);
+            border-color: rgba(198, 40, 40, 0.2);
+        }
+    }*/
+
     /* -------- RESPONSIVE -------- */
     @media (max-width: 700px) {
 
@@ -232,7 +527,8 @@
             font-size: 32px;
         }
     }
-</style>
+</style> 
+
 <h2 class="title-page">Les Équipes Candidates</h2>
 <p class="subtitle">Découvrez les différentes équipes et leurs candidats pour chaque poste</p>
 <?php
@@ -260,45 +556,62 @@
             </p>
         </div>
 
-        <!-- Postes -->
-        <?php foreach ($eq['postes'] as $poste): ?>
+        <style>
+            .team-candidates {
+                display: flex;
+                flex-wrap: wrap;
+                /* permet de revenir à la ligne si trop de cartes */
+                gap: 1rem;
+                /* espace entre les cartes */
+            }
 
-            <?php foreach ($poste['candidats'] as $c): ?>
-                <div class="candidate-card">
+            .candidate-card {
+                flex: 0 0 550px;
+                /* largeur fixe ou approximative */
+                /* ou: flex: 1 1 250px; pour une largeur flexible */
+            }
+        </style>
+        <div class="team-candidates">
+            <!-- Postes -->
+            <?php foreach ($eq['postes'] as $poste): ?>
 
-                    <div class="candidate-left">
-                        <img src="/uploads/<?= $c['photo'] ?>" class="candidate-photo">
+                <?php foreach ($poste['candidats'] as $c): ?>
+                    <div class="candidate-card">
 
-                        <div class="candidate-info">
-                            <h5 class="candidate-name"><?= $c['prenom'] . " " . $c['nom'] ?></h5>
-                            <span class="role-badge"><?= $poste['intitule'] ?></span>
-                            <span class="team-label"><?= htmlspecialchars($eq['nom']) ?></span>
+                        <div class="candidate-left">
+                            <img src="/uploads/<?= $c['photo'] ?>" class="candidate-photo">
+
+                            <div class="candidate-info">
+                                <h5 class="candidate-name"><?= $c['prenom'] . " " . $c['nom'] ?></h5>
+                                <span class="role-badge"><?= $poste['intitule'] ?></span>
+                                <span class="team-label"><?= htmlspecialchars($eq['nom']) ?></span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="candidate-details">
-                        <h6>Programme</h6>
-                        <p><?= htmlspecialchars($c['programme']) ?></p>
+                        <div class="candidate-details">
+                            <h6>Programme</h6>
+                            <p><?= htmlspecialchars($c['programme']) ?></p>
 
-                        <h6>Expérience</h6>
-                        <ul>
-                            <?php foreach ($c['experiences'] as $exp): ?>
-                                <li><?= htmlspecialchars($exp) ?></li>
-                            <?php endforeach; ?>
-                        </ul>
+                            <h6>Expérience</h6>
+                            <ul>
+                                <?php foreach ($c['experiences'] as $exp): ?>
+                                    <li><?= htmlspecialchars($exp) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
 
-                        <h6>Priorités</h6>
-                        <div class="priorities">
-                            <?php foreach ($c['priorites'] as $prio): ?>
-                                <span class="priority-badge"><?= htmlspecialchars($prio) ?></span>
-                            <?php endforeach; ?>
+                            <h6>Priorités</h6>
+                            <div class="priorities">
+                                <?php foreach ($c['priorites'] as $prio): ?>
+                                    <span class="priority-badge"><?= htmlspecialchars($prio) ?></span>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
+
+                    <?php endforeach; ?>
                     </div>
+                <?php endforeach; ?>
 
-                </div>
-            <?php endforeach; ?>
-        <?php endforeach; ?>
-
+        </div>
     </section>
 <?php endforeach; ?>
 <script>

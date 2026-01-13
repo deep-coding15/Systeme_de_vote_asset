@@ -1,3 +1,10 @@
+<?php
+
+use Config\Env;
+use Controller\VoteController;
+use Utils\Utils;
+
+?>
 <style>
     .banner {
         text-align: center;
@@ -127,33 +134,195 @@
         font-weight: 600;
         color: var(--navy);
     }
+
+    /* =================================================
+   RESPONSIVE – BANNER
+================================================= */
+    @media (max-width: 1024px) {
+        h1 {
+            font-size: 30px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+        }
+
+        .banner {
+            padding: 50px 20px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 26px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+        }
+
+        .banner p {
+            font-size: 14px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .cta-buttons a {
+            width: 100%;
+            max-width: 280px;
+            text-align: center;
+            margin: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 22px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 6px 14px;
+        }
+    }
+
+    /* =================================================
+   RESPONSIVE – STATS SECTION
+================================================= */
+    @media (max-width: 1024px) {
+        .stats-section {
+            gap: 30px;
+            padding: 30px 15px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-section {
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            width: 45%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stat-item {
+            width: 100%;
+        }
+    }
+
+    /* =================================================
+   RESPONSIVE – CONTENT SECTIONS (CARDS)
+================================================= */
+    @media (max-width: 1024px) {
+        .content-sections {
+            gap: 30px;
+        }
+
+        .card {
+            width: 320px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .content-sections {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .card {
+            padding: 22px;
+        }
+
+        .card h3 {
+            font-size: 20px;
+        }
+    }
+
+    /* =================================================
+   RESPONSIVE – VOTE INFOS
+================================================= */
+    @media (max-width: 1024px) {
+        .vote-infos {
+            gap: 40px;
+            padding: 30px 15px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .vote-infos {
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+
+        .vote-infos div {
+            width: 45%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .vote-infos {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .vote-infos div {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
 </style>
 
 <div class="banner" style="z-index: 0;">
     <div class="badge">
         <i class="fa-chisel fa-solid fa-shield fa-lg"></i>
-        Sélection Officielle — Decembre 2025
+        Sélection Officielle —  <?= Utils::formatDateTimeEnFrancais(Env::get('SCRUTIN_START')) ?>
     </div>
     <h1>Élections du Bureau Exécutif</h1>
-    <p class="subtitle">ASSET 2025</p>
+    <p class="subtitle"><?= Utils::getAppNameShort() ?> <?= Utils::formatDateTimeEnFrancais(Env::get('SCRUTIN_START'), 'yyyy') ?></p>
     <p>Participez à l’avenir de l’Association des Étudiants et Stagiaires de Tétouan.</p>
 
-    <div class="cta-buttons">
-        <a href="#">Accéder au Vote</a>
-        <a href="#">Consulter les Candidats</a>
+    <div class="cta-buttons ">
+        <a href="<?= Env::get('BASE_URL'); ?>votes">Accéder au Vote</a>
+        <a href="<?= Env::get('BASE_URL'); ?>candidats">Consulter les Candidats</a>
     </div>
 </div>
 
+<?php
+$stats = (new VoteController())->results_view_view();
+?>
 <section class="stats-section">
-    <div class="stat-item"><span>15 Novembre 2025</span>Date de Scrutin</div>
-    <div class="stat-item"><span>3 Équipes</span>Groupes Candidats</div>
-    <div class="stat-item"><span>4 Postes</span>Postes à Pourvoir</div>
-    <div class="stat-item"><span style="color: var(--status-success)">Vote Ouvert</span>Statut Actuel</div>
+    <div class="stat-item"><span><?php echo (new \DateTime(Env::get('SCRUTIN_START')))->format('d M Y') ?> </span>Date de Scrutin</div>
+    <div class="stat-item"><span><?= $stats[0]['nb_equipe'] ?> Équipes</span>Groupes Candidats</div>
+    <div class="stat-item"><span><?= $stats[0]['nb_poste'] ?> Postes</span>Postes à Pourvoir</div>
+    <?php if (Utils::IsStatusVoteOpen()) : ?>
+        <div class="stat-item"><span style="color: var(--status-success)">Vote Ouvert</span>Statut Actuel</div>
+    <?php elseif (Utils::IsStatusVoteClose()) : ?>
+        <div class="stat-item"><span style="color: var(--status-error)">Vote Fermé</span>Statut Actuel</div>
+    <?php else : ?>
+        <div class="stat-item"><span style="color: var(--status-warning)">Vote Pas encore commencé</span>Statut Actuel</div>
+    <?php endif; ?>
+    <!-- ! A verifier avec new Datetime - Date Scrutin de Env -->
+
 </section>
 
 <section class="content-sections">
     <div class="card">
-        <h3>À Propos de l’ASSET</h3>
+        <h3>À Propos de l'<?= Utils::getAppNameShort() ?></h3>
         <p>L’Association des Étudiants et Stagiaires de Tétouan œuvre pour la défense des intérêts...</p>
     </div>
 

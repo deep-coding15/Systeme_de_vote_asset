@@ -1,23 +1,29 @@
 <?php
 
-use Core\Session;
+namespace Controller;
 
-require_once dirname(__DIR__, 1) . '/repositories/participantRepository.php';
+use Core\Session;
+use Utils\QrCodeManager;
+
+/* require_once dirname(__DIR__, 1) . '/repositories/participantRepository.php';
+require_once dirname(__DIR__, 1) . '/utils/QrCodeManager.php';
 require_once dirname(__DIR__, 1) . '/core/CODE_RESPONSE.php';
 require_once dirname(__DIR__, 1) . '/core/Session.php';
-
+ */
 use Core\CODE_RESPONSE;
 use Core\Response;
 use Models\Participant;
 use Repositories\participantRepository;
+use Throwable;
 
-$session = new Session();
 class ParticipantController
 {
     private $participantRepository;
+    private $session;
     public function __construct()
     {
         $this->participantRepository = new participantRepository();
+        $this->session = new Session();
     }
     public function index()
     {
@@ -49,6 +55,10 @@ class ParticipantController
         $prenom = $_POST['prenom'] ?? '';
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
+
+        // Création du hash (le sel est généré et inclus dedans automatiquement)
+        //$password = password_hash($password, PASSWORD_DEFAULT);
+
         $code_qr = 'QR-' . random_int(100, 1000);
         $phone = $_POST['phone'] ?? '';
         $type_document = $_POST['type_document'] ?? '';
@@ -111,8 +121,9 @@ class ParticipantController
         }
 
         // === Succès ===
-        global $session;
-        $session->set('user', [
+        //global $session;
+        $is_admin = false;
+        $this->session->set('user', [
             'id' => $participantId,
             'nom' => $nom,
             'prenom' => $prenom,
@@ -120,12 +131,99 @@ class ParticipantController
             'est_valide' => $est_valide,
             'a_vote' => $a_vote,
             'code_qr' => $code_qr,
+            'is_admin' => $is_admin
         ]);
 
+        $dataQrcode = [
+            'nom' => $nom,
+            'prenom' => $prenom,
+            'email' => $email,
+            'a_vote' => $a_vote,
+            'role' => 'participant',
+        ];
+
+        $qrCodeManager = new QrCodeManager();
+        $qrPath = $qrCodeManager->generateForParticipant($dataQrcode);
+
+        // 4. Mettre à jour le chemin du QR dans la BD
+        $this->participantRepository->update($participantId, [
+            'code_qr' => $qrPath
+        ]);
         error_log("✔️ Participant inséré et session créée.");
         return Response::redirect('/candidats/vote');
     }
-    
+
+    public function loginApi()
+    {
+        // 1️⃣ Méthode HTTP
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return Response::json(
+                ["error" => "Method Not Allowed"],
+                CODE_RESPONSE::METHOD_NOT_ALLOWED
+            );
+        }
+
+        // 2️⃣ Content-Type attendu
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        if (strpos($contentType, 'application/json') === false) {
+            return Response::json(
+                ["error" => "Content-Type must be application/json"],
+                CODE_RESPONSE::BAD_REQUEST
+            );
+        }
+
+        // 3️⃣ Lecture JSON
+        $raw = file_get_contents('php://input');
+        $data = json_decode($raw, true);
+
+        if ($data === null) {
+            return Response::json(
+                ["error" => "Invalid JSON"],
+                CODE_RESPONSE::BAD_REQUEST
+            );
+        }
+
+        $email = $data['email'] ?? null;
+        $password = $data['password'] ?? null;
+
+        if (!$email || !$password) {
+            return Response::json(
+                ["error" => "Email and password required"],
+                CODE_RESPONSE::BAD_REQUEST
+            );
+        }
+
+        // 4️⃣ Authentification
+        $participant = $this->participantRepository->login([
+            'email' => $email,
+            'password' => $password
+        ]);
+
+        if (!$participant) {
+            return Response::json(
+                ["error" => "Invalid credentials"],
+                CODE_RESPONSE::UNAUTHORIZED
+            );
+        }
+
+        // 5️⃣ Création de session (important pour le vote)
+        $this->session->set('user', [
+            'id' => $participant['id_participant'],
+            'nom' => $participant['nom'],
+            'prenom' => $participant['prenom'],
+            'email' => $participant['email'],
+            'a_vote' => $participant['a_vote'],
+            'is_admin' => false
+        ]);
+
+        // 6️⃣ Réponse API
+        return Response::json([
+            "message" => "Login successful",
+            "participantId" => $participant['id_participant']
+        ], CODE_RESPONSE::OK);
+    }
+
+
     public function login()
     {
         // === Vérification méthode HTTP ===
@@ -137,7 +235,10 @@ class ParticipantController
 
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
-         
+
+        // Pour vérifier, on donne juste le mot de passe et le hash complet
+        //if(!password_verify($password, $hash_stocke_en_bdd))
+
         // === Données à insérer ===
         $data = compact(
             'email',
@@ -150,14 +251,20 @@ class ParticipantController
         $participant = $this->participantRepository->login($data);
 
         if (!$participant) {
-            error_log("❌ Échec insertion participant.");
+            error_log("❌ Échec log in participant.");
+            /*return Response::json(
+                ["error" => "Login failed"],
+                CODE_RESPONSE::UNAUTHORIZED
+            );*/
             return Response::redirect('/votes');
         }
         extract($participant);
+        // error_log('participant: ' . print_r($participant, true));
 
         // === Succès ===
-        global $session;
-        $session->set('user', [
+        //global $session;
+        $is_admin = false;
+        $this->session->set('user', [
             'id' => $participant['id_participant'],
             'nom' => $nom,
             'prenom' => $prenom,
@@ -165,13 +272,88 @@ class ParticipantController
             'est_valide' => $est_valide,
             'a_vote' => $a_vote,
             'code_qr' => $code_qr,
+            'is_admin' => $is_admin
         ]);
 
         error_log("✔️ Participant connecte et session créée.");
+        //Response::json(["message" => "Participant loggé avec succes."]);
         return Response::redirect('/candidats/vote');
     }
 
+    public function apiLogin()
+    {
+        try {
+            // 1️⃣ Vérification de la méthode HTTP
+            if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+                return Response::json(
+                    ["error" => "Méthode non autorisée"],
+                    CODE_RESPONSE::METHOD_NOT_ALLOWED
+                );
+            }
 
+            // 2️⃣ Lecture des données JSON (courant en API) ou $_POST classique
+            $input = json_decode(file_get_contents('php://input'), true);
+            $email = $input['email'] ?? $_POST['email'] ?? '';
+            $password = $input['password'] ?? $_POST['password'] ?? '';
+
+            if (empty($email) || empty($password)) {
+                return Response::json(
+                    ["error" => "Email et mot de passe requis"],
+                    CODE_RESPONSE::BAD_REQUEST
+                );
+            }
+
+            // 3️⃣ Tentative de connexion via le repository
+            $data = ['email' => $email, 'password' => $password];
+            $participant = $this->participantRepository->login($data);
+
+            if (!$participant) {
+                error_log("❌ Échec API Login pour l'email : " . $email);
+                return Response::json(
+                    ["error" => "Identifiants invalides"],
+                    CODE_RESPONSE::UNAUTHORIZED
+                );
+            }
+
+            // 4️⃣ Création de la session (si vous utilisez toujours les sessions pour l'API)
+            $is_admin = false;
+            $userData = [
+                'id' => $participant['id_participant'],
+                'nom' => $participant['nom'],
+                'prenom' => $participant['prenom'],
+                'email' => $participant['email'],
+                'est_valide' => $participant['est_valide'],
+                'a_vote' => $participant['a_vote'],
+                'code_qr' => $participant['code_qr'],
+                'is_admin' => $is_admin
+            ];
+
+            $this->session->set('user', $userData);
+
+            // 5️⃣ Réponse JSON de succès
+            error_log("✔️ API Login réussi pour : " . $email);
+            return Response::json([
+                "message" => "Connexion réussie",
+                "user" => $userData // Optionnel : renvoyer les infos utilisateur pour le frontend
+            ], CODE_RESPONSE::OK);
+        } catch (Throwable $e) {
+            error_log("🔥 Erreur critique API Login : " . $e->getMessage());
+            return Response::json(
+                ["error" => "Une erreur interne est survenue"],
+                CODE_RESPONSE::SERVER_ERROR
+            );
+        }
+    }
+
+    public function logout()
+    {
+        $this->session = new Session();
+        if ($this->session->isLoggedIn()) {
+            $this->session->remove('user');
+            $this->session->destroy();
+        }
+        return Response::redirect('/');
+    }
 
     public function validate($id)
     {

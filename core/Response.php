@@ -1,11 +1,16 @@
 <?php
 namespace Core;
-use Core\CODE_RESPONSE;
 
-require_once 'CODE_RESPONSE.php';
+use Config\Env;
+use Core\CODE_RESPONSE;
+use Utils\Utils;
+
+//require_once 'CODE_RESPONSE.php';
 
 class Response
 {
+    //$base_url = rtrim(Env::get('BASE_URL'), '/');
+    
     /**
      * Rediriger vers une URL
      * @param string $url
@@ -13,7 +18,7 @@ class Response
      */
     public static function redirect(string $url, CODE_RESPONSE $statusCode = CODE_RESPONSE::REDIRECT)
     {
-        $fullPath = BASE_URL .  $url;
+        $fullPath = Utils::getBaseUrl() .  $url;
         http_response_code($statusCode->value);
         header("Location: $fullPath", false, $statusCode->value);
         exit;

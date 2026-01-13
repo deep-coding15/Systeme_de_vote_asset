@@ -1,17 +1,32 @@
 <?php
 
+use Config\Env;
 use Core\Session;
+use Utils\Utils;
 
-require_once __DIR__ . '/../../core/Session.php';
+//require_once __DIR__ . '/../../core/Session.php';
 $session = new Session();
 ?>
+
+<link rel="stylesheet" href="/public/style.css">
+<?php
+/* if ($session->has('user')) {
+    $user = $session->get('user');
+    if ($user['a_vote']) {
+        $url = BASE_URL . '/votes/waiting';
+        header('Location: ' . $url);
+        exit;
+    }
+} */
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php if (isset($_GET['titre'])) $titre = $_GET['titre'] ?? "ASSET"; ?>
+    <?php if (isset($_GET['titre'])) $titre = $_GET['titre'] ??  Utils::getAppNameShort(); ?>
     <title><?= $titre ?></title>
     <style>
         :root {
@@ -504,24 +519,140 @@ $session = new Session();
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 </head>
+<?php if ($session->has('user')) {
+    //echo 'session: ';
+    echo '<pre>';
+    //$session->get('user');
+    //print_r($session->getAll());
+    echo '</pre>';
+    /* $user = $session->get('user');
+    if ($user['a_vote']) {
+        $url = BASE_URL . '/votes/waiting';
+        header('Location: ' . $url);
+    } */
+} ?>
 
 <body>
+    <style>
+        /* ===============================
+   BURGER MENU
+=============================== */
+        .burger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .burger span {
+            width: 26px;
+            height: 3px;
+            background: var(--navy);
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+
+        /* ===============================
+   RESPONSIVE NAVIGATION
+=============================== */
+        @media (max-width: 768px) {
+
+            /* Header ASSET */
+            .asset-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px;
+            }
+
+            .header-left {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .asset-title {
+                font-size: 22px;
+            }
+
+            .asset-values {
+                font-size: 11px;
+                flex-wrap: wrap;
+            }
+
+            /* Burger visible */
+            .burger {
+                display: flex;
+            }
+
+            /* Navigation cachée par défaut */
+            .asset-nav {
+                display: none;
+                flex-direction: column;
+                padding: 10px 20px;
+                gap: 10px;
+            }
+
+            .asset-nav.active {
+                display: flex;
+            }
+
+            .nav-item {
+                width: 100%;
+                justify-content: flex-start;
+                font-size: 15px;
+            }
+        }
+
+        /* ===============================
+   MOBILE PETITS ÉCRANS
+=============================== */
+        @media (max-width: 480px) {
+
+            .asset-logo {
+                width: 70px;
+            }
+
+            .asset-title {
+                font-size: 20px;
+            }
+
+            .asset-subtitle {
+                font-size: 12px;
+            }
+
+            .asset-values {
+                display: none;
+                /* optionnel */
+            }
+
+            main {
+                padding: 1.2rem;
+            }
+        }
+    </style>
 
     <!-- Bandeau supérieur -->
     <div class="asset-topbar">
         <div class="topbar-right">
             <span class="dot"></span>
-            <span>Élections Officielles 2025</span>
+            <span>Élections Officielles <?= (new DateTime())->format('Y') ?></span>
         </div>
     </div>
 
     <!-- Header principal -->
+    <button class="burger" id="burgerBtn" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
     <header class="asset-header">
         <div class="header-left">
             <img src="logo.png" alt="Logo ASSET" class="asset-logo">
 
             <div class="asset-title-block">
-                <h1 class="asset-title">ASSET</h1>
+                <h1 class="asset-title"><?= Utils::getAppNameShort(); ?></h1>
                 <p class="asset-subtitle">Association des Étudiants et Stagiaires de Tétouan</p>
 
                 <div class="asset-values">
@@ -537,13 +668,17 @@ $session = new Session();
 
     <hr class="asset-header-divider">
 
-    <?php
+    <?php //$cleanUrl = rtrim($url, "/");
+    $base_url = Utils::getBaseUrl();
+    //$base_url = rtrim(Env::get('BASE_URL'), "/");
+    //echo 'base_url: ' . $base_url;
     function isActive($url)
     {
         // This is a simplified check. You may need a more robust URL parser
         // depending on your exact routing setup in PHP.
         $current_uri = $_SERVER['REQUEST_URI'];
-        $base_url = BASE_URL; // Assumes BASE_URL is defined elsewhere
+        global $base_url;
+        //$base_url = Env::get('BASE_URL'); // Assumes BASE_URL is defined elsewhere
 
         // Check if the current URI ends with the link URL segment
         if ($url === $current_uri || ($url === $base_url . '/' && $current_uri === $base_url)) {
@@ -553,48 +688,130 @@ $session = new Session();
     }
     ?>
     <!-- Navigation -->
+    <!-- Navigation -->
     <nav class="asset-nav">
-        <a href="<?= BASE_URL ?>/" class="nav-btn outline nav-item <?= isActive(BASE_URL . '/') ?>">
-            <i class="icon">🏠</i> Accueil
-        </a>
 
-        <a href="<?= BASE_URL ?>/candidats" class="nav-btn outline nav-item <?= isActive(BASE_URL . '/candidats') ?>">
-            <i class="icon">👥</i> Candidats
-        </a>
+        <?php if ($session && $session->has('user') && $session->get('user')['is_admin']) : ?>
+            <a href="<?= $base_url ?>/candidats"
+                class="nav-item <?= isActive($base_url . '/candidats') ?>">
+                <i class="fa-solid fa-users"></i>
+                <span>Candidats</span>
+            </a>
+            <a href="<?= $base_url ?>/resultats"
+                class="nav-item <?= isActive($base_url . '/resultats') ?>">
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Résultats</span>
+            </a>
+            <a href="" id="voteTermine"
+                class="nav-item <?= isActive($base_url . '/resultats') ?>">
+                <i class="fa-solid fa-chart-column"></i>
+                <span>VOTE TERMINE</span>
+            </a>
+            <a href="<?= $base_url ?>participants/logout"
+                class="nav-item <?= isActive($base_url . '/participants/logout') ?>">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </a>
 
-        <a href="<?= BASE_URL ?>/votes" class="nav-btn outline nav-item <?= isActive(BASE_URL . '/votes') ?>">
-            <i class="icon">🗳️</i> Voter
-        </a>
+        <?php else : ?>
 
-        <a href="<?= BASE_URL ?>/resultats" class="nav-btn primary nav-item <?= isActive(BASE_URL . '/resultats') ?>">
-            <i class="icon">📊</i> Résultats
-        </a>
+            <a href="<?= $base_url ?>/"
+                class="nav-item <?= isActive($base_url . '/') ?>">
+                <i class="fa-solid fa-house"></i>
+                <span>Accueil</span>
+            </a>
+
+            <a href="<?= $base_url ?>/candidats"
+                class="nav-item <?= isActive($base_url . '/candidats') ?>">
+                <i class="fa-solid fa-users"></i>
+                <span>Candidats</span>
+            </a>
+
+            <a href="<?= $base_url ?>/votes"
+                class="nav-item <?= isActive($base_url . '/votes') ?>">
+                <i class="fa-solid fa-check-to-slot"></i>
+                <span>Voter</span>
+            </a>
+
+            <a href="<?= $base_url ?>/resultats" style="display: none;" id="seeVoteTermine"
+                class="nav-item <?= isActive($base_url . '/resultats') ?>">
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Résultats</span>
+            </a>
+
+            <a href="<?= $base_url ?>/administrateur/auth"
+                class="nav-item <?= isActive($base_url . '/administrateur/auth') ?>">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Admin</span>
+            </a>
+
+        <?php endif; ?>
+
+
+
     </nav>
 
-    
     <script>
-            // ==================================
-            // SYSTEME DE TABS
-            // ==================================
-            document.querySelectorAll(".nav-btn").forEach(tab => {
-                tab.addEventListener("click", (event) => {
-                    event.preventDefault();
-                    // 1. Retirer active sur tous les tabs
-                    document.querySelectorAll(".nav-btn").forEach(t => t.classList.remove("nav-active"));
+        const burger = document.getElementById("burgerBtn");
+        const nav = document.querySelector(".asset-nav");
 
-                    // 2. Activer celui qui a été cliqué
-                    tab.classList.add("nav-active");
+        burger.addEventListener("click", () => {
+            nav.classList.toggle("active");
+        });
+    </script>
 
-                    const destinationUrl = tab.getAttribute("href");
 
-                    // Manually change the browser location
-                    setTimeout(window.location.href = destinationUrl, 2000);
-                    // 3. Récupérer le poste cible
-                    //const key = tab.dataset.poste; // ex: "vice_president"
+    <script>
+        document.querySelectorAll(".asset-nav .nav-item").forEach(item => {
 
-                    // 4. Charger les candidats pour ce poste
-                    //renderPoste(key);
-                });
+            item.addEventListener("click", e => {
+                // Empêche les clics instantanés du navigateur (effet fade possible)
+                //e.preventDefault();
+
+                // Désactive tous
+                document.querySelectorAll(".asset-nav .nav-item")
+                    .forEach(i => i.classList.remove("nav-active"));
+
+                // Active l’élément cliqué
+                item.classList.add("nav-active");
+
+                const url = item.getAttribute("href");
+
+                // Correction du setTimeout (ancienne version NON fonctionnelle)
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 150);
             });
-        </script>
-            <main>
+
+        });
+        document.getElementById('voteTermine').addEventListener('click', () => {
+            const voteTermine = document.getElementById('seeVoteTermine');
+            voteTermine.style.display = 'block';
+        });
+    </script>
+
+
+
+
+    <!-- <script>
+        // ==================================
+        // SYSTEME DE TABS
+        // ==================================
+        document.querySelectorAll(".nav-btn").forEach(tab => {
+            tab.addEventListener("click", (event) => {
+                event.preventDefault();
+                // 1. Retirer active sur tous les tabs
+                document.querySelectorAll(".nav-btn").forEach(t => t.classList.remove("nav-active"));
+
+                // 2. Activer celui qui a été cliqué
+                tab.classList.add("nav-active");
+
+                const destinationUrl = tab.getAttribute("href");
+
+                // Manually change the browser location
+                setTimeout(window.location.href = destinationUrl, 2000);
+
+            });
+        });
+    </script> -->
+    <main>
