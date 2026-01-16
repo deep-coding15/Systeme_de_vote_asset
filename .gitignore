@@ -7,3 +7,4 @@ vendor/
 .env.docker
 .env.infinityfree
 credentials/
+sessions/

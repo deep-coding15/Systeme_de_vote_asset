@@ -1,3 +1,11 @@
+<?php
+
+use Utils\Utils;
+
+global $session;
+if ($session->has("user") && !$session->get("user")["a_vote"])
+    header('Location: ' . Utils::getBaseUrl() . '/votes/auth')
+?>
 <div class="success-container">
 
     <!-- HEADER -->

@@ -1,4 +1,5 @@
 <?php
+
 namespace Core;
 
 use Config\Env;
@@ -10,7 +11,11 @@ class Session
 
     public function __construct() // 10 jours par défaut
     {
-        $this->timeout = (trim(Env::get('SESSION_LIFETIME_SECONDS')) == '') ? 864000 : Env::get('SESSION_LIFETIME_SECONDS');
+        $this->timeout = (int)trim(Env::get('SESSION_LIFETIME_SECONDS', '1200'));
+
+        // Détection dynamique du HTTPS
+        $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || $_SERVER['SERVER_PORT'] == 443;
 
         // Configuration du cookie de session
         // Démarre la session si elle n'est pas déjà démarrée ET si aucun texte n'a été envoyé au navigateur
@@ -20,7 +25,7 @@ class Session
                 'lifetime' => $this->timeout,
                 'path' => '/',
                 'domain' => '', // Laisser vide pour le domaine courant
-                'secure' => false, // Mettez à true si vous utilisez HTTPS
+                'secure' => $isSecure, // Devient true si HTTPS, false sinon, // Mettez à true si vous utilisez HTTPS
                 'httponly' => true,
                 'samesite' => 'Lax'
             ]);
@@ -39,7 +44,8 @@ class Session
         $_SESSION[$key] = $value;
     }
 
-    public function getAll(): array{
+    public function getAll(): array
+    {
         return $_SESSION;
     }
 
@@ -77,9 +83,14 @@ class Session
         $_SESSION = [];
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000,
-                $params["path"], $params["domain"],
-                $params["secure"], $params["httponly"]
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
             );
         }
         session_destroy();

@@ -1,5 +1,4 @@
 <?php
-
 namespace Repositories;
 
 //require_once __DIR__ . '/../Database/Database.php';
@@ -186,7 +185,7 @@ class CandidatRepository extends Repository
     {
         $sql = "SELECT 
                 e.id_equipe, e.nom_equipe, e.logo AS logo_equipe,
-                p.id_poste, p.intitule AS poste,
+                p.id_poste, p.intitule AS poste, p.description as poste_description,
                 c.id_candidat, c.nom, c.prenom, c.email, c.description,
                 c.programme, c.photo,
                 ex.description AS experience,
@@ -224,6 +223,7 @@ class CandidatRepository extends Repository
                 $grouped[$equipeId]['postes'][$posteId] = [
                     'id' => $posteId,
                     'intitule' => $row['poste'],
+                    'poste_description' => $row['poste_description'],
                     'candidats' => []
                 ];
             }
@@ -264,7 +264,7 @@ class CandidatRepository extends Repository
     {
         $sql = "SELECT 
                 e.id_equipe, e.nom_equipe, e.logo AS logo_equipe,
-                p.id_poste, p.intitule AS poste,
+                p.id_poste, p.intitule AS poste, p.description AS poste_description,
                 c.id_candidat, c.nom, c.prenom, c.email, c.description,
                 c.programme, c.photo,
                 ex.description AS experience,
@@ -292,6 +292,7 @@ class CandidatRepository extends Repository
                 $grouped[$posteId] = [
                     'id' => $posteId,
                     'intitule' => $row['poste'],
+                    'poste_description' => $row['poste_description'],
                     'equipes' => []
                 ];
             }

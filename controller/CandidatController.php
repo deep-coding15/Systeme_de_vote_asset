@@ -5,9 +5,10 @@ namespace Controller;
 require_once __DIR__ . '/../repositories/candidatRepository.php';
 require_once dirname(__DIR__, 1) . '/core/Response.php';
  */
+
+use Config\Database;
 use Core\CODE_RESPONSE;
 use Core\Response as CoreResponse;
-use Database\Database;
 use Repositories\CandidatRepository;
 use Core\Response;
 
@@ -18,7 +19,7 @@ class CandidatController
 
     public function __construct()
     {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getInstance()->getConnection();
         $this->candidatRepository = new CandidatRepository();
     }
 

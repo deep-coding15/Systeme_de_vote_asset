@@ -3,7 +3,7 @@ namespace Controller;
 //require_once __DIR__ . '/../Database/Database.php';
 
 use Core\CODE_RESPONSE;
-use Database\Database;
+use Config\Database;
 use Repositories\EquipeRepository;
 use Core\Response;
 
@@ -14,7 +14,7 @@ class EquipeController
 
     public function __construct()
     {
-        $this->db = (new Database())->getConnection();
+        $this->db = Database::getInstance()->getConnection();
         $this->equipeRepository = new EquipeRepository();
     }
 

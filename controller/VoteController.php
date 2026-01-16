@@ -23,9 +23,9 @@ class VoteController
     private $voteRepository;
     private $participantRepository;
     private $candidatRepository;
-    public function __construct()
+    public function __construct(Session $session)
     {
-        $this->session               = new Session();
+        $this->session               = $session;
         $this->voteRepository        = new VoteRepository();
         $this->participantRepository = new ParticipantRepository();
         $this->candidatRepository    = new CandidatRepository();
@@ -86,12 +86,28 @@ class VoteController
             error_log('SESSION ID : ' . session_id());
             error_log('SESSION DATA : ' . print_r($_SESSION, true));
 
-            return Response::json(["message" => "vote effectué"], CODE_RESPONSE::CREATED);
+            return Response::json(["message" => "vote effectué", "url" => "/votes/waiting"], CODE_RESPONSE::CREATED);
         } catch (Throwable $e) {
             $this->voteRepository->rollback();
             error_log("Vote error: " . $e->getMessage());
             return Response::json(["error" => "Vote failed"], CODE_RESPONSE::SERVER_ERROR);
         }
+    }
+
+    public function voteStatus()
+    {
+        if (!$this->session->isLoggedIn()) {
+            return Response::json([
+                'logged_in' => false
+            ], CODE_RESPONSE::UNAUTHORIZED);
+        }
+
+        $user = $this->session->get('user');
+
+        return Response::json([
+            'logged_in' => true,
+            'a_vote'    => (int) $user['a_vote']
+        ]);
     }
 
     /* public function vote()

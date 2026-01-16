@@ -1,4 +1,4 @@
-# Rapport sur l’hébergement du site de vote
+w# Rapport sur l’hébergement du site de vote
 
 L’hébergement du site de vote est un élément essentiel : il influence la sécurité des données, la disponibilité du scrutin et la confiance des utilisateurs[web:118]. Un mauvais choix peut entraîner des pannes pendant le vote ou des failles de sécurité critiques.
 
@@ -101,3 +101,6 @@ Arrête les conteneurs et supprime tous les disques de données associés
 Pour garder les données, on utilise seulement : docker compose down
 
 # entrer dans un controller :  docker exec -it php_8-2 bash
+docker compose down
+docker compose build --no-cache
+docker compose up -d

@@ -1,4 +1,5 @@
 <?php
+
 namespace Core;
 
 use Config\Env;
@@ -10,7 +11,7 @@ use Utils\Utils;
 class Response
 {
     //$base_url = rtrim(Env::get('BASE_URL'), '/');
-    
+
     /**
      * Rediriger vers une URL
      * @param string $url
@@ -18,10 +19,23 @@ class Response
      */
     public static function redirect(string $url, CODE_RESPONSE $statusCode = CODE_RESPONSE::REDIRECT)
     {
-        $fullPath = Utils::getBaseUrl() .  $url;
-        http_response_code($statusCode->value);
-        header("Location: $fullPath", false, $statusCode->value);
+        // On s'assure qu'il n'y a qu'un seul slash entre la base et l'url
+        $fullPath = Utils::getBaseUrl() . '/' . ltrim($url, '/');
+        //$fullPath = Utils::getBaseUrl() .  $url;
+        // 1. Vérification de sécurité
+        if (!headers_sent()) {
+            http_response_code($statusCode->value);
+            header("Location: $fullPath", true, $statusCode->value);
+            exit;
+        }
+
+        // 2. Solution de secours (Fallback) si les headers sont déjà partis
+        echo '<script type="text/javascript">window.location.href="' . addslashes($fullPath) . '";</script>';
+        echo '<noscript><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($fullPath) . '" /></noscript>';
         exit;
+        /* http_response_code($statusCode->value);
+        header("Location: $fullPath", true, $statusCode->value);
+        exit; */
     }
 
     /**
@@ -46,13 +60,13 @@ class Response
             return;
         }
 
-        if($withLayout){
-            include_once __DIR__ . '/../views/layout/header.php'; 
+        if ($withLayout) {
+            include_once __DIR__ . '/../views/layout/header.php';
             require $fullPath;
-            include_once __DIR__ . '/../views/layout/footer.php'; 
+            include_once __DIR__ . '/../views/layout/footer.php';
             return;
         }
-            
+
         require $fullPath;
     }
 

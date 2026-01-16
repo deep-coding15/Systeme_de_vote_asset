@@ -583,7 +583,7 @@
 
                             <div class="candidate-info">
                                 <h5 class="candidate-name"><?= $c['prenom'] . " " . $c['nom'] ?></h5>
-                                <span class="role-badge"><?= $poste['intitule'] ?></span>
+                                <span class="role-badge"><?= $poste['poste_description'] ?></span>
                                 <span class="team-label"><?= htmlspecialchars($eq['nom']) ?></span>
                             </div>
                         </div>

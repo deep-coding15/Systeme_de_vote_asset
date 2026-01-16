@@ -820,19 +820,19 @@ button:focus {
     <div class="badge">Accès Sécurisé — Authentification Requise</div>
 
     <h1>Connexion à la Plateforme de Vote</h1>
-    <p class="subtitle">Connectez-vous ou créez un compte pour accéder au scrutin officiel</p>
+    <p class="subtitle">Connectez-vous <!-- ou créez un compte  -->pour accéder au scrutin officiel</p>
 
     <div class="switch-buttons">
-        <button>
+        <!-- <button>
             <a href="#login-section" id="btn-login" class="nav-btn btn outline nav-item active">
                 <i class="icon">🏠</i> Se connecter
             </a>
-        </button>
-        <button>
+        </button> -->
+        <!-- <button>
             <a href="#signup-section" id="btn-signup" class="nav-btn outline nav-item">
                 <i class="icon">🏠</i> S'inscrire
             </a>
-        </button>
+        </button> -->
     </div>
     <div class="actions login-section active" data-name-action="login-section" id="login-section">
         <div class="login-box">
@@ -861,7 +861,7 @@ button:focus {
             </div>
         </div>
     </div>
-    <div class="actions signup-section" data-name-action="signup-section" id="signup-section">
+    <!-- <div class="actions signup-section" data-name-action="signup-section" id="signup-section">
         <div class="form-box">
             <div class="form-header">Inscription — Créez votre compte pour participer au vote</div>
 
@@ -945,7 +945,7 @@ button:focus {
                 toutes les normes de protection des données.
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -981,8 +981,8 @@ button:focus {
     });
 </script>
 <script>
-    /* const BASE_URL = <?= json_encode($base_url) ?>;
-    const aVote = <?= json_encode($session->get('user')['a_vote'] ?? false) ?>;
+    /* const BASE_URL = <?php /* json_encode($base_url) */ ?>;
+    const aVote = <?php /* json_encode($session->get('user')['a_vote'] ?? false)  */?>;
     
     document.addEventListener('DOMContentLoaded', () => {
         if(aVote){

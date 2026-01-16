@@ -20,14 +20,17 @@ if (!class_exists('Controller\CandidatController')) {
     else
         echo "L'autoloader a trouvé  la classe. ";
 
-//echo "Chemin attendu : " . realpath(__FILE__);
+echo "Chemin attendu : " . realpath(__FILE__);
 
 try {
     // On remonte d'un cran (../) car le .env est à la racine, pas dans public/
-    Env::load();
+    Env::load('local');
 } catch (Exception $e) {
     die("Erreur de configuration : " . $e->getMessage());
 }
+
+$session = new Session(); // UNE SEULE FOIS
+
 /*
  |---------------------------------------------------------
  | Définition des routes
@@ -67,6 +70,8 @@ get('/resultats/test2', [\Controller\VoteController::class, 'results_view']);
 get('/votes/waiting', function(){
     \Core\Response::render('/votes/waiting', ['titre' => 'Waiting — ASSET Vote']);
 });
+get('/api/vote/status', [\Controller\VoteController::class, 'voteStatus']);
+
 
 post('/participants/add', [\Controller\ParticipantController::class, 'store']);
 post('/participants/login', [\Controller\ParticipantController::class, 'login']);
@@ -91,12 +96,14 @@ post('/participant/vote', [\Controller\VoteController::class, 'vote']);
 post('/vote/:poste/:candidat/:participant', [\Controller\VoteController::class, 'store']);
 get('/resultats', [\Controller\VoteController::class, 'results_view']);
 
+get('/choix/votePoste', [\Utils\Utils::class, 'ChoixPosteLogJsToPHP']);
+
 
 // API
 get('/api/candidats/poste', [\Controller\CandidatController::class, 'candidatsPoste']);
 // Route introuvable
 any('/404', function () {
-    //echo 'chemin serveur : ' . $_SERVER['REQUEST_URI'];
+    echo 'chemin serveur : ' . $_SERVER['REQUEST_URI'];
     http_response_code(404);
     echo "Page non trouvée.";
 });

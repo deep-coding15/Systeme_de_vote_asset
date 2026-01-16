@@ -13,17 +13,17 @@ require_once dirname(__DIR__, 1) . '/core/Session.php';
 use Core\CODE_RESPONSE;
 use Core\Response;
 use Models\Participant;
-use Repositories\participantRepository;
+use Repositories\ParticipantRepository;
 use Throwable;
 
 class ParticipantController
 {
     private $participantRepository;
     private $session;
-    public function __construct()
+    public function __construct(Session $session)
     {
-        $this->participantRepository = new participantRepository();
-        $this->session = new Session();
+        $this->participantRepository = new ParticipantRepository();
+        $this->session = $session;
     }
     public function index()
     {
@@ -264,6 +264,9 @@ class ParticipantController
         // === Succès ===
         //global $session;
         $is_admin = false;
+
+        
+
         $this->session->set('user', [
             'id' => $participant['id_participant'],
             'nom' => $nom,

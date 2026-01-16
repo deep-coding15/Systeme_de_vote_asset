@@ -1,5 +1,4 @@
 <?php
-
 namespace Repositories;
 
 use chillerlan\QRCode\Output\QROutputInterface;

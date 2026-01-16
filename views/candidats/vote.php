@@ -19,6 +19,7 @@ var_dump($base_url);
 if ($session->has('user') && $user && isset($user['a_vote']) && $user['a_vote']) {
 ?>
     <script>
+        console.log('user connecté et a voté');
         const BASE_URL = <?= json_encode($base_url); ?>;
         const url = BASE_URL + '/votes/waiting';
         console.log('url: ', url);
@@ -32,7 +33,8 @@ if ($session->has('user') && $user && isset($user['a_vote']) && $user['a_vote'])
 if (!$session->has('user')) {
 ?>
     <script>
-        const url_user_not_connected = <?= json_encode($base_url); ?> + 'votes/auth';
+        console.log('user non connecté');
+        const url_user_not_connected = <?= json_encode($base_url); ?> + '/votes/auth';
         window.location.href = url_user_not_connected;
     </script>
 <?php
@@ -42,6 +44,7 @@ if (!$session->has('user')) {
 if (!Utils::IsStatusVoteOpen()) {
 ?>
     <script>
+        console.log('scrutin non ouvert');
         const url_ = <?= json_encode($base_url); ?>;
         window.location.href = url_;
     </script>
@@ -49,6 +52,57 @@ if (!Utils::IsStatusVoteOpen()) {
 }
 ?>
 
+<style>
+    /* Overlay plein écran */
+    #vote-spinner-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.85);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    /* Masqué par défaut */
+    #vote-spinner-overlay.hidden {
+        display: none;
+    }
+
+    /* Spinner */
+    .spinner {
+        width: 60px;
+        height: 60px;
+        border: 6px solid #ddd;
+        border-top-color: #007bff;
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+        margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+<div id="vote-spinner-overlay" class="hidden">
+    <div class="spinner"></div>
+    <p>Votre vote est en cours de traitement...</p>
+</div>
+
+<script>
+    function showVoteSpinner() {
+        document.getElementById('vote-spinner-overlay')
+            .classList.remove('hidden');
+    }
+
+    function hideVoteSpinner() {
+        document.getElementById('vote-spinner-overlay')
+            .classList.add('hidden');
+    }
+</script>
 
 
 <style>
@@ -125,7 +179,13 @@ if (!Utils::IsStatusVoteOpen()) {
 
     /* === POSTE SECTIONS === */
     .poste {
-        margin: 60px 20px;
+        display: grid;
+        /* Crée 3 colonnes de largeur égale */
+        grid-template-rows: repeat(1, 1fr);
+        /* Espace entre les éléments */
+        gap: 10px;
+        /* margin: 50px 15px; */
+
     }
 
     .post-title {
@@ -152,6 +212,7 @@ if (!Utils::IsStatusVoteOpen()) {
 
     /* === CANDIDATE CARDS === */
     .candidate-card {
+        display: flex;
         background: white;
         width: 380px;
         padding: 22px;
@@ -160,7 +221,11 @@ if (!Utils::IsStatusVoteOpen()) {
         box-shadow: var(--shadow-soft);
         transition: all 0.3s ease;
         cursor: pointer;
-        display: flex;
+        justify-content: center;
+        /* Aligne horizontalement */
+        align-items: center;
+        /* Aligne verticalement */
+        min-height: 100px;
         flex-direction: column;
     }
 
@@ -445,9 +510,9 @@ if (!Utils::IsStatusVoteOpen()) {
     print_r($postes);
     echo '</pre>'; */
     foreach ($postes as $idPoste => $pos): ?>
+        <h2 class="post-title"><?= htmlspecialchars($pos['poste_description']) ?></h2>
         <section id="poste-<?= $idPoste ?>" class="poste">
             <!-- Postes -->
-            <h2 class="post-title"><?= htmlspecialchars($pos['intitule']) ?></h2>
             <div class="post-cards" data-id-poste="<?= $idPoste ?>" data-poste-name="<?= $pos['intitule'] ?>"
                 data-participant-id="<?= $session->get('user')['id'] ?>">
                 <!-- <div class="candidats-poste"> -->
@@ -459,7 +524,7 @@ if (!Utils::IsStatusVoteOpen()) {
                                 <img src="https://via.placeholder.com/85" class="avatar">
                                 <div>
                                     <h3><?= $c['prenom'] . " " . $c['nom'] ?></h3>
-                                    <span class="badge red"><?= $pos['intitule'] ?></span>
+                                    <span class="badge red"><?= $pos['poste_description'] ?></span>
                                     <p class="subtitle">Ensemble pour une <?= Utils::getAppNameShort(); ?> plus forte</p>
                                     <p class="team red-text"><?= htmlspecialchars($eq['nom']) ?></p>
                                 </div>
@@ -655,6 +720,43 @@ if (!Utils::IsStatusVoteOpen()) {
     </div>
 </div>
 
+<script>
+    (function() {
+
+        const CHECK_INTERVAL = 7000; // 30 secondes
+        const STATUS_URL = "<?= $base_url ?>/api/vote/status";
+
+        function checkVoteStatus() {
+            fetch(STATUS_URL, {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                })
+                .then(res => {
+                    if (!res.ok) return;
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data) return;
+
+                    if (data.logged_in === false) {
+                        window.location.href = "<?= $base_url ?>/votes";
+                    }
+
+                    if (data.a_vote === 1) {
+                        window.location.href = "<?= $base_url ?>/votes/waiting";
+                    }
+                })
+                .catch(err => {
+                    console.error("Vote status check failed", err);
+                });
+        }
+
+        // Lancer le check périodique
+        setInterval(checkVoteStatus, CHECK_INTERVAL);
+
+    })();
+</script>
+
 
 <script>
     function slugify(str) {
@@ -667,7 +769,8 @@ if (!Utils::IsStatusVoteOpen()) {
     }
 
     function redirect_unauthorized() {
-        fetch('/redirect/votes/index', {
+        const fetch_vote_url = <?= json_encode($base_url); ?> + '/redirect/votes/index'
+        fetch(fetch_vote_url, {
                 method: "POST",
                 headers: {
                     'Content-Type': "application/json"
@@ -687,9 +790,28 @@ if (!Utils::IsStatusVoteOpen()) {
             });
     }
 </script>
+
+<script>
+    function choixVotePoste() {
+        const fetch_url_poste = <?= json_encode($base_url); ?> + '/choix/votePoste'
+        fetch('log_handler.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                posteName: posteName,
+                candidateId: candidateId,
+                postId: postId
+            })
+        });
+    }
+</script>
+
 <script>
     //let memoire = [];
     const memoire = new Map();
+
 
     const btn_choix = document.getElementById('valider-choix');
 
@@ -735,6 +857,8 @@ if (!Utils::IsStatusVoteOpen()) {
 
 
                     console.log(`Choix enregistré : poste = ${posteName}, candidat = ${candidateId}, poste= ${postId}`);
+                    
+                    choixVotePoste();
 
                     if (memoire.size == 4) {
                         btn_choix.classList.add('active')
@@ -763,9 +887,16 @@ if (!Utils::IsStatusVoteOpen()) {
         const fetch_url = <?= json_encode($base_url); ?> + '/participant/vote'
         /* if (!Array.isArray(data))
             return; */
+        // 1. Afficher le spinner immédiatement
+        showVoteSpinner();
+
+        document.querySelectorAll('button.vote')
+            .forEach(btn => btn.disabled = true);
+
         console.log('fetch url du vote: ', fetch_url);
         fetch(fetch_url, {
                 method: 'POST',
+                credentials: 'same-origin', // 🔴 CRITIQUE
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -774,15 +905,27 @@ if (!Utils::IsStatusVoteOpen()) {
                     participantId: participantId
                 })
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Erreur HTTP ' + res.status);
+                }
+                return res.json();
+            })
             .then(data => {
+                if (!data || !data.url) {
+                    throw new Error("Réponse invalide du serveur");
+                }
                 console.log('url reçu du vote: ', data.url);
                 //Implementé la notif de vote reussit
-                window.location.href = data.url;
+                window.location.href = BASE_URL + '/' + data.url;
             })
             .catch(err => {
                 console.error(err);
 
+                // 3. En cas d’erreur, on arrête le spinner
+                hideVoteSpinner();
+
+                alert("Une erreur est survenue lors de l'envoi du vote. Veuillez réessayer.");
             });
 
     }

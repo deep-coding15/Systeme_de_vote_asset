@@ -4,11 +4,12 @@ namespace Controller;
 require_once __DIR__ . '/../core/Session.php';
 require_once __DIR__ . '/../utils/utils.php'; */
 
+use Config\Database;
 use Core\CODE_RESPONSE;
 use Core\Response;
 use Core\Session;
-use Database\Database;
-use Utils\Utils;
+/* use Database\Database;
+ */use Utils\Utils;
 
 
 class AdminController
@@ -16,10 +17,10 @@ class AdminController
     private $db;
     private $session;
 
-    public function __construct()
+    public function __construct(Session $session)
     {
-        $this->db      = (new Database())->getConnection();
-        $this->session = new Session();
+        $this->db      = Database::getInstance()->getConnection();
+        $this->session = $session;
     }
 
     public function getLogin(){

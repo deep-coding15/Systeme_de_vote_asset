@@ -297,13 +297,14 @@ use Utils\Utils;
     <p>Participez à l’avenir de l’Association des Étudiants et Stagiaires de Tétouan.</p>
 
     <div class="cta-buttons ">
-        <a href="<?= Env::get('BASE_URL'); ?>votes">Accéder au Vote</a>
-        <a href="<?= Env::get('BASE_URL'); ?>candidats">Consulter les Candidats</a>
+        <a href="<?= Utils::getBaseUrl()?>/votes">Accéder au Vote</a>
+        <a href="<?= /* Env::get('BASE_URL'); */ Utils::getBaseUrl() ?>/candidats">Consulter les Candidats</a>
     </div>
 </div>
 
 <?php
-$stats = (new VoteController())->results_view_view();
+global $session;
+$stats = (new VoteController($session))->results_view_view();
 ?>
 <section class="stats-section">
     <div class="stat-item"><span><?php echo (new \DateTime(Env::get('SCRUTIN_START')))->format('d M Y') ?> </span>Date de Scrutin</div>
