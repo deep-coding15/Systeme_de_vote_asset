@@ -4,8 +4,8 @@ namespace Repositories;
 use Config\Database as ConfigDatabase;
 use Database\Database;
 
-abstract class Repository {
-    protected $db;
+class Repository {
+    public $db;
 
     public function __construct()
     {

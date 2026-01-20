@@ -1,4 +1,5 @@
 <?php
+ob_start();
 
 use Config\Env;
 use Core\Session;
@@ -707,7 +708,7 @@ $session = new Session();
                 <i class="fa-solid fa-chart-column"></i>
                 <span>VOTE TERMINE</span>
             </a>
-            <a href="<?= $base_url ?>participants/logout"
+            <a href="<?= $base_url ?>/participants/logout"
                 class="nav-item <?= isActive($base_url . '/participants/logout') ?>">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Logout</span>

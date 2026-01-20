@@ -9,12 +9,20 @@ class Session
     // Durée de vie de la session en secondes (optionnel)
     private int $timeout;
 
+    public static function init(): void {
+        // Vérifie si une session n'est pas déjà active
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            new self();
+        }
+    }
+
     public function __construct() // 10 jours par défaut
     {
         $this->timeout = (int)trim(Env::get('SESSION_LIFETIME_SECONDS', '1200'));
 
         // Détection dynamique du HTTPS
         $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
             || $_SERVER['SERVER_PORT'] == 443;
 
         // Configuration du cookie de session
@@ -27,7 +35,7 @@ class Session
                 'domain' => '', // Laisser vide pour le domaine courant
                 'secure' => $isSecure, // Devient true si HTTPS, false sinon, // Mettez à true si vous utilisez HTTPS
                 'httponly' => true,
-                'samesite' => 'Lax'
+                'samesite' => 'Lax' // Protection contre CSRF
             ]);
             session_start();
         }
@@ -110,7 +118,7 @@ class Session
     /**
      * Vérifie si un utilisateur est connecté
      */
-    public function isLoggedIn(): bool
+    public static function isLoggedIn(): bool
     {
         return isset($_SESSION['user']); // ou autre clé selon ton projet
     }

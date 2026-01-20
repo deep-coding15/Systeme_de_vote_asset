@@ -33,9 +33,9 @@ class CandidatRepository extends Repository
                 GROUP_CONCAT(DISTINCT e.description SEPARATOR '||') AS experiences,
                 GROUP_CONCAT(DISTINCT p.priorite SEPARATOR '||') AS priorites
             FROM candidat c
-            LEFT JOIN experiences_candidat e 
+            LEFT JOIN experience_candidat e 
                 ON e.id_candidat = c.id_candidat
-            LEFT JOIN priorites_candidat p 
+            LEFT JOIN priorite_candidat p 
                 ON p.id_candidat = c.id_candidat
             GROUP BY c.id_candidat;";
         $stmt = $this->db->prepare($sql);
@@ -172,9 +172,9 @@ class CandidatRepository extends Repository
         $sql = "
             SELECT c.id_candidat, c.nom, c.prenom, COUNT(v.id_vote) AS total_votes
             FROM candidat c
-            LEFT JOIN vote v ON v.candidat_id = c.id_candidat
+            LEFT JOIN vote v ON v.id_candidat = c.id_candidat
             GROUP BY c.id_candidat, c.nom, c.prenom
-            ORDER BY total_votes DESC
+            ORDER BY total_votes DESC;
         ";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -193,8 +193,8 @@ class CandidatRepository extends Repository
             FROM equipe e
             LEFT JOIN candidat c ON c.id_equipe = e.id_equipe
             LEFT JOIN poste p ON p.id_poste = c.id_poste
-            LEFT JOIN experiences_candidat ex ON ex.id_candidat = c.id_candidat
-            LEFT JOIN priorites_candidat pr ON pr.id_candidat = c.id_candidat
+            LEFT JOIN experience_candidat ex ON ex.id_candidat = c.id_candidat
+            LEFT JOIN priorite_candidat pr ON pr.id_candidat = c.id_candidat
             ORDER BY e.id_equipe, p.id_poste, c.id_candidat";
 
         $stmt = $this->db->prepare($sql);
@@ -272,8 +272,8 @@ class CandidatRepository extends Repository
             FROM equipe e
             LEFT JOIN candidat c ON c.id_equipe = e.id_equipe
             LEFT JOIN poste p ON p.id_poste = c.id_poste
-            LEFT JOIN experiences_candidat ex ON ex.id_candidat = c.id_candidat
-            LEFT JOIN priorites_candidat pr ON pr.id_candidat = c.id_candidat
+            LEFT JOIN experience_candidat ex ON ex.id_candidat = c.id_candidat
+            LEFT JOIN priorite_candidat pr ON pr.id_candidat = c.id_candidat
             ORDER BY e.id_equipe, p.id_poste, c.id_candidat";
 
         $stmt = $this->db->prepare($sql);
@@ -348,5 +348,18 @@ class CandidatRepository extends Repository
             return null;
         }
         return $result;
+    }
+
+    public function getNbPostesActif() {
+        /* $sql = "SELECT id_poste 
+                    FROM `candidat` 
+                    GROUP BY id_poste 
+                    HAVING COUNT(*) > 0;"; */
+        $sql = "SELECT COUNT(DISTINCT id_poste) AS total_postes_actifs 
+                    FROM `candidat`;";
+
+        $stmt = $this->db->query($sql);
+        $result = $stmt->fetchColumn();
+        return $result;            
     }
 }

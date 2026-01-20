@@ -9,12 +9,6 @@ use PDOException;
 
 class VoteRepository extends Repository
 {
-    /* private $db;
-
-    public function __construct()
-    {
-        $this->db = (new Database())->getConnection();
-    } */
 
     /**
      * Récupère tous les votes
@@ -25,9 +19,21 @@ class VoteRepository extends Repository
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    }    
 
-   
+    /**
+     * Vérifie si un participant a déjà voté
+     * @param int $participantId
+     * @return bool
+     */
+    public function aDejaVote(int $participantId): bool
+    {
+        $sql = "SELECT COUNT(*) FROM vote WHERE id_participant = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $participantId]);
+
+        return (int)$stmt->fetchColumn() > 0;
+    }
 
     /**
      * Récupère tous les votes : une seule condition à la fois
@@ -127,7 +133,7 @@ class VoteRepository extends Repository
     }    
 
     public function results_in_view_pourcentage(): array {
-        $sql = "SELECT * FROM resultats_en_direct_pourcentage";
+        $sql = "SELECT * FROM v_resultats_pourcentage";
         $stmt = $this->db->query($sql);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -138,7 +144,7 @@ class VoteRepository extends Repository
      * @return array
      */
     public function statistiquesGlobales(){
-        $sql = "SELECT * FROM statistiques_globales";
+        $sql = "SELECT * FROM v_statistiques";
         $stmt = $this->db->query($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

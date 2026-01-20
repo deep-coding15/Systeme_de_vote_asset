@@ -96,7 +96,7 @@ post('/participant/vote', [\Controller\VoteController::class, 'vote']);
 post('/vote/:poste/:candidat/:participant', [\Controller\VoteController::class, 'store']);
 get('/resultats', [\Controller\VoteController::class, 'results_view']);
 
-get('/choix/votePoste', [\Utils\Utils::class, 'ChoixPosteLogJsToPHP']);
+post('/choix/vote/poste', [\Utils\Utils::class, 'ChoixPosteLogJsToPHP']);
 
 
 // API

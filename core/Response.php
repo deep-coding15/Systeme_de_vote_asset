@@ -46,6 +46,11 @@ class Response
      */
     public static function render(string $viewPath, array $data = [], bool $withLayout = true, CODE_RESPONSE $statusCode = CODE_RESPONSE::OK)
     {
+        // On démarre le tampon ici si ce n'est pas déjà fait
+        if (ob_get_level() === 0) {
+            ob_start();
+        }
+
         http_response_code($statusCode->value);
 
         // rendre chaque clé du tableau accessible comme variable
@@ -53,7 +58,7 @@ class Response
         extract($data);
 
         // Résoudre le fichier correspondant
-        $fullPath = __DIR__ . '/../views/' . $viewPath . '.php';
+        $fullPath = dirname(__DIR__) . '/views/' . $viewPath . '.php';
 
         if (!file_exists($fullPath)) {
             echo "Vue introuvable : $viewPath";
@@ -61,13 +66,18 @@ class Response
         }
 
         if ($withLayout) {
-            include_once __DIR__ . '/../views/layout/header.php';
+            include_once dirname(__DIR__) . '/views/layout/header.php';
             require $fullPath;
-            include_once __DIR__ . '/../views/layout/footer.php';
-            return;
+            include_once dirname(__DIR__) . '/views/layout/footer.php';
+        } else {
+            require $fullPath;
         }
 
-        require $fullPath;
+        // On envoie tout à la fin
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+
     }
 
 

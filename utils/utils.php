@@ -157,7 +157,7 @@ class Utils
 		$data = json_decode(file_get_contents('php://input'), true);
 
 		if ($data) {
-			error_log("Choix enregistré : poste = {$data['posteName']}, candidat = {$data['candidateId']}, poste = {$data['postId']}");
+			error_log("Choix enregistré : poste = {$data['postId']}, {$data['posteName']}, candidat = {$data['candidateId']}, {$data['candidateName']}");
 		}
 	}
 }

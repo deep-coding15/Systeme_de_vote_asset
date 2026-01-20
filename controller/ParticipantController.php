@@ -92,7 +92,7 @@ class ParticipantController
             }
         }
 
-        $a_vote = false;
+        /* $a_vote = false; */
         $est_valide = false;
 
         // === Données à insérer ===
@@ -106,7 +106,7 @@ class ParticipantController
             'type_document',
             'numero_document',
             'photo_document',
-            'a_vote',
+            /* 'a_vote', */
             'est_valide'
         );
 
@@ -129,7 +129,7 @@ class ParticipantController
             'prenom' => $prenom,
             'email' => $email,
             'est_valide' => $est_valide,
-            'a_vote' => $a_vote,
+            /* 'a_vote' => $a_vote, */
             'code_qr' => $code_qr,
             'is_admin' => $is_admin
         ]);
@@ -138,7 +138,7 @@ class ParticipantController
             'nom' => $nom,
             'prenom' => $prenom,
             'email' => $email,
-            'a_vote' => $a_vote,
+            /* 'a_vote' => $a_vote, */
             'role' => 'participant',
         ];
 
@@ -212,7 +212,7 @@ class ParticipantController
             'nom' => $participant['nom'],
             'prenom' => $participant['prenom'],
             'email' => $participant['email'],
-            'a_vote' => $participant['a_vote'],
+            /* 'a_vote' => $participant['a_vote'], */
             'is_admin' => false
         ]);
 
@@ -273,7 +273,7 @@ class ParticipantController
             'prenom' => $prenom,
             'email' => $email,
             'est_valide' => $est_valide,
-            'a_vote' => $a_vote,
+            /* 'a_vote' => $a_vote, */
             'code_qr' => $code_qr,
             'is_admin' => $is_admin
         ]);
@@ -326,7 +326,7 @@ class ParticipantController
                 'prenom' => $participant['prenom'],
                 'email' => $participant['email'],
                 'est_valide' => $participant['est_valide'],
-                'a_vote' => $participant['a_vote'],
+                /* 'a_vote' => $participant['a_vote'], */
                 'code_qr' => $participant['code_qr'],
                 'is_admin' => $is_admin
             ];
@@ -362,4 +362,6 @@ class ParticipantController
     {
         echo "Validation du participant ID = $id";
     }
+
+    //public function 
 }

@@ -30,6 +30,7 @@ class VoteController
         $this->participantRepository = new ParticipantRepository();
         $this->candidatRepository    = new CandidatRepository();
     }
+
     public function vote()
     {
         try {
@@ -72,7 +73,7 @@ class VoteController
             }
 
             // 6️⃣ Update participant
-            $this->participantRepository->markAsVoted($participantId);
+            //$this->participantRepository->markAsVoted($participantId);
 
 
             // 7️⃣ Commit
