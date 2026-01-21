@@ -268,7 +268,7 @@ $base_url = Utils::getBaseUrl();
 $user = $session->get('user');
 
 if (Session::isLoggedIn())
-    Response::render('/candidats/vote');
+    Response::redirect('/candidats/votes');
 else {
     $voteRepository = new VoteRepository();
     $participantRepository = new ParticipantRepository();
@@ -298,7 +298,7 @@ else {
                         ?>;
 
         if (estValide) {
-            const vote_url = BASE_URL + '/candidats/vote';
+            const vote_url = BASE_URL + '/candidats/votes';
             console.log('vote url: ', vote_url);
             window.location.href = vote_url;
         }

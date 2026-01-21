@@ -8,4 +8,5 @@ vendor/
 .env.infinityfree
 credentials/
 sessions/
-api/erreurs.log
+/api/erreurs.log
+apierreurs.log

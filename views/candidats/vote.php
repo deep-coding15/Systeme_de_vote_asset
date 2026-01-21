@@ -24,11 +24,6 @@ if (!isset($_SESSION['user'])) {
     Response::redirect('/participants/login');
     exit;
 }
-?>
-    <!-- <script>
-        window.location.href = "<?php /* $base_url */ ?>/participants/login";
-    </script> -->
-<?php
  
 $user = $_SESSION['user'];
 
@@ -38,8 +33,6 @@ $user = $_SESSION['user'];
 |    (AUCUNE logique de vote ici)
 |--------------------------------------------------------------------------
 */
-// require_once __DIR__ . '/../config/database.php';
-// require_once __DIR__ . '/../repositories/PosteRepository.php';
 
 $participantId = (int) $_SESSION['user']['id'];
 $posteRepository = new PosteRepository();

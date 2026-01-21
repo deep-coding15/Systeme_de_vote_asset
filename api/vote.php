@@ -1,11 +1,12 @@
 <?php
-
 declare(strict_types=1); // 1. TOUJOURS EN PREMIER
 
+// fichier /api/vote.php 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 // 2. Ensuite les imports (use)
 use Repositories\Repository;
+use Utils\Utils;
 
 // 3. Ensuite la configuration des erreurs
 // On désactive l'affichage direct pour éviter de casser le JSON
@@ -41,7 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 */
 if (!isset($_SESSION['user']['id'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Utilisateur non authentifié']);
+    echo json_encode([
+        'error' => 'Utilisateur non authentifié',
+        'redirect_unauthorized' => '/participants/login'
+    ]);
     exit;
 }
 
@@ -53,6 +57,8 @@ $participantId = (int) $_SESSION['user']['id'];
 |--------------------------------------------------------------------------
 */
 $input = json_decode(file_get_contents('php://input'), true);
+error_log('input reçu: ' . print_r($input, true), 3, __DIR__ . 'erreurs.log');
+error_log('participantId: ' . print_r($participantId, true), 3, __DIR__ . 'erreurs.log');
 
 if (!is_array($input) || !isset($input['votes']) || !is_array($input['votes'])) {
     http_response_code(400);
@@ -155,7 +161,10 @@ try {
     $_SESSION['user']['a_vote'] = true;
 
     http_response_code(201);
-    echo json_encode(['success' => true]);
+    echo json_encode([
+            'success' => true,
+            'redirect_succes' => '/votes/waiting',
+        ]);
 } catch (Throwable $e) {
 
     // En cas d'erreur, on annule la transaction si elle est active

@@ -280,7 +280,7 @@ class ParticipantController
 
         error_log("✔️ Participant connecte et session créée.");
         //Response::json(["message" => "Participant loggé avec succes."]);
-        return Response::redirect('/candidats/vote');
+        return Response::redirect('/candidats/votes');
     }
 
     public function apiLogin()

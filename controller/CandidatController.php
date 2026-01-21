@@ -11,16 +11,19 @@ use Core\CODE_RESPONSE;
 use Core\Response as CoreResponse;
 use Repositories\CandidatRepository;
 use Core\Response;
+use Repositories\PosteRepository;
 
 class CandidatController
 {
     private $db;
     private $candidatRepository;
+    private $posteRepository;
 
     public function __construct()
     {
         $this->db = Database::getInstance()->getConnection();
         $this->candidatRepository = new CandidatRepository();
+        $this->posteRepository = new PosteRepository();
     }
 
     /**
@@ -41,6 +44,19 @@ class CandidatController
         //$candidats = $this->candidatRepository->findAll();
         $postes = $this->candidatRepository->getCandidatsGroupedByPoste();
         Response::render('candidats/vote', ['titre' => 'Candidats - ASSET 2025', 'postes' => $postes]);
+    }
+    
+    public function votes()
+    {
+        //$candidats = $this->candidatRepository->findAll();
+        $postes = $this->candidatRepository->getCandidatsGroupedByPoste();
+        $allPostes = $this->posteRepository->getAllPostes();
+        Response::render('candidats/votes', 
+        [
+                'titre' => 'Candidats - ASSET 2025', 
+                'postes' => $postes, 
+                'allPostes' => $allPostes
+            ]);
     }
 
     public function voteCandidats(){

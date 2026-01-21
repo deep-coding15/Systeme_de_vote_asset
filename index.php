@@ -78,6 +78,7 @@ post('/participants/login', [\Controller\ParticipantController::class, 'login'])
 post('/api/participants/login', [\Controller\ParticipantController::class, 'apiLogin']);
 get('/participants/logout', [\Controller\ParticipantController::class, 'logout']);
 get('/candidats/vote', [\Controller\CandidatController::class, 'vote']);
+get('/candidats/votes', [\Controller\CandidatController::class, 'votes']);
 post('/candidats/vote', [\Controller\CandidatController::class, 'vote']);
 
 
