@@ -107,6 +107,7 @@ post('/choix/vote/poste', [\Utils\Utils::class, 'ChoixPosteLogJsToPHP']);
 
 // API
 get('/api/candidats/poste', [\Controller\CandidatController::class, 'candidatsPoste']);
+get('/api/resultat', [\Controller\VoteController::class, 'results_direct']);
 // Route introuvable
 any('/404', function () {
     echo 'chemin serveur : ' . $_SERVER['REQUEST_URI'];

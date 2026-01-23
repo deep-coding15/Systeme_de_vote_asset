@@ -148,7 +148,8 @@ CREATE TABLE `log_audit` (
 CREATE OR REPLACE VIEW `v_resultats_direct` AS
 SELECT 
   p.id_poste,
-  p.intitule AS poste,
+  p.intitule as intitulePoste,
+  p.description AS poste,
   c.id_candidat,
   CONCAT(c.nom, ' ', c.prenom) AS candidat,
   e.nom_equipe AS equipe,

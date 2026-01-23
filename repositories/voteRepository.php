@@ -1,4 +1,5 @@
 <?php
+
 namespace Repositories;
 
 use Database\Database;
@@ -19,7 +20,7 @@ class VoteRepository extends Repository
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }    
+    }
     public function findAllForAdmin()
     {
         $sql = "SELECT CONCAT(p.nom, ' ', p.prenom) as nameParticipant, v.created_at as date_vote, CONCAT(c.nom, ' ', c.prenom) as nameCandidat, e.nom_equipe
@@ -31,7 +32,7 @@ class VoteRepository extends Repository
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }    
+    }
 
     /**
      * Vérifie si un participant a déjà voté
@@ -52,20 +53,17 @@ class VoteRepository extends Repository
      * @param array $data = ['id_participant', 'id_candidat', 'id_poste']
      */
     public function findAllVoteById(array $data)
-    {        
-        if(isset($data['id_participant'])){
+    {
+        if (isset($data['id_participant'])) {
             $sql = "SELECT * FROM vote WHERE id_participant = :id ORDER BY date_vote DESC";
             $condition = $data['id_participant'];
-        }
-        elseif(isset($data['id_candidat'])){
+        } elseif (isset($data['id_candidat'])) {
             $sql = "SELECT * FROM vote  WHERE id_candidat = :id ORDER BY date_vote DESC";
             $condition = $data['id_candidat'];
-        }
-        elseif(isset($data['id_poste'])){
+        } elseif (isset($data['id_poste'])) {
             $sql = "SELECT * FROM vote  WHERE id_poste = :id ORDER BY date_vote DESC";
             $condition = $data['id_poste'];
-        }
-        else
+        } else
             throw new \Exception("Condition non autorisée.");
 
         $stmt = $this->db->prepare($sql);
@@ -142,27 +140,37 @@ class VoteRepository extends Repository
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total'];
-    }    
+    }
 
-    public function results_in_view_pourcentage(): array {
+    public function results_in_view_pourcentage(): array
+    {
         $sql = "SELECT * FROM v_resultats_pourcentage";
         $stmt = $this->db->query($sql);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    public function results_direct (){
+        $sql = "SELECT * FROM v_resultats_direct ORDER BY id_poste, total_votes DESC";
+        $stmt = $this->db->query($sql);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
     /**
      * Donne le nombre de condidats, de votes et de participants au processus de vote
      * @return array
      */
-    public function statistiquesGlobales(){
+    public function statistiquesGlobales()
+    {
         $sql = "SELECT * FROM v_statistiques";
         $stmt = $this->db->query($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
-    public function statistiquesAccueil(){
+
+    public function statistiquesAccueil()
+    {
         $sql = "SELECT 
                     (SELECT COUNT(*) FROM equipe) AS nb_equipe,
                     (SELECT COUNT(*) FROM poste) AS nb_poste;

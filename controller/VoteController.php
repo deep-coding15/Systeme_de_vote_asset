@@ -278,6 +278,16 @@ class VoteController
         return strtr($str, $unwanted);
     }
 
+    public function resultat() {
+        $postes = $this->candidatRepository->getCandidatsGroupedByPoste();
+        if (!$postes) {
+            return Response::json([
+                "postes" => $postes,
+                "message" => "Postes introuvable.",
+                "code" => CODE_RESPONSE::NOT_FOUND
+            ]);
+        }
+    }
     public function transformPosteData(array $posteData)
     {
         $posteKey = strtolower($this->removeAccents($posteData['intitule'])); // ex : "président" -> "président"
@@ -306,6 +316,9 @@ class VoteController
         return [$result];
     }
 
+    public function results_direct() {
+        return $this->voteRepository->results_direct();
+    }
 
     public function results()
     {

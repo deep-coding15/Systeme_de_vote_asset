@@ -1,5 +1,4 @@
 <?php
-
 namespace Utils;
 
 use Config\Env;

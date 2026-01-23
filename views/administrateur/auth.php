@@ -762,6 +762,8 @@ use Config\Env;
 use Core\Session;
 use Utils\Utils;
 
+$error = $_SESSION['login_error'] ?? null;
+unset($_SESSION['login_error']);
 $session = new Session(); ?>
 
 <?php
@@ -783,6 +785,29 @@ $base_url = rtrim(Env::get('BASE_URL'), '/');
     <h1>Connexion à la Plateforme de Vote</h1>
     <p class="subtitle">Connectez-vous pour verifier le déroulement du vote lors du scrutin officiel</p>
 
+    <?php if ($error): ?>
+        <div class="alert alert-danger">
+            <?= htmlspecialchars($error) ?>
+        </div>
+    <?php endif; ?>
+    <style>
+        /* Message d'erreur de connexion */
+        .alert {
+            padding: 12px 16px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background-color: #fdecea;
+            /* rouge clair */
+            color: #611a15;
+            /* rouge foncé */
+            border: 1px solid #f5c2c7;
+        }
+    </style>
 
     <div class="actions login-section active" data-name-action="login-section" id="login-section">
         <div class="login-box">
@@ -793,8 +818,28 @@ $base_url = rtrim(Env::get('BASE_URL'), '/');
                     <input type="email" name="email" placeholder="votre.email@asset.com">
 
                     <label>Mot de passe</label>
-                    <input type="password" name="password" placeholder="*********">
+                    <style>
+                        .container {
+                            display: flex;
+                        }
 
+                        .item-1 {
+                            flex: 9;
+                            /* Prend 9/10 de l'espace */
+                        }
+
+                        .item-2 {
+                            flex: 1;
+                            /* Prend 1/10 de l'espace */
+                        }
+                    </style>
+                    <div style="display: flex; width: 100%; height: 50px; color: white; text-align: center;">
+                        <input style="flex: 15; height: 40px" type="password" id="password" name="password" placeholder="*********">
+                        <span id="togglePassword" style="flex: 1; cursor:pointer; position:relative; top: 5px">👁️</span>
+                    </div>
+                    <!-- <label>Mot de passe</label>
+                    <input type="password" name="password" placeholder="*********">
+ -->
                     <button class="login-btn" id="">Se Connecter</button>
                 </form>
             </div>
@@ -812,3 +857,16 @@ $base_url = rtrim(Env::get('BASE_URL'), '/');
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('togglePassword');
+
+        toggleIcon.addEventListener('click', () => {
+            const isHidden = passwordInput.type === 'password';
+            passwordInput.type = isHidden ? 'text' : 'password';
+            toggleIcon.textContent = isHidden ? '🙈' : '👁️'; // changer icône
+        });
+    })
+</script>

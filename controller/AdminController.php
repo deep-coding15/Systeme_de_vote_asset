@@ -1,4 +1,5 @@
 <?php
+
 namespace Controller;
 /* require_once __DIR__ . '/../Database/Database.php';
 require_once __DIR__ . '/../core/Session.php';
@@ -20,6 +21,7 @@ use Utils\Utils;
 class AdminController
 {
     private $db;
+    private $session;
     private $voteRepository;
     private $candidatRepository;
     private $posteRepository;
@@ -27,6 +29,7 @@ class AdminController
 
     public function __construct()
     {
+        $this->session               = new Session(); 
         $this->db                    = Database::getInstance()->getConnection();
         $this->voteRepository        = new VoteRepository();
         $this->candidatRepository    = new CandidatRepository();
@@ -34,11 +37,13 @@ class AdminController
         $this->participantRepository = new ParticipantRepository();
     }
 
-    public function getLogin(){
+    public function getLogin()
+    {
         return Response::render('/administrateur/auth');
     }
 
-    public function getDashboard() {
+    public function getDashboard()
+    {
         $candidats    = $this->candidatRepository->findAllShort();
         $votes        = $this->voteRepository->findAllForAdmin();
         $participants = $this->participantRepository->findAllParticipantsForAdmin();
@@ -52,25 +57,29 @@ class AdminController
         ]);
     }
 
-    public function getCandidatsForAdmin() {
+    public function getCandidatsForAdmin()
+    {
         $data = $this->candidatRepository->findAllShort();
         header('Content-Type: application/json');
         echo json_encode($data);
     }
 
-    public function getParticipantsForAdmin() {
+    public function getParticipantsForAdmin()
+    {
         $data = $this->participantRepository->findAllParticipantsForAdmin();
         header('Content-Type: application/json');
         echo json_encode($data);
     }
 
-    public function getPostesForAdmin() {
+    public function getPostesForAdmin()
+    {
         $data = $this->posteRepository->getAllPostes();
         header('Content-Type: application/json');
         echo json_encode($data);
     }
 
-    public function getVotesForAdmin() {
+    public function getVotesForAdmin()
+    {
         $data = $this->voteRepository->findAllForAdmin();
         header('Content-Type: application/json');
         echo json_encode($data);
@@ -81,7 +90,7 @@ class AdminController
      */
     public function login()
     {
-        
+
         if ($_SERVER['REQUEST_METHOD'] !== "POST") {
             error_log("❌ Mauvaise méthode HTTP : " . $_SERVER['REQUEST_METHOD']);
             Response::redirect('/403', statusCode: CODE_RESPONSE::FORBIDDEN);
@@ -102,16 +111,26 @@ class AdminController
 
         error_log($email . ' ' . $password . $admin['mot_de_passe'], 3, dirname(__DIR__) . '/utils/error.log');
         if (!$admin) {
-            echo "Admin introuvable.";
-            return;
+            error_log("❌ Échec log in admin.");
+            //echo "Admin introuvable.";
+            // Message flash
+            $_SESSION['login_error'] = "Adresse email ou mot de passe incorrect";
+
+            return Response::redirect('/administrateur/auth');
         }
 
 
         // ICI : remplace par password_verify si tu utilises password_hash
-        if(!Utils::verifyPasswordBcrypt($password, $admin['mot_de_passe'])) {
-        //if ($password !== $admin['mot_de_passe']) {
-            echo "Mot de passe incorrect.";
-            return;
+        if (!Utils::verifyPasswordBcrypt($password, $admin['mot_de_passe'])) {
+            //if ($password !== $admin['mot_de_passe']) {
+            error_log("❌ Échec log in admin.");
+            //echo "Admin introuvable.";
+            // Message flash
+            $_SESSION['login_error'] = "Adresse email ou mot de passe incorrect";
+
+            return Response::redirect('/administrateur/auth');
+
+            //echo "Mot de passe incorrect.";
         }
 
         // connexion réussie
@@ -121,7 +140,7 @@ class AdminController
         $is_admin = true;
         $est_valide = true;
         $code_qr = '';
-        /* $this->session->set('user', [
+        $this->session->set('user', [
             'id' => $admin['id_admin'],
             'nom' => $admin['nom'],
             'prenom' => $admin['prenom'],
@@ -129,7 +148,7 @@ class AdminController
             'est_valide' => $est_valide,
             'code_qr' => $code_qr,
             'is_admin' => $is_admin
-        ]); */
+        ]); 
 
         error_log("✔️ Admin " . $admin['nom'] . ' ' . $admin['prenom'] . " connecte et session créée.");
         echo "Connexion réussie, bienvenue " . $admin['prenom'] . " !";
