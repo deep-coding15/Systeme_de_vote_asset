@@ -36,6 +36,17 @@ class ParticipantRepository extends Repository
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 	}
+	
+	public function findAllParticipantsForAdmin()
+	{
+		$sql = "SELECT CONCAT(p.nom, ' ', p.prenom) as nameParticipant, p.email, CONCAT(p.type_document, ' ', p.numero_document) as document, v.created_at
+			FROM participant p
+			RIGHT JOIN vote v ON p.id_participant = v.id_participant
+			ORDER BY nom ASC, prenom ASC;";
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute();
+		return $stmt->fetchAll(PDO::FETCH_ASSOC);
+	}
 
 	/**
 	 * Trouver un participant par son ID

@@ -20,6 +20,18 @@ class VoteRepository extends Repository
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }    
+    public function findAllForAdmin()
+    {
+        $sql = "SELECT CONCAT(p.nom, ' ', p.prenom) as nameParticipant, v.created_at as date_vote, CONCAT(c.nom, ' ', c.prenom) as nameCandidat, e.nom_equipe
+            FROM participant p 
+            JOIN vote v ON p.id_participant = v.id_participant 
+            JOIN candidat c ON c.id_candidat = v.id_candidat
+            JOIN equipe e ON e.id_equipe = c.id_equipe
+            ORDER BY date_vote DESC;";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }    
 
     /**
      * Vérifie si un participant a déjà voté

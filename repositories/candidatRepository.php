@@ -37,7 +37,23 @@ class CandidatRepository extends Repository
                 ON e.id_candidat = c.id_candidat
             LEFT JOIN priorite_candidat p 
                 ON p.id_candidat = c.id_candidat
-            GROUP BY c.id_candidat;";
+            GROUP BY c.nom ASC, c.prenom ASC;";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function findAllShort()
+    {
+        $sql = "SELECT 
+                c.id_candidat,
+                c.nom,
+                c.prenom,
+                p.description,
+                eq.nom_equipe
+            FROM candidat c
+            JOIN equipe eq ON c.id_equipe = eq.id_equipe
+            JOIN poste p ON p.id_poste = c.id_poste
+            GROUP BY c.nom ASC, c.prenom ASC;";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

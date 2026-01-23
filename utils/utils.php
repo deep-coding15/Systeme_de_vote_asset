@@ -45,6 +45,19 @@ class Utils
 		return rtrim($baseUrl, '/');
 	}
 
+	public static function getCurrentDirectoryUrl()
+	{
+		$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+		$host = $_SERVER['HTTP_HOST'];
+
+		// Récupérer le dossier racine du projet
+		$scriptName = $_SERVER['SCRIPT_NAME']; // ex: /projet/public/index.php
+		$basePath = str_replace('/public/index.php', '', $scriptName);
+		$basePath = rtrim($basePath, '/');
+
+		return $protocol . "://" . $host . $basePath;
+	}
+
 	static function getAppNameShort(): string
 	{
 		return Env::get('APP_NAME_SHORT');
@@ -159,5 +172,18 @@ class Utils
 		if ($data) {
 			error_log("Choix enregistré : poste = {$data['postId']}, {$data['posteName']}, candidat = {$data['candidateId']}, {$data['candidateName']}");
 		}
+	}
+
+	static function showErrors()
+	{
+		// Active le rapport de toutes les erreurs PHP
+		error_reporting(E_ALL);
+
+		// Force l'affichage des erreurs à l'écran
+		ini_set('display_errors', '1');
+		ini_set('display_startup_errors', '1');
+
+		// Votre code commence ici...
+
 	}
 }

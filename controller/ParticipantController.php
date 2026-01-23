@@ -256,6 +256,10 @@ class ParticipantController
                 ["error" => "Login failed"],
                 CODE_RESPONSE::UNAUTHORIZED
             );*/
+            
+            // Message flash
+            $_SESSION['login_error'] = "Adresse email ou mot de passe incorrect";
+
             return Response::redirect('/votes');
         }
         extract($participant);

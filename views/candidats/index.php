@@ -533,6 +533,8 @@
 <p class="subtitle">Découvrez les différentes équipes et leurs candidats pour chaque poste</p>
 <?php
 
+use Utils\Utils;
+
 ?>
 <!-- Onglets -->
 <div class="tabs">
@@ -579,7 +581,7 @@
                     <div class="candidate-card">
 
                         <div class="candidate-left">
-                            <img src="/uploads/<?= $c['photo'] ?>" class="candidate-photo">
+                            <img src="<?= Utils::getBaseUrl() ?>/uploads/photo_candidats/<?= $c['photo'] ?>" class="candidate-photo">
 
                             <div class="candidate-info">
                                 <h5 class="candidate-name"><?= $c['prenom'] . " " . $c['nom'] ?></h5>
@@ -640,4 +642,4 @@
 
     });
 </script>
-<script src="/js/tabs.js"></script>
+<!-- <script src="/js/tabs.js"></script> -->

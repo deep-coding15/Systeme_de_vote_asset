@@ -2,8 +2,11 @@
 
 use Config\Env;
 use Controller\VoteController;
+use Core\Session;
 use Utils\Utils;
 
+Utils::showErrors();
+Session::init();
 ?>
 <style>
     .banner {
@@ -288,16 +291,30 @@ use Utils\Utils;
 </style>
 
 <div class="banner" style="z-index: 0;">
+    <?php
+
+    // Vérifier si un message d'erreur existe en session
+    if (isset($_SESSION['flash_error'])) {
+        // Affichage du message (exemple avec une classe CSS d'alerte)
+        echo '<div style="color: white; background-color: #d9534f; padding: 15px; margin-bottom: 20px; border-radius: 4px;">'
+            . htmlspecialchars($_SESSION['flash_error']) .
+            '</div>';
+
+        // TRÈS IMPORTANT : On supprime le message pour qu'il ne se réaffiche pas au prochain rafraîchissement
+        unset($_SESSION['flash_error']);
+    }
+    ?>
+
     <div class="badge">
         <i class="fa-chisel fa-solid fa-shield fa-lg"></i>
-        Sélection Officielle —  <?= Utils::formatDateTimeEnFrancais(Env::get('SCRUTIN_START')) ?>
+        Sélection Officielle — <?= Utils::formatDateTimeEnFrancais(Env::get('SCRUTIN_START')) ?>
     </div>
     <h1>Élections du Bureau Exécutif</h1>
     <p class="subtitle"><?= Utils::getAppNameShort() ?> <?= Utils::formatDateTimeEnFrancais(Env::get('SCRUTIN_START'), 'yyyy') ?></p>
     <p>Participez à l’avenir de l’Association des Étudiants et Stagiaires de Tétouan.</p>
 
     <div class="cta-buttons ">
-        <a href="<?= Utils::getBaseUrl()?>/votes">Accéder au Vote</a>
+        <a href="<?= Utils::getBaseUrl() ?>/votes">Accéder au Vote</a>
         <a href="<?= /* Env::get('BASE_URL'); */ Utils::getBaseUrl() ?>/candidats">Consulter les Candidats</a>
     </div>
 </div>

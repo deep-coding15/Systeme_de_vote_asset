@@ -9,7 +9,8 @@ use Utils\Utils;
 $session = new Session();
 ?>
 
-<link rel="stylesheet" href="/public/style.css">
+<!-- <link rel="stylesheet" href="/public/style.css"> -->
+
 <?php
 /* if ($session->has('user')) {
     $user = $session->get('user');
@@ -650,7 +651,7 @@ $session = new Session();
 
     <header class="asset-header">
         <div class="header-left">
-            <img src="logo.png" alt="Logo ASSET" class="asset-logo">
+            <img src="<?= Utils::getBaseUrl() ?>/public/img/logo_aseet.jfif" alt="Logo ASSET" class="asset-logo">
 
             <div class="asset-title-block">
                 <h1 class="asset-title"><?= Utils::getAppNameShort(); ?></h1>

@@ -4,7 +4,7 @@ use Core\Response;
 use Core\Session;
 use Repositories\PosteRepository;
 use Utils\Utils;
-
+//Utils::showErrors();
 Session::init();
 
 if (!isset($_SESSION['user'])) {
@@ -13,6 +13,16 @@ if (!isset($_SESSION['user'])) {
 }
 
 $user = $_SESSION['user'];
+$base_url = Utils::getBaseUrl();
+
+if (Utils::IsStatusVoteClose()) {
+    // Stocker le message en session (Flash message)
+    $_SESSION['flash_error'] = "Le vote est fermé pour le moment.";
+    
+    // Redirection propre côté serveur
+    header("Location: /" . $base_url);
+    exit;
+}
 
 $participantId = (int) $_SESSION['user']['id'];
 $posteRepository = new PosteRepository();
@@ -155,6 +165,30 @@ if ($aDejaVote) {
     .progress {
         height: 8px
     }
+
+    .photo-candidat {
+        width: 160px;
+        /* Largeur fixe */
+        height: 160px;
+        /* Hauteur fixe (doit être identique pour un cercle) */
+        object-fit: cover;
+        /* Remplissage intelligent sans déformation */
+        object-position: center top;
+        /* Centre la vue sur le haut (visage) */
+        border-radius: 50%;
+        /* Rend l'image parfaitement ronde */
+        border: 3px solid #fff;
+        /* Bordure blanche pour détacher l'image */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        /* Ombre douce moderne */
+        transition: transform 0.3s ease;
+        /* Effet fluide au survol */
+    }
+
+    .photo-candidat:hover {
+        transform: scale(1.05);
+        /* Petit zoom interactif au survol */
+    }
 </style>
 
 
@@ -163,7 +197,7 @@ if ($aDejaVote) {
         <!-- <?php /* foreach ($postes as $key => $poste) : */
 
 
- ?> -->
+                ?> -->
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3>Vote pour Vice-Président(e)</h3>
@@ -239,6 +273,9 @@ if ($aDejaVote) {
 
             Object.values(poste.equipes).forEach(eq => {
                 Object.values(eq.candidats).forEach(c => {
+
+                    let photoName = c.photo || 'photo_anonyme.png';
+
                     const col = document.createElement('div');
                     col.className = 'col-md-4';
 
@@ -246,8 +283,8 @@ if ($aDejaVote) {
         <div class="candidate-card ${votes[posteId]?.candidatId == c.id ? 'selected' : ''}"
              data-id="${c.id}">
           <div class="text-center mb-2">
-            <img src="${c.photo || 'https://via.placeholder.com/100'}"
-                 class="rounded-circle mb-2">
+            <img src="${BASE_URL}/uploads/photo_candidats/${photoName}" class="photo-candidat mb-2">
+
             <h5>${c.prenom} ${c.nom}</h5>
             <span class="badge bg-primary badge-team">${eq.nom}</span>
           </div>
@@ -343,7 +380,7 @@ if ($aDejaVote) {
         function renderRecap() {
             document.querySelector('h3').innerText = 'Récapitulatif de votre vote';
             document.querySelector('h4').innerText = '';
-                document.querySelector('.alert').innerText =
+            document.querySelector('.alert').innerText =
                 'Voici les candidats que vous avez choisi - confirmez votre choix.';
 
             const container = document.getElementById('candidates');
@@ -416,75 +453,74 @@ if ($aDejaVote) {
                 votes: votesBackend
             };
 
-            const statusDiv      = document.getElementById('voteStatus');
+            const statusDiv = document.getElementById('voteStatus');
             const btnConfirmVote = document.getElementById('btnConfirmVote');
 
-            statusDiv.innerHTML  = `
+            statusDiv.innerHTML = `
                 <div class="alert alert-info">
                 Envoi de votre vote en cours...
                 </div>
             `;
-            
+
             btnConfirmVote.disabled = true; // Empêche le double clic
 
             let fetch_vote_api = BASE_URL + '/api/vote.php';
             fetch(fetch_vote_api, {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(
-                res => {
-                    if (!res.ok) throw new Error('Erreur réseau');
-                    return res.json();  
-                }  
-            ).then(data => {
-            if (data.success) {
-                statusDiv.innerHTML = `
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(
+                    res => {
+                        if (!res.ok) throw new Error('Erreur réseau');
+                        return res.json();
+                    }
+                ).then(data => {
+                    if (data.success) {
+                        statusDiv.innerHTML = `
                 <div class="alert alert-success">
                     ✅ Votre vote a été enregistré avec succès.  
                     Merci pour votre participation !
                     <br />Redirection ...
                 </div>
                 `;
-                // Redirection après 2 secondes pour laisser le temps de lire le message
-                setTimeout(() => {
-                    location.href = BASE_URL + data.redirect_succes;
-                }, 2000);
-                
-            } else {
-                if(data && data.redirect_unauthorized){
-                    statusDiv.innerHTML = `
+                        // Redirection après 2 secondes pour laisser le temps de lire le message
+                        setTimeout(() => {
+                            location.href = BASE_URL + data.redirect_succes;
+                        }, 2000);
+
+                    } else {
+                        if (data && data.redirect_unauthorized) {
+                            statusDiv.innerHTML = `
                     <div class="alert alert-danger">
                         ❌ Déconnecté. Redirection...
                     </div>
                     `;
-                    location.href = data.redirect_unauthorized;
-                }
-                else
-                    statusDiv.innerHTML = `
+                            location.href = data.redirect_unauthorized;
+                        } else
+                            statusDiv.innerHTML = `
                         <div class="alert alert-danger">
                             ❌ Erreur : ${data.message || 'Erreur inconnue'}
                         </div>
                     `;
-            }
-            })
-            .catch(err => {
-            console.error(err);
-            statusDiv.innerHTML = `
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    statusDiv.innerHTML = `
                 <div class="alert alert-danger">
                 ❌ Impossible de contacter le serveur ou réponse invalide..
                 </div>
             `;
-            })
-            .finally(() => {
-                btnConfirmVote.disabled = false; // Réactive le bouton quoi qu'il arrive
-            });
+                })
+                .finally(() => {
+                    btnConfirmVote.disabled = false; // Réactive le bouton quoi qu'il arrive
+                });
         }
 
-        
+
 
 
         // ==========================

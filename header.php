@@ -530,7 +530,7 @@ $session = new Session();
     <!-- Header principal -->
     <header class="asset-header">
         <div class="header-left">
-            <img src="logo.png" alt="Logo ASSET" class="asset-logo">
+            <img src="public/img/logo_aseet.jfif" alt="Logo ASSET" class="asset-logo">
 
             <div class="asset-title-block">
                 <h1 class="asset-title">ASSET</h1>
