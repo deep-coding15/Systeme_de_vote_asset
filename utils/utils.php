@@ -17,52 +17,96 @@ class Utils
 	 */
 	static function getBaseUrl()
 	{
+		$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+		$host = $_SERVER['HTTP_HOST'];
+
+		//$url =  $protocol . "://" . $host;
+		// Récupère le chemin du script (ex: /projet/index.php) et retire le nom du fichier
+		$scriptPath = str_replace(
+			'\\',
+			'/',
+			dirname($_SERVER['SCRIPT_NAME'])
+		);
+
+		// Sous Docker/Linux, dirname peut retourner '.' ou '/'
+		if ($scriptPath === '/' || $scriptPath === '.') {
+			$directory = '';
+		} else {
+			$directory = '/' . ltrim($scriptPath, '/');
+		}
+
+		// Nettoyage pour éviter le double slash à la fin si on est à la racine
+		//$directory = ($scriptPath === '/') ? '' : $scriptPath;
+
+		$baseUrl = $protocol . "://" . $host . $directory;
+
 		// Si BASE_URL n'existe pas, on retourne une chaîne vide ou '/'
-		$url = Env::get('BASE_URL', '');
-		return rtrim($url, '/');
+		//$url = Env::get('BASE_URL', '');
+		return rtrim($baseUrl, '/');
 	}
 
-	static function getAppNameShort() : string {
+	public static function getCurrentDirectoryUrl()
+	{
+		$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+		$host = $_SERVER['HTTP_HOST'];
+
+		// Récupérer le dossier racine du projet
+		$scriptName = $_SERVER['SCRIPT_NAME']; // ex: /projet/public/index.php
+		$basePath = str_replace('/public/index.php', '', $scriptName);
+		$basePath = rtrim($basePath, '/');
+
+		return $protocol . "://" . $host . $basePath;
+	}
+
+	static function getAppNameShort(): string
+	{
 		return Env::get('APP_NAME_SHORT');
 	}
 
-    /**
-     * Retourne une date formatée en français
+	//Devient true si HTTPS, false sinon
+	static function IsHttpsConnexion()
+	{
+		return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+			|| $_SERVER['SERVER_PORT'] == 443;
+	}
+
+	/**
+	 * Retourne une date formatée en français
 	 * Formate une date en français selon un motif spécifique.
-     *
-     * @param string|DateTime $date  La date à transformer (objet DateTime ou chaîne compatible).
-     *                                 Par défaut 'now' pour la date actuelle.
-     * @param string $pattern Le motif de formatage ICU (ex: 'MMMM yyyy').
-     *                                 @link unicode-org.github.io. (ex: 'MMMM yyyy' pour 'janvier 2026')
-     * @return string La date formatée avec la première lettre en majuscule.
+	 *
+	 * @param string|DateTime $date  La date à transformer (objet DateTime ou chaîne compatible).
+	 *                                 Par défaut 'now' pour la date actuelle.
+	 * @param string $pattern Le motif de formatage ICU (ex: 'MMMM yyyy').
+	 *                                 @link unicode-org.github.io. (ex: 'MMMM yyyy' pour 'janvier 2026')
+	 * @return string La date formatée avec la première lettre en majuscule.
 	 * 
 	 * @throws Exception Si la chaîne de date fournie est invalide.
-     * 
-     * @example Utils::formatDateTimeEnFrancais('2026-01-08', 'EEEE d MMMM yyyy') -> "Jeudi 8 janvier 2026"
-     *
-     */
-    public static function formatDateTimeEnFrancais($date = 'now', string $pattern = 'MMMM yyyy'): string
-    {
-        if (!$date instanceof DateTime) {
-            $date = new DateTime($date);
-        }
+	 * 
+	 * @example Utils::formatDateTimeEnFrancais('2026-01-08', 'EEEE d MMMM yyyy') -> "Jeudi 8 janvier 2026"
+	 *
+	 */
+	public static function formatDateTimeEnFrancais($date = 'now', string $pattern = 'MMMM yyyy'): string
+	{
+		if (!$date instanceof DateTime) {
+			$date = new DateTime($date);
+		}
 
-        // Initialisation du formateur si nécessaire
-        if (self::$formatter === null) {
-            self::$formatter = new IntlDateFormatter(
-                'fr_FR',
-                IntlDateFormatter::FULL,
-                IntlDateFormatter::NONE,
-                date_default_timezone_get(),
-                IntlDateFormatter::GREGORIAN
-            );
-        }
+		// Initialisation du formateur si nécessaire
+		if (self::$formatter === null) {
+			self::$formatter = new IntlDateFormatter(
+				'fr_FR',
+				IntlDateFormatter::FULL,
+				IntlDateFormatter::NONE,
+				date_default_timezone_get(),
+				IntlDateFormatter::GREGORIAN
+			);
+		}
 
-        self::$formatter->setPattern($pattern);
-        
-        // ucfirst pour mettre la première lettre en majuscule (Janvier 2026)
-        return ucfirst(self::$formatter->format($date));
-    }
+		self::$formatter->setPattern($pattern);
+
+		// ucfirst pour mettre la première lettre en majuscule (Janvier 2026)
+		return ucfirst(self::$formatter->format($date));
+	}
 
 	static function hashPasswordBcrypt($password)
 	{
@@ -121,4 +165,25 @@ class Utils
 		}
 	}
 
+	static function ChoixPosteLogJsToPHP()
+	{
+		$data = json_decode(file_get_contents('php://input'), true);
+
+		if ($data) {
+			error_log("Choix enregistré : poste = {$data['postId']}, {$data['posteName']}, candidat = {$data['candidateId']}, {$data['candidateName']}");
+		}
+	}
+
+	static function showErrors()
+	{
+		// Active le rapport de toutes les erreurs PHP
+		error_reporting(E_ALL);
+
+		// Force l'affichage des erreurs à l'écran
+		ini_set('display_errors', '1');
+		ini_set('display_startup_errors', '1');
+
+		// Votre code commence ici...
+
+	}
 }

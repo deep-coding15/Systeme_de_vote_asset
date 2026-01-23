@@ -14,20 +14,23 @@ use Core\Session;
 
 // TEST DE DIAGNOSTIC
 if (!class_exists('Controller\CandidatController')) {
-    echo "L'autoloader ne trouve pas la classe. Voici les chemins vérifiés :<br>";
+    //echo "L'autoloader ne trouve pas la classe. Voici les chemins vérifiés :<br>";
     die();
     }
-    else
-        echo "L'autoloader a trouvé  la classe. ";
+    //else 
+        //echo "L'autoloader a trouvé  la classe. ";
 
 //echo "Chemin attendu : " . realpath(__FILE__);
 
 try {
     // On remonte d'un cran (../) car le .env est à la racine, pas dans public/
-    Env::load();
+    Env::load('local');
 } catch (Exception $e) {
     die("Erreur de configuration : " . $e->getMessage());
 }
+
+$session = new Session(); // UNE SEULE FOIS
+
 /*
  |---------------------------------------------------------
  | Définition des routes
@@ -67,18 +70,26 @@ get('/resultats/test2', [\Controller\VoteController::class, 'results_view']);
 get('/votes/waiting', function(){
     \Core\Response::render('/votes/waiting', ['titre' => 'Waiting — ASSET Vote']);
 });
+get('/api/vote/status', [\Controller\VoteController::class, 'voteStatus']);
+
 
 post('/participants/add', [\Controller\ParticipantController::class, 'store']);
 post('/participants/login', [\Controller\ParticipantController::class, 'login']);
 post('/api/participants/login', [\Controller\ParticipantController::class, 'apiLogin']);
 get('/participants/logout', [\Controller\ParticipantController::class, 'logout']);
 get('/candidats/vote', [\Controller\CandidatController::class, 'vote']);
+get('/candidats/votes', [\Controller\CandidatController::class, 'votes']);
 post('/candidats/vote', [\Controller\CandidatController::class, 'vote']);
 
+get('/api/candidats/admin', [\Controller\AdminController::class, 'getCandidatsForAdmin']);
+get('/api/participants/admin', [\Controller\AdminController::class, 'getParticipantsForAdmin']);
+get('/api/postes/admin', [\Controller\AdminController::class, 'getPostesForAdmin']);
+get('/api/votes/admin', [\Controller\AdminController::class, 'getVotesForAdmin']);
 
 get('/test', [\Controller\CandidatController::class, 'test']);
 
 get('/administrateur/auth', [\Controller\AdminController::class, 'getLogin']);
+get('/administrateur/dashboard', [\Controller\AdminController::class, 'getDashboard']);
 post('/administrateur/auth', [\Controller\AdminController::class, 'login']);
 
 // Participants
@@ -91,12 +102,14 @@ post('/participant/vote', [\Controller\VoteController::class, 'vote']);
 post('/vote/:poste/:candidat/:participant', [\Controller\VoteController::class, 'store']);
 get('/resultats', [\Controller\VoteController::class, 'results_view']);
 
+post('/choix/vote/poste', [\Utils\Utils::class, 'ChoixPosteLogJsToPHP']);
+
 
 // API
 get('/api/candidats/poste', [\Controller\CandidatController::class, 'candidatsPoste']);
 // Route introuvable
 any('/404', function () {
-    //echo 'chemin serveur : ' . $_SERVER['REQUEST_URI'];
+    echo 'chemin serveur : ' . $_SERVER['REQUEST_URI'];
     http_response_code(404);
     echo "Page non trouvée.";
 });

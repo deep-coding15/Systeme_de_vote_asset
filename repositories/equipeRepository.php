@@ -9,12 +9,6 @@ use PDOException;
 
 class EquipeRepository extends Repository
 {
-    /* private $db;
-
-    public function __construct()
-    {
-        $this->db = (new Database())->getConnection();
-    } */
 
     /**
      * Récupère tous les equipes
@@ -101,7 +95,7 @@ class EquipeRepository extends Repository
      */
     public function search(string $keyword)
     {
-        $sql = "SELECT * FROM candidats 
+        $sql = "SELECT * FROM candidat 
                 WHERE nom_equipe LIKE :keyword";
         $stmt = $this->db->prepare($sql);
         $search = "%" . $keyword . "%";
@@ -116,13 +110,13 @@ class EquipeRepository extends Repository
     public function getResultats()
     {
         $sql = "
-            SELECT p.intitule, c.nom AS nom_candidat, c.prenom AS prenom_candidat, pa.nom AS nom.participant, pa.prenom AS prenom.participant
+            SELECT p.intitule, c.nom AS nom_candidat, c.prenom AS prenom_candidat, pa.nom AS nom_participant, pa.prenom AS prenom_participant
             FROM poste p
-            LEFT JOIN candidats c ON p.id_poste = c.id_poste
-            LEFT JOIN votes v ON v.candidat_id = c.id
+            LEFT JOIN candidat c ON p.id_poste = c.id_poste
+            LEFT JOIN vote v ON v.id_candidat = c.id_candidat
             LEFT JOIN participant pa ON pa.id_participant = v.id_participant
             GROUP BY p.id_poste, c.nom, c.prenom
-            ORDER BY p.id_poste
+            ORDER BY p.id_poste;
         ";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();

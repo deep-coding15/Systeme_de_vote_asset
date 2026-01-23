@@ -1,4 +1,5 @@
 <?php
+ob_start();
 
 use Config\Env;
 use Core\Session;
@@ -8,7 +9,8 @@ use Utils\Utils;
 $session = new Session();
 ?>
 
-<link rel="stylesheet" href="/public/style.css">
+<!-- <link rel="stylesheet" href="/public/style.css"> -->
+
 <?php
 /* if ($session->has('user')) {
     $user = $session->get('user');
@@ -649,7 +651,7 @@ $session = new Session();
 
     <header class="asset-header">
         <div class="header-left">
-            <img src="logo.png" alt="Logo ASSET" class="asset-logo">
+            <img src="<?= Utils::getBaseUrl() ?>/public/img/logo_aseet.jfif" alt="Logo ASSET" class="asset-logo">
 
             <div class="asset-title-block">
                 <h1 class="asset-title"><?= Utils::getAppNameShort(); ?></h1>
@@ -707,7 +709,7 @@ $session = new Session();
                 <i class="fa-solid fa-chart-column"></i>
                 <span>VOTE TERMINE</span>
             </a>
-            <a href="<?= $base_url ?>participants/logout"
+            <a href="<?= $base_url ?>/participants/logout"
                 class="nav-item <?= isActive($base_url . '/participants/logout') ?>">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Logout</span>

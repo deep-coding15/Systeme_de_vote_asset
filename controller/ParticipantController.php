@@ -13,17 +13,17 @@ require_once dirname(__DIR__, 1) . '/core/Session.php';
 use Core\CODE_RESPONSE;
 use Core\Response;
 use Models\Participant;
-use Repositories\participantRepository;
+use Repositories\ParticipantRepository;
 use Throwable;
 
 class ParticipantController
 {
     private $participantRepository;
     private $session;
-    public function __construct()
+    public function __construct(Session $session)
     {
-        $this->participantRepository = new participantRepository();
-        $this->session = new Session();
+        $this->participantRepository = new ParticipantRepository();
+        $this->session = $session;
     }
     public function index()
     {
@@ -92,7 +92,7 @@ class ParticipantController
             }
         }
 
-        $a_vote = false;
+        /* $a_vote = false; */
         $est_valide = false;
 
         // === Données à insérer ===
@@ -106,7 +106,7 @@ class ParticipantController
             'type_document',
             'numero_document',
             'photo_document',
-            'a_vote',
+            /* 'a_vote', */
             'est_valide'
         );
 
@@ -129,7 +129,7 @@ class ParticipantController
             'prenom' => $prenom,
             'email' => $email,
             'est_valide' => $est_valide,
-            'a_vote' => $a_vote,
+            /* 'a_vote' => $a_vote, */
             'code_qr' => $code_qr,
             'is_admin' => $is_admin
         ]);
@@ -138,7 +138,7 @@ class ParticipantController
             'nom' => $nom,
             'prenom' => $prenom,
             'email' => $email,
-            'a_vote' => $a_vote,
+            /* 'a_vote' => $a_vote, */
             'role' => 'participant',
         ];
 
@@ -212,7 +212,7 @@ class ParticipantController
             'nom' => $participant['nom'],
             'prenom' => $participant['prenom'],
             'email' => $participant['email'],
-            'a_vote' => $participant['a_vote'],
+            /* 'a_vote' => $participant['a_vote'], */
             'is_admin' => false
         ]);
 
@@ -256,6 +256,10 @@ class ParticipantController
                 ["error" => "Login failed"],
                 CODE_RESPONSE::UNAUTHORIZED
             );*/
+            
+            // Message flash
+            $_SESSION['login_error'] = "Adresse email ou mot de passe incorrect";
+
             return Response::redirect('/votes');
         }
         extract($participant);
@@ -264,20 +268,23 @@ class ParticipantController
         // === Succès ===
         //global $session;
         $is_admin = false;
+
+        
+
         $this->session->set('user', [
             'id' => $participant['id_participant'],
             'nom' => $nom,
             'prenom' => $prenom,
             'email' => $email,
             'est_valide' => $est_valide,
-            'a_vote' => $a_vote,
+            /* 'a_vote' => $a_vote, */
             'code_qr' => $code_qr,
             'is_admin' => $is_admin
         ]);
 
         error_log("✔️ Participant connecte et session créée.");
         //Response::json(["message" => "Participant loggé avec succes."]);
-        return Response::redirect('/candidats/vote');
+        return Response::redirect('/candidats/votes');
     }
 
     public function apiLogin()
@@ -323,7 +330,7 @@ class ParticipantController
                 'prenom' => $participant['prenom'],
                 'email' => $participant['email'],
                 'est_valide' => $participant['est_valide'],
-                'a_vote' => $participant['a_vote'],
+                /* 'a_vote' => $participant['a_vote'], */
                 'code_qr' => $participant['code_qr'],
                 'is_admin' => $is_admin
             ];
@@ -359,4 +366,6 @@ class ParticipantController
     {
         echo "Validation du participant ID = $id";
     }
+
+    //public function 
 }

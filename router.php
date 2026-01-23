@@ -71,8 +71,15 @@ function dispatch()
 function resolveCallback($callback)
 {
     if (is_array($callback)) {
-        $controller = new $callback[0];
+
+        global $session;
+
+        $controllerClass = $callback[0];
         $method = $callback[1];
+
+        //Injection explicite de la session
+        $controller = new $controllerClass($session);
+        
         return [$controller, $method];
     }
 

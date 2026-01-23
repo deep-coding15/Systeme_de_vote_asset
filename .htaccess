@@ -1,10 +1,22 @@
+# ------------------------------------------------------------
+# Activation du moteur de réécriture
+# ------------------------------------------------------------
 RewriteEngine On
 
-# Si le fichier n'existe pas
+
+# ------------------------------------------------------------
+# Si le fichier demandé n’existe PAS physiquement
+# ------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-f
 
-# Si le dossier n'existe pas
+# ------------------------------------------------------------
+# Si le dossier demandé n’existe PAS physiquement
+# ------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Toutes les requêtes vont vers index.php
-RewriteRule ^(.*)$ index.php [QSA,L]
+
+# ------------------------------------------------------------
+# Alors on redirige toutes les requêtes vers index.php
+# index.php devient le point d’entrée unique (Front Controller)
+# ------------------------------------------------------------
+RewriteRule ^ index.php [L]

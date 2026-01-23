@@ -1,55 +1,144 @@
-version: '3.8' # Version du format de fichier Docker Compose utilisé
+version: "3.8" 
+# Version du format Docker Compose
+# 3.8 est stable, largement supportée et compatible Docker Desktop
 
-services: # Définition des différents conteneurs (services) de l'application
-  
-  # --- Service PHP (Votre application) ---
+services:
+  # =========================================================
+  # SERVICE PHP + APACHE
+  # Héberge l'application de vote (frontend + backend PHP)
+  # =========================================================
   php:
-    build: . # Construit l'image à partir du Dockerfile présent dans le dossier courant
-    container_name: php_8-2 # Nom personnalisé du conteneur pour l'identifier facilement
-    volumes:
-      - ./:/var/www/html # Synchronise votre dossier local avec le dossier du serveur dans Docker
-    ports:
-      - "8000:80" # Relie le port 8000 de votre PC au port 80 (HTTP) du conteneur
-    environment: # Variables d'environnement injectées dans PHP (accessibles via getenv())
-      - TZ=UTC # Définit le fuseau horaire du serveur sur l'heure universelle
-      - APP_ENV=docker # Indique à votre code qu'il tourne sous Docker (pour choisir .env.docker)
-      - DB_HOST=db # Définit le nom de l'hôte MySQL (correspond au nom du service ci-dessous)
-      - DB_NAME=systeme_vote_aseet # Nom de la base de données utilisée par l'application
-      #- APACHE_DOCUMENT_ROOT=/var/www/html/public
-    depends_on: # Définit les dépendances entre les services
-      db: # Le service PHP dépend du service "db"
-        condition: service_healthy # PHP attend que MySQL ait fini son auto-test de santé avant de démarrer
+    build: .
+    # Construit l'image à partir du Dockerfile situé à la racine
+    # Le Dockerfile doit installer PHP 8.2 + Apache + extensions nécessaires
 
-  # --- Service MySQL (Base de données) ---
-  db:
-    image: mysql:8.0 # Utilise l'image officielle MySQL version 8.0
-    container_name: mysql_8-2 # Nom du conteneur pour la base de données
-    restart: always # Redémarre automatiquement le conteneur en cas de plantage ou reboot
-    environment: # Paramètres de configuration de MySQL
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # Autorise la connexion root sans mot de passe (pratique en dev)
-      MYSQL_DATABASE: "systeme_vote_aseet" # Crée automatiquement cette base au premier démarrage
-    volumes:
-      - systeme_vote_db_data:/var/lib/mysql # Stocke les données sur votre disque (évite de perdre vos votes au reboot)
-    ports:
-      - "3308:3306" # Permet d'accéder à MySQL depuis votre PC via le port 3308 (ex: via DBeaver/HeidiSQL)
-    healthcheck: # Test de vérification pour savoir si MySQL est réellement prêt
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"] # Teste si MySQL répond au "ping"
-      interval: 5s # Effectue le test toutes les 5 secondes
-      timeout: 2s # Temps maximum accordé au test avant de le considérer en échec
-      retries: 10 # Nombre d'essais avant de déclarer le conteneur comme "malade" (unhealthy)
+    container_name: vote_php_8_2
+    # Nom lisible du conteneur (facilite docker ps / docker logs)
 
-  # --- Service PHPMyAdmin (Interface de gestion DB) ---
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin # Utilise l'image officielle de PHPMyAdmin
-    container_name: pma_8-2 # Nom du conteneur de l'interface graphique
     ports:
-      - "8082:80" # Accès à l'interface via http://localhost:8082
-    depends_on:
-      - db # S'assure que MySQL est listé avant de démarrer l'interface
+      - "8000:80"
+      # Expose le port 80 du conteneur Apache
+      # Accessible via http://localhost:8000 sur la machine hôte
+
+    volumes:
+      - .:/var/www/html
+      # Monte le code source PHP dans Apache /src
+      # Toute modification locale est immédiatement visible dans le conteneur
+
+      - ./sessions:/tmp
+      # IMPORTANT : Dossier des sessions PHP
+      # PHP stocke ici les fichiers sess_xxx
+      # Garantit la persistance des sessions entre requêtes Docker
+
+      - ./php.ini:/usr/local/etc/php/php.ini
+      # Fichier de configuration PHP personnalisé
+      # Permet de forcer cookies, sessions, erreurs, timezone, etc.
+
     environment:
-      PMA_HOST: db # Indique à PHPMyAdmin de se connecter au service "db"
-      PMA_PORT: 3306 # Utilise le port interne standard de MySQL
+      TZ: UTC
+      # Définit le fuseau horaire du conteneur
 
-# --- Définition des volumes persistants ---
+      APP_ENV: docker
+      # Permet à l'application de savoir qu'elle tourne dans Docker
+      # Utile pour charger .env.docker ou config spécifique
+
+      DB_HOST: db
+      # Nom du service MySQL (NE JAMAIS utiliser localhost dans Docker)
+
+      DB_NAME: systeme_vote_aseet
+      # Nom de la base de données
+
+      DB_USER: root
+      # Utilisateur MySQL (root pour environnement de développement)
+
+      DB_PASSWORD: ""
+      # Mot de passe vide autorisé (dev uniquement)
+
+    depends_on:
+      db:
+        condition: service_healthy
+        # PHP attend que MySQL soit réellement prêt
+        # Évite les erreurs de connexion au démarrage
+
+  # =========================================================
+  # SERVICE MYSQL
+  # Base de données du système de vote
+  # =========================================================
+  db:
+    image: mysql:8.0
+    # Image officielle MySQL 8.0
+
+    container_name: vote_mysql_8
+    # Nom explicite du conteneur MySQL
+
+    restart: always
+    # Redémarre automatiquement le conteneur en cas de crash
+
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      # Autorise un mot de passe root vide (DEV uniquement)
+
+      MYSQL_DATABASE: systeme_vote_aseet
+      # Base créée automatiquement au premier lancement
+
+    volumes:
+      - ./Database/systeme_vote_aseet.sql:/docker-entrypoint-initdb.d/init.sql
+      # Script SQL exécuté automatiquement au premier démarrage
+      # Crée les tables, vues, contraintes du système de vote
+
+      - systeme_vote_db_data:/var/lib/mysql
+      # Volume Docker persistant
+      # Empêche la perte des données (votes, participants) au reboot
+
+    ports:
+      - "3308:3306"
+      # Permet l'accès MySQL depuis la machine hôte
+      # Exemple : DBeaver / HeidiSQL → port 3308
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      # Vérifie que MySQL répond réellement
+
+      interval: 5s
+      # Test toutes les 5 secondes
+
+      timeout: 2s
+      # Temps max avant échec du test
+
+      retries: 10
+      # Nombre de tentatives avant de déclarer MySQL "unhealthy"
+
+  # =========================================================
+  # SERVICE PHPMYADMIN
+  # Interface graphique de gestion MySQL
+  # =========================================================
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    # Image officielle PHPMyAdmin
+
+    container_name: vote_phpmyadmin
+    # Nom du conteneur PHPMyAdmin
+
+    ports:
+      - "8082:80"
+      # Accès via http://localhost:8082
+
+    environment:
+      PMA_HOST: db
+      # Connexion automatique au service MySQL "db"
+
+      PMA_PORT: 3306
+      # Port interne MySQL
+
+    depends_on:
+      - db
+      # PHPMyAdmin démarre après MySQL
+
+# =========================================================
+# VOLUMES PERSISTANTS
+# =========================================================
 volumes:
-  systeme_vote_db_data: # Déclare le volume nommé pour la persistance des données MySQL
+  systeme_vote_db_data:
+  # Volume Docker nommé
+  # Stocke les données MySQL de façon persistante
+

@@ -1,5 +1,4 @@
 <?php
-
 namespace Repositories;
 
 use chillerlan\QRCode\Output\QROutputInterface;
@@ -37,6 +36,17 @@ class ParticipantRepository extends Repository
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 	}
+	
+	public function findAllParticipantsForAdmin()
+	{
+		$sql = "SELECT CONCAT(p.nom, ' ', p.prenom) as nameParticipant, p.email, CONCAT(p.type_document, ' ', p.numero_document) as document, v.created_at
+			FROM participant p
+			RIGHT JOIN vote v ON p.id_participant = v.id_participant
+			ORDER BY nom ASC, prenom ASC;";
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute();
+		return $stmt->fetchAll(PDO::FETCH_ASSOC);
+	}
 
 	/**
 	 * Trouver un participant par son ID
@@ -65,8 +75,8 @@ class ParticipantRepository extends Repository
 	{
 		$data['password_hash'] = '1234'; //Juste pour le test
 
-		$sql = "INSERT INTO participant (nom, prenom, email, password_hash, code_qr, phone, type_document, numero_document, photo_document, est_valide, a_vote, date_inscription)
-                VALUES (:nom, :prenom, :email, :password_hash, :code_qr, :phone, :type_document, :numero_document, :photo_document, :est_valide, :a_vote, NOW())";
+		$sql = "INSERT INTO participant (nom, prenom, email, password_hash, code_qr, phone, type_document, numero_document, photo_document, est_valide, date_inscription)
+                VALUES (:nom, :prenom, :email, :password_hash, :code_qr, :phone, :type_document, :numero_document, :photo_document, :est_valide, NOW())";
 		$stmt = $this->db->prepare($sql);
 		$password_hash = Utils::hashPasswordBcrypt($data['password']);
 		$stmt->bindParam(":nom", $data['nom'], PDO::PARAM_STR);
@@ -79,7 +89,6 @@ class ParticipantRepository extends Repository
 		$stmt->bindParam(":numero_document", $data['numero_document'], PDO::PARAM_STR);
 		$stmt->bindParam(":photo_document", $data['photo_document'], PDO::PARAM_STR);
 		$stmt->bindParam(":est_valide", $data['est_valide'], PDO::PARAM_BOOL);
-		$stmt->bindParam(":a_vote", $data['a_vote'], PDO::PARAM_BOOL);
 
 		// Exécute l'insertion
 		if ($stmt->execute()) {
@@ -122,7 +131,7 @@ class ParticipantRepository extends Repository
 
 		$sql = "UPDATE participant 
                 SET nom = :nom, prenom = :prenom, email = :email, code_qr = :code_qr, 
-                    est_valide = :est_valide, a_vote = :a_vote, date_inscription = :date_inscription
+                    est_valide = :est_valide, date_inscription = :date_inscription
                 WHERE id_participant = :id";
 		$stmt = $this->db->prepare($sql);
 		$stmt->bindParam(":nom", $data['nom']);
@@ -130,7 +139,6 @@ class ParticipantRepository extends Repository
 		$stmt->bindParam(":email", $data['email']);
 		$stmt->bindParam(":code_qr", $data['code_qr']);
 		$stmt->bindParam(":est_valide", $data['est_valide']);
-		$stmt->bindParam(":a_vote", $data['a_vote']);
 		$stmt->bindParam(":date_inscription", $data['date_inscription']);
 		$stmt->bindParam(":id", $id);
 
@@ -143,7 +151,7 @@ class ParticipantRepository extends Repository
 	public function lockForVote(int $id)
 	{
 		$stmt = $this->db->prepare(
-			"SELECT id_participant, a_vote
+			"SELECT id_participant
          FROM participant
          WHERE id_participant = ?
          FOR UPDATE"
@@ -152,16 +160,16 @@ class ParticipantRepository extends Repository
 		return $stmt->fetch(PDO::FETCH_ASSOC);
 	}
 
-	public function markAsVoted(int $id)
+	/* public function markAsVoted(int $id)
 	{
 		$stmt = $this->db->prepare(
 			"UPDATE participant SET a_vote = 1 WHERE id_participant = ?"
 		);
 		return $stmt->execute([$id]);
-	}
+	} */
 
 
-	public function update_a_vote(int $id_participant)
+	/* public function update_a_vote(int $id_participant)
 	{
 		$participant = $this->findById($id_participant);
 
@@ -187,7 +195,8 @@ class ParticipantRepository extends Repository
 			return false;
 		}
 		return $stmt->rowCount();
-	}
+	} */
+
 	public function update_est_valide(int $id_participant)
 	{
 		$participant = $this->findById($id_participant);
@@ -255,7 +264,8 @@ class ParticipantRepository extends Repository
 	/**
 	 * Récupérer les résultats (votes par participant)
 	 */
-	public function getResultats()
+	// Incorrect
+	/* public function getResultats()
 	{
 		$sql = "
             SELECT p.id_participant, p.nom, p.prenom, p.email, COUNT(v.id_vote) AS total_votes
@@ -267,7 +277,7 @@ class ParticipantRepository extends Repository
 		$stmt = $this->db->prepare($sql);
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
-	}
+	} */
 
 	/* public function generateQrCode(Participant $participant)
 	{

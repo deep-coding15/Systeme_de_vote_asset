@@ -1,0 +1,13 @@
+[20-Jan-2026 16:23:19 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Repositories\Repository" not found in C:\xampp\htdocs\Projets\Systeme_de_vote_asset\api\vote.php:74
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Projets\Systeme_de_vote_asset\api\vote.php on line 74
+[20-Jan-2026 16:24:05 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Repositories\Repository" not found in C:\xampp\htdocs\Projets\Systeme_de_vote_asset\api\vote.php:74
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Projets\Systeme_de_vote_asset\api\vote.php on line 74
+[20-Jan-2026 16:27:28 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Repositories\Repository" not found in C:\xampp\htdocs\Projets\Systeme_de_vote_asset\api\vote.php:74
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Projets\Systeme_de_vote_asset\api\vote.php on line 74
+[21-Jan-2026 12:52:22 Europe/Berlin] PHP Warning:  Array to string conversion in C:\xampp\htdocs\Projets\Systeme_de_vote_asset\api\vote.php on line 59

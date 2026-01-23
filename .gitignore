@@ -7,3 +7,6 @@ vendor/
 .env.docker
 .env.infinityfree
 credentials/
+sessions/
+/api/erreurs.log
+apierreurs.log

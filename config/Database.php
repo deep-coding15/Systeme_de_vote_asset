@@ -1,5 +1,4 @@
 <?php
-
 namespace Config;
 
 use PDO;
@@ -17,7 +16,7 @@ class Database
         $dbHost = Env::get('DB_HOST', 'localhost');
         $dbUser = Env::get('DB_USER', 'root');
         $dbPass = Env::get('DB_PASS', '');
-        $dbName = Env::get('DB_NAME', 'systeme_vote_aseet');
+        $dbName = Env::get('DB_NAME', 'vote_aseet');
         $dbPort = Env::get('DB_PORT') ?: '3306';
 
         // 1. Détection automatique de l'hôte principal selon l'environnement
@@ -37,7 +36,7 @@ class Database
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]);
-            echo "Connected database successfully";
+            //echo "Connected database successfully";
         } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
             throw new Exception("Erreur de connexion : " . $e->getMessage());

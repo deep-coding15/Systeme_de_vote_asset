@@ -9,12 +9,6 @@ use PDOException;
 
 class VoteRepository extends Repository
 {
-    /* private $db;
-
-    public function __construct()
-    {
-        $this->db = (new Database())->getConnection();
-    } */
 
     /**
      * Récupère tous les votes
@@ -25,9 +19,33 @@ class VoteRepository extends Repository
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    }    
+    public function findAllForAdmin()
+    {
+        $sql = "SELECT CONCAT(p.nom, ' ', p.prenom) as nameParticipant, v.created_at as date_vote, CONCAT(c.nom, ' ', c.prenom) as nameCandidat, e.nom_equipe
+            FROM participant p 
+            JOIN vote v ON p.id_participant = v.id_participant 
+            JOIN candidat c ON c.id_candidat = v.id_candidat
+            JOIN equipe e ON e.id_equipe = c.id_equipe
+            ORDER BY date_vote DESC;";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }    
 
-   
+    /**
+     * Vérifie si un participant a déjà voté
+     * @param int $participantId
+     * @return bool
+     */
+    public function aDejaVote(int $participantId): bool
+    {
+        $sql = "SELECT COUNT(*) FROM vote WHERE id_participant = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $participantId]);
+
+        return (int)$stmt->fetchColumn() > 0;
+    }
 
     /**
      * Récupère tous les votes : une seule condition à la fois
@@ -127,7 +145,7 @@ class VoteRepository extends Repository
     }    
 
     public function results_in_view_pourcentage(): array {
-        $sql = "SELECT * FROM resultats_en_direct_pourcentage";
+        $sql = "SELECT * FROM v_resultats_pourcentage";
         $stmt = $this->db->query($sql);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -138,7 +156,7 @@ class VoteRepository extends Repository
      * @return array
      */
     public function statistiquesGlobales(){
-        $sql = "SELECT * FROM statistiques_globales";
+        $sql = "SELECT * FROM v_statistiques";
         $stmt = $this->db->query($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

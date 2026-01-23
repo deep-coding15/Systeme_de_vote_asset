@@ -4,27 +4,78 @@ namespace Controller;
 require_once __DIR__ . '/../core/Session.php';
 require_once __DIR__ . '/../utils/utils.php'; */
 
+use Config\Database;
 use Core\CODE_RESPONSE;
 use Core\Response;
 use Core\Session;
-use Database\Database;
+/* use Database\Database;
+ */
+use Repositories\CandidatRepository;
+use Repositories\ParticipantRepository;
+use Repositories\PosteRepository;
+use Repositories\VoteRepository;
 use Utils\Utils;
 
 
 class AdminController
 {
     private $db;
-    private $session;
+    private $voteRepository;
+    private $candidatRepository;
+    private $posteRepository;
+    private $participantRepository;
 
     public function __construct()
     {
-        $this->db      = (new Database())->getConnection();
-        $this->session = new Session();
+        $this->db                    = Database::getInstance()->getConnection();
+        $this->voteRepository        = new VoteRepository();
+        $this->candidatRepository    = new CandidatRepository();
+        $this->posteRepository       = new PosteRepository();
+        $this->participantRepository = new ParticipantRepository();
     }
 
     public function getLogin(){
         return Response::render('/administrateur/auth');
     }
+
+    public function getDashboard() {
+        $candidats    = $this->candidatRepository->findAllShort();
+        $votes        = $this->voteRepository->findAllForAdmin();
+        $participants = $this->participantRepository->findAllParticipantsForAdmin();
+        $postes       = $this->posteRepository->getAllPostes();
+        return Response::render('/administrateur/dashboard', [
+            'candidats'    => $candidats,
+            'participants' => $participants,
+            'postes'       => $postes,
+            'title'        => 'Dashboard Administrateur- ASEET Vote',
+            'votes'        => $votes,
+        ]);
+    }
+
+    public function getCandidatsForAdmin() {
+        $data = $this->candidatRepository->findAllShort();
+        header('Content-Type: application/json');
+        echo json_encode($data);
+    }
+
+    public function getParticipantsForAdmin() {
+        $data = $this->participantRepository->findAllParticipantsForAdmin();
+        header('Content-Type: application/json');
+        echo json_encode($data);
+    }
+
+    public function getPostesForAdmin() {
+        $data = $this->posteRepository->getAllPostes();
+        header('Content-Type: application/json');
+        echo json_encode($data);
+    }
+
+    public function getVotesForAdmin() {
+        $data = $this->voteRepository->findAllForAdmin();
+        header('Content-Type: application/json');
+        echo json_encode($data);
+    }
+
     /**
      * Connexion admin
      */
@@ -70,7 +121,7 @@ class AdminController
         $is_admin = true;
         $est_valide = true;
         $code_qr = '';
-        $this->session->set('user', [
+        /* $this->session->set('user', [
             'id' => $admin['id_admin'],
             'nom' => $admin['nom'],
             'prenom' => $admin['prenom'],
@@ -78,7 +129,8 @@ class AdminController
             'est_valide' => $est_valide,
             'code_qr' => $code_qr,
             'is_admin' => $is_admin
-        ]);
+        ]); */
+
         error_log("✔️ Admin " . $admin['nom'] . ' ' . $admin['prenom'] . " connecte et session créée.");
         echo "Connexion réussie, bienvenue " . $admin['prenom'] . " !";
         return Response::redirect('/resultats');
