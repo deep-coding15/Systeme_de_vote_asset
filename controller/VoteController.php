@@ -366,6 +366,10 @@ class VoteController
 
     public function results_view()
     {
+        Response::render('resultats/indexe');
+    }
+
+    public function result_indexe(){
         $results_vote = $this->voteRepository->results_in_view_pourcentage();
         $stats_globales = $this->voteRepository->statistiquesGlobales();
         Response::render('resultats/index', [

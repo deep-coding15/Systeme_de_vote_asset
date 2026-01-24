@@ -101,6 +101,7 @@ post('/participants/validate/:id', [\Controller\ParticipantController::class, 'v
 post('/participant/vote', [\Controller\VoteController::class, 'vote']);
 post('/vote/:poste/:candidat/:participant', [\Controller\VoteController::class, 'store']);
 get('/resultats', [\Controller\VoteController::class, 'results_view']);
+get('/resultat/result', [\Controller\VoteController::class, 'result_indexe']);
 
 post('/choix/vote/poste', [\Utils\Utils::class, 'ChoixPosteLogJsToPHP']);
 

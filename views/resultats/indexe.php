@@ -1,9 +1,3 @@
-<?php
-require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
-
-use Config\Env;
-use Utils\Utils;
-?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -187,6 +181,10 @@ use Utils\Utils;
             width: 70px;
             height: 70px;
             border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .winner-photo:not(img) {
             background: #e3e3e3;
             display: flex;
             align-items: center;
@@ -454,14 +452,10 @@ use Utils\Utils;
         </section>
     </div>
 
-    <?php 
-        
-    ?>
     <script>
         // CONFIGURATION DE BASE
-        //const BASE_URL = window.location.origin; //'<?php //Utils::getBaseUrl() ?>/../';
-        const BASE_URL = "http://localhost/Projets/Systeme_de_vote_asset";
         
+        const BASE_URL = "http://localhost/Projets/Systeme_de_vote_asset";
 
         // VARIABLES GLOBALES
         let apiData = null;
@@ -493,6 +487,7 @@ use Utils\Utils;
                     candidates: posteData.candidats.map(c => ({
                         name: c.nom,
                         votes: c.votes,
+                        photo: c.photo ? `${BASE_URL}/uploads/photo_candidats/${c.photo}` : null,
                         percent: 0
                     }))
                 };
@@ -537,6 +532,12 @@ use Utils\Utils;
                 const top = sorted[0];
 
                 const el = document.createElement("div");
+                
+                // Construction de l'image
+                const photoHtml = top.photo 
+                    ? `<img class="winner-photo" src="${top.photo}" alt="${top.name}" onerror="this.outerHTML='<div class=\\'winner-photo\\'>👤</div>'">`
+                    : `<div class="winner-photo">👤</div>`;
+                
                 el.innerHTML = `
                     <div class="winner-card">
                         <div class="winner-rank">1</div>
@@ -545,7 +546,7 @@ use Utils\Utils;
                                 <span class="winner-poste">${poste.title}</span>
                             </div>
                             <div class="winner-body">
-                                <div class="winner-photo">👤</div>
+                                ${photoHtml}
                                 <div class="winner-details">
                                     <div class="winner-name">${top.name}</div>
                                     <div class="winner-meta">
@@ -576,9 +577,15 @@ use Utils\Utils;
                 row.className = "candidate-row";
                 const percentage = totalVotes > 0 ? (c.votes / totalVotes * 100).toFixed(1) : 0;
 
+                // Construction de l'image ou avatar par défaut
+                const photoHtml = c.photo 
+                    ? `<img src="${c.photo}" alt="${c.name}" style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover;" onerror="this.outerHTML='<div style=\\'width:56px;height:56px;border-radius:8px;background:#e3e3e3;display:flex;align-items:center;justify-content:center;font-size:24px;\\'>👤</div>'">`
+                    : `<div style="width:56px;height:56px;border-radius:8px;background:#e3e3e3;display:flex;align-items:center;justify-content:center;font-size:24px;">👤</div>`;
+
                 row.innerHTML = `
                     <div class="left">
                         <div class="rank">${i + 1}</div>
+                        ${photoHtml}
                         <div class="info">
                             <div class="name">${c.name}</div>
                         </div>
@@ -738,7 +745,8 @@ use Utils\Utils;
         function startAutoRefresh() {
             refreshInterval = setInterval(async () => {
                 try {
-                    const response = await fetch(`${BASE_URL}/api/resultat.php`, {
+                    const apiUrl = `${BASE_URL}/api/resultat.php`;
+                    const response = await fetch(apiUrl, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',

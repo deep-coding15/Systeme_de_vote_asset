@@ -26,7 +26,8 @@ try {
 
         $resultats[$idPoste]["candidats"][] = [
             "nom"   => $row['candidat'],
-            "votes" => (int) $row['total_votes']
+            "votes" => (int) $row['total_votes'],
+            "photo" => $row['photo'],
         ];
     }
 

@@ -150,6 +150,7 @@ SELECT
   p.id_poste,
   p.intitule as intitulePoste,
   p.description AS poste,
+  c.photo,
   c.id_candidat,
   CONCAT(c.nom, ' ', c.prenom) AS candidat,
   e.nom_equipe AS equipe,
@@ -161,7 +162,6 @@ LEFT JOIN equipe e ON e.id_equipe = c.id_equipe
 WHERE c.id_poste = p.id_poste
 GROUP BY p.id_poste, p.intitule, c.id_candidat, c.nom, c.prenom, e.nom_equipe
 ORDER BY p.id_poste, total_votes DESC;
-
 -- Vue des résultats avec pourcentages
 CREATE OR REPLACE VIEW `v_resultats_pourcentage` AS
 SELECT 
