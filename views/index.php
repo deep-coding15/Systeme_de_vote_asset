@@ -7,6 +7,7 @@ use Utils\Utils;
 
 Utils::showErrors();
 Session::init();
+Env::load('local');
 ?>
 <style>
     .banner {

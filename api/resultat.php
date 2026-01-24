@@ -1,32 +1,44 @@
 <?php
-
 use Controller\VoteController;
 use Core\Session;
 
+// Toujours en tête du fichier : aucun echo, aucun espace avant le <?php
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
-$voteController = new VoteController(new Session());
 
-$results = $voteController->results_direct();
+try {
+    $voteController = new VoteController(new Session());
+    $results = $voteController->results_direct();
 
-$resultats = [];
+    $resultats = [];
 
-foreach ($results as $key => $row) {
-    $idPoste = $row['id_poste'];
+    foreach ($results as $row) {
+        $idPoste = $row['id_poste'];
 
-    if (!isset($resultats[$idPoste])) {
-        $resultats[$idPoste] = [
-            "poste" => $row['poste'],
-            "candidats" => []
+        if (!isset($resultats[$idPoste])) {
+            $resultats[$idPoste] = [
+                "poste" => $row['poste'],
+                "candidats" => []
+            ];
+        }
+
+        $resultats[$idPoste]["candidats"][] = [
+            "nom"   => $row['candidat'],
+            "votes" => (int) $row['total_votes']
         ];
     }
 
-    $resultats[$idPoste]["candidats"][] = [
-        "nom"   => $row['candidat'],
-        "votes" => (int) $row['total_votes']
-    ];
-}
+    echo json_encode($resultats, JSON_PRETTY_PRINT);
+    exit(); // très important pour arrêter tout flux PHP après le JSON
 
-echo json_encode($resultats, JSON_PRETTY_PRINT);
+} catch (\Throwable $e) {
+    // Toujours renvoyer du JSON même en erreur
+    http_response_code(500);
+    echo json_encode([
+        "error" => "Erreur serveur",
+        "details" => $e->getMessage()
+    ]);
+    exit();
+}

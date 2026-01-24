@@ -16,9 +16,9 @@ use Core\Session;
 if (!class_exists('Controller\CandidatController')) {
     //echo "L'autoloader ne trouve pas la classe. Voici les chemins vérifiés :<br>";
     die();
-    }
-    //else 
-        //echo "L'autoloader a trouvé  la classe. ";
+}
+//else 
+//echo "L'autoloader a trouvé  la classe. ";
 
 //echo "Chemin attendu : " . realpath(__FILE__);
 
@@ -54,20 +54,20 @@ get('/redirect', [\Controller\Controller::class, 'redirect']);
 get('/candidats', [\Controller\CandidatController::class, 'index']);
 
 // Participants : OKAY
-get('/votes/auth', function(){
+get('/votes/auth', function () {
     \Core\Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
 });
-get('/votes', function(){
+get('/votes', function () {
     \Core\Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
 });
 
-get('/resultats/test', function(){
+get('/resultats/test', function () {
     \Core\Response::render('/resultats/test', ['titre' => 'Resultats — ASSET Vote']);
 });
 
 
 get('/resultats/test2', [\Controller\VoteController::class, 'results_view']);
-get('/votes/waiting', function(){
+get('/votes/waiting', function () {
     \Core\Response::render('/votes/waiting', ['titre' => 'Waiting — ASSET Vote']);
 });
 get('/api/vote/status', [\Controller\VoteController::class, 'voteStatus']);
