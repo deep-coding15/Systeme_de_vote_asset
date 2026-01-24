@@ -776,7 +776,8 @@ if ($session->has('user')) {
     $user = $session->get('user');
 }
 
-$base_url = rtrim(Env::get('BASE_URL'), '/');
+//$base_url = rtrim(Env::get('BASE_URL'), '/');
+$base_url = Utils::getBaseUrl();
 ?>
 
 <div class="wrapper">

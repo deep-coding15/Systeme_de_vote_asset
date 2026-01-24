@@ -72,6 +72,7 @@ use Utils\Utils;
 </div>
 <script>
     const BASE_URL = <?= json_encode(Utils::getBaseUrl()); ?>;
+    //const BASE_URL = "https://bureau-vote-aseet-cc.great-site.net";
     /*******************************
      * CONFIGURATION DES ROUTES API
      *******************************/

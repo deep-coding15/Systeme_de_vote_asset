@@ -704,11 +704,17 @@ $session = new Session();
                 <i class="fa-solid fa-chart-column"></i>
                 <span>Résultats</span>
             </a>
-            <a href="" id="voteTermine"
+            <a href="<?= $base_url ?>/administrateur/dash" id="voteTermine"
+                class="nav-item <?= isActive($base_url . '/administrateur/dash') ?>">
+                
+                <i class="fa-solid fa-chart-bar"></i>
+                <span>Statistiques</span>
+            </a>
+            <!-- <a href="" id="voteTermine"
                 class="nav-item <?= isActive($base_url . '/resultats') ?>">
                 <i class="fa-solid fa-chart-column"></i>
                 <span>VOTE TERMINE</span>
-            </a>
+            </a> -->
             <a href="<?= $base_url ?>/participants/logout"
                 class="nav-item <?= isActive($base_url . '/participants/logout') ?>">
                 <i class="fa-solid fa-right-from-bracket"></i>

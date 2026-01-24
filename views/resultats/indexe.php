@@ -1,3 +1,7 @@
+<?php
+
+use Utils\Utils;
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -454,8 +458,8 @@
 
     <script>
         // CONFIGURATION DE BASE
-        
-        const BASE_URL = "http://localhost/Projets/Systeme_de_vote_asset";
+        const BASE_URL = <?= json_encode(Utils::getBaseUrl()); ?>;
+        //const BASE_URL = "https://bureau-vote-aseet-cc.great-site.net";
 
         // VARIABLES GLOBALES
         let apiData = null;

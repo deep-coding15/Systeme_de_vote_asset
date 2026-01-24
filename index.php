@@ -90,6 +90,7 @@ get('/test', [\Controller\CandidatController::class, 'test']);
 
 get('/administrateur/auth', [\Controller\AdminController::class, 'getLogin']);
 get('/administrateur/dashboard', [\Controller\AdminController::class, 'getDashboard']);
+get('/administrateur/dash', [\Controller\AdminController::class, 'getDash']);
 post('/administrateur/auth', [\Controller\AdminController::class, 'login']);
 
 // Participants

@@ -18,9 +18,18 @@ $base_url = Utils::getBaseUrl();
 if (Utils::IsStatusVoteClose()) {
     // Stocker le message en session (Flash message)
     $_SESSION['flash_error'] = "Le vote est fermé pour le moment.";
-    
+
+    Response::redirect('/');
     // Redirection propre côté serveur
-    header("Location: /" . $base_url);
+    //header("Location: /" . $base_url);
+    exit;
+} else if (!Utils::IsStatusVoteOpen()) {
+
+    $_SESSION['flash_error'] = "Le vote est n'a pas encore commencé.";
+
+    Response::redirect('/');
+    // Redirection propre côté serveur
+    //header("Location: /" . $base_url);
     exit;
 }
 
@@ -88,6 +97,16 @@ if ($aDejaVote) {
         font-family: var(--font-sans);
         background: var(--bg-main);
         color: var(--gray-foreground)
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
     }
 
     h1,
@@ -189,6 +208,51 @@ if ($aDejaVote) {
         transform: scale(1.05);
         /* Petit zoom interactif au survol */
     }
+
+    /* Responsive design */
+
+    @media (max-width: 768px) {
+        .results-container {
+            padding: 10px;
+            margin: 20px auto;
+        }
+
+        .poste-card {
+            padding: 12px;
+        }
+
+        .poste-card h2 {
+            font-size: 18px;
+        }
+
+        .poste-card li {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .votes {
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .poste-card {
+            padding: 10px;
+        }
+
+        .poste-card h2 {
+            font-size: 16px;
+        }
+
+        .nom {
+            font-size: 14px;
+        }
+
+        .votes {
+            font-size: 13px;
+        }
+    }
 </style>
 
 
@@ -203,6 +267,33 @@ if ($aDejaVote) {
             <h3>Vote pour Vice-Président(e)</h3>
             <span class="badge bg-success">Utilisateur connecté</span>
         </div>
+
+        <style>
+            /* Responsive tablette */
+            @media (max-width: 768px) {
+                .stepper {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .step {
+                    font-size: 15px;
+                }
+            }
+
+            /* Responsive mobile */
+            @media (max-width: 480px) {
+                .circle {
+                    width: 28px;
+                    height: 28px;
+                    font-size: 13px;
+                }
+
+                .step {
+                    font-size: 13px;
+                }
+            }
+        </style>
 
         <div class="stepper mb-3">
             <?php foreach ($allPostes as $key => $posted) : ?>

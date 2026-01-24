@@ -23,9 +23,11 @@ class VoteRepository extends Repository
     }
     public function findAllForAdmin()
     {
-        $sql = "SELECT CONCAT(p.nom, ' ', p.prenom) as nameParticipant, v.created_at as date_vote, CONCAT(c.nom, ' ', c.prenom) as nameCandidat, e.nom_equipe
+        $sql = "SELECT CONCAT(p.nom, ' ', p.prenom) as nameParticipant, p.email, v.created_at as date_vote, CONCAT(c.nom, ' ', c.prenom) as nameCandidat, e.nom_equipe,
+            po.description as descriptionPoste
             FROM participant p 
             JOIN vote v ON p.id_participant = v.id_participant 
+            JOIN poste po ON po.id_poste = v.id_poste
             JOIN candidat c ON c.id_candidat = v.id_candidat
             JOIN equipe e ON e.id_equipe = c.id_equipe
             ORDER BY date_vote DESC;";
@@ -144,14 +146,93 @@ class VoteRepository extends Repository
 
     public function results_in_view_pourcentage(): array
     {
-        $sql = "SELECT * FROM v_resultats_pourcentage";
+        //$sql = "SELECT * FROM v_resultats_pourcentage";
+        $sql = "SELECT 
+  r.id_poste,
+  r.intitulePoste,
+  r.poste,
+  r.photo,
+  r.id_candidat,
+  r.candidat,
+  r.equipe,
+  r.total_votes,
+  CASE 
+    WHEN t.total_poste > 0
+    THEN ROUND((r.total_votes * 100.0) / t.total_poste, 2)
+    ELSE 0
+  END AS pourcentage_votes
+FROM (
+    SELECT 
+      p.id_poste,
+      p.intitule AS intitulePoste,
+      p.description AS poste,
+      c.photo,
+      c.id_candidat,
+      CONCAT(c.nom, ' ', c.prenom) AS candidat,
+      e.nom_equipe AS equipe,
+      COUNT(v.id_vote) AS total_votes
+    FROM poste p
+    JOIN candidat c ON c.id_poste = p.id_poste
+    LEFT JOIN vote v 
+      ON v.id_candidat = c.id_candidat 
+     AND v.id_poste = c.id_poste
+    LEFT JOIN equipe e ON e.id_equipe = c.id_equipe
+    GROUP BY 
+      p.id_poste,
+      p.intitule,
+      p.description,
+      c.photo,
+      c.id_candidat,
+      c.nom,
+      c.prenom,
+      e.nom_equipe
+) r
+JOIN (
+    SELECT 
+      id_poste,
+      COUNT(*) AS total_poste
+    FROM vote
+    GROUP BY id_poste
+) t ON t.id_poste = r.id_poste
+ORDER BY 
+  r.id_poste,
+  r.total_votes DESC;
+";
         $stmt = $this->db->query($sql);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function results_direct (){
-        $sql = "SELECT * FROM v_resultats_direct ORDER BY id_poste, total_votes DESC";
+        $sql = "SELECT 
+  p.id_poste,
+  p.intitule AS intitulePoste,
+  p.description AS poste,
+  c.photo,
+  c.id_candidat,
+  CONCAT(c.nom, ' ', c.prenom) AS candidat,
+  e.nom_equipe AS equipe,
+  COUNT(v.id_vote) AS total_votes
+FROM poste p
+JOIN candidat c ON c.id_poste = p.id_poste
+LEFT JOIN vote v 
+  ON v.id_candidat = c.id_candidat 
+ AND v.id_poste = c.id_poste
+LEFT JOIN equipe e ON e.id_equipe = c.id_equipe
+GROUP BY 
+  p.id_poste,
+  p.intitule,
+  p.description,
+  c.photo,
+  c.id_candidat,
+  c.nom,
+  c.prenom,
+  e.nom_equipe
+ORDER BY 
+  p.id_poste,
+  total_votes DESC;
+";
+        //$sql = "SELECT * FROM v_resultats_direct ORDER BY id_poste, total_votes DESC";
         $stmt = $this->db->query($sql);
         $stmt->execute();
         return $stmt->fetchAll();
@@ -163,7 +244,19 @@ class VoteRepository extends Repository
      */
     public function statistiquesGlobales()
     {
-        $sql = "SELECT * FROM v_statistiques";
+        //$sql = "SELECT * FROM v_statistiques";
+        $sql = "SELECT 'Participants inscrits' AS statistic, COUNT(*) AS total FROM participant
+UNION ALL
+SELECT 'Participants validés', COUNT(*) FROM participant WHERE est_valide = 1
+UNION ALL
+SELECT 'Votes enregistrés', COUNT(*) FROM vote
+UNION ALL
+SELECT 'Candidats', COUNT(*) FROM candidat
+UNION ALL
+SELECT 'Postes', COUNT(*) FROM poste
+UNION ALL
+SELECT 'Équipes', COUNT(*) FROM equipe;
+";
         $stmt = $this->db->query($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

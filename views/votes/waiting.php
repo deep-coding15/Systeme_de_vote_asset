@@ -88,190 +88,263 @@ if ($session->has("user") && !$session->get("user")["a_vote"])
     </div>
 </div>
 <style>
-    .success-container {
-        max-width: 900px;
-        margin: auto;
-        text-align: center;
-    }
+    /* ================================
+   RESET & BASE
+================================ */
+* {
+    box-sizing: border-box;
+}
 
-    /* HEADER ICON */
-    .circle {
-        width: 90px;
-        height: 90px;
-        background: var(--gold);
-        color: white;
-        border-radius: 50%;
-        font-size: 42px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: auto;
-    }
+.success-container {
+    max-width: 900px;
+    margin: auto;
+    text-align: center;
+    padding: 20px;
+}
 
+/* ================================
+   HEADER ICON
+================================ */
+.circle {
+    width: 90px;
+    height: 90px;
+    background: var(--gold);
+    color: white;
+    border-radius: 50%;
+    font-size: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+
+.title {
+    font-size: 28px;
+    margin-top: 20px;
+    color: #222;
+}
+
+.subtitle {
+    margin-top: 6px;
+    color: var(--gray-tertiary);
+}
+
+.success-badge {
+    margin-top: 15px;
+    background: var(--gold);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* ================================
+   STATUS CARDS
+================================ */
+.status-cards {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    margin-top: 35px;
+    flex-wrap: wrap; /* RESPONSIVE */
+}
+
+.card {
+    width: 250px;
+    padding: 20px;
+    border-radius: 12px;
+    background: white;
+    border: 2px solid var(--gray-borders);
+}
+
+.card.green {
+    border-top: 4px solid var(--green);
+}
+
+.card.gold {
+    border-top: 4px solid var(--gold);
+}
+
+.card.blue {
+    border-top: 4px solid var(--blue);
+}
+
+.card h3 {
+    color: #222;
+    font-size: 18px;
+}
+
+.card p {
+    margin-top: 8px;
+    color: var(--gray-text);
+}
+
+/* ================================
+   STEPS BOX
+================================ */
+.steps-box {
+    background: white;
+    border-radius: 14px;
+    padding: 25px;
+    margin: 40px auto;
+    width: 100%;
+    max-width: 800px;
+    border: 1px solid var(--gray-borders);
+    text-align: left;
+}
+
+.steps-box h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.step {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    gap: 12px;
+}
+
+/* ICONS */
+.icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.icon.green { background: var(--green); }
+.icon.gold { background: var(--gold); color: #333; }
+.icon.blue { background: var(--blue); }
+.icon.gray { background: #95a5a6; }
+
+.info {
+    flex: 1;
+}
+
+.info h4 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.info p {
+    margin: 3px 0;
+    color: var(--gray-text);
+}
+
+/* BADGES */
+.badge {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+}
+
+.badge.green { background: var(--green-dark); }
+.badge.gold { background: var(--gold-dark); }
+.badge.blue { background: var(--blue-dark); }
+.badge.gray { background: #7f8c8d; }
+
+/* ================================
+   INFO BOX
+================================ */
+.info-box {
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    border: 1px solid var(--gray-borders);
+    margin-top: 30px;
+}
+
+.info-box h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.info-box ul {
+    list-style: disc;
+    padding-left: 20px;
+    text-align: left;
+    color: var(--gray-text);
+}
+
+/* ================================
+   TABLET RESPONSIVE
+================================ */
+@media (max-width: 992px) {
     .title {
-        font-size: 28px;
-        margin-top: 20px;
-        color: #222;
-    }
-
-    .subtitle {
-        margin-top: 6px;
-        color: var(--gray-tertiary);
-    }
-
-    .success-badge {
-        margin-top: 15px;
-        background: var(--gold);
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-weight: 600;
-    }
-
-    /* CARDS */
-    .status-cards {
-        display: flex;
-        gap: 18px;
-        justify-content: center;
-        margin-top: 35px;
+        font-size: 24px;
     }
 
     .card {
-        width: 250px;
-        padding: 20px;
-        border-radius: 12px;
-        background: white;
-        border: 2px solid var(--gray-borders);
+        width: 220px;
+    }
+}
+
+/* ================================
+   MOBILE RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+    .circle {
+        width: 70px;
+        height: 70px;
+        font-size: 34px;
     }
 
-    .card.green {
-        border-top: 4px solid var(--green);
+    .title {
+        font-size: 22px;
     }
 
-    .card.gold {
-        border-top: 4px solid var(--gold);
+    .status-cards {
+        flex-direction: column;
+        align-items: center;
     }
 
-    .card.blue {
-        border-top: 4px solid var(--blue);
-    }
-
-    .card h3 {
-        color: #222;
-        font-size: 18px;
-    }
-
-    .card p {
-        margin-top: 8px;
-        color: var(--gray-text);
-    }
-
-    /* STEPS */
-    .steps-box {
-        background: white;
-        border-radius: 14px;
-        padding: 25px;
-        margin: 40px auto;
-        width: 95%;
-        border: 1px solid var(--gray-borders);
-        text-align: left;
-    }
-
-    .steps-box h2 {
-        text-align: center;
-        margin-bottom: 25px;
+    .card {
+        width: 100%;
+        max-width: 340px;
     }
 
     .step {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 18px;
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
+    .badge {
+        align-self: flex-end;
+    }
+}
+
+/* ================================
+   SMALL MOBILE
+================================ */
+@media (max-width: 480px) {
+    .title {
+        font-size: 20px;
     }
 
-    .icon.green {
-        background: var(--green);
-    }
-
-    .icon.gold {
-        background: var(--gold);
-        color: #333;
-    }
-
-    .icon.blue {
-        background: var(--blue);
-    }
-
-    .icon.gray {
-        background: #95a5a6;
+    .subtitle {
+        font-size: 14px;
     }
 
     .info h4 {
-        margin: 0;
-        font-size: 17px;
+        font-size: 15px;
     }
 
     .info p {
-        margin: 3px 0;
-        color: var(--gray-text);
+        font-size: 13px;
     }
+}
 
-    /* BADGES */
-    .badge {
-        padding: 6px 14px;
-        border-radius: 6px;
-        font-weight: 600;
-        color: white;
-    }
-
-    .badge.green {
-        background: var(--green-dark);
-    }
-
-    .badge.gold {
-        background: var(--gold-dark);
-    }
-
-    .badge.blue {
-        background: var(--blue-dark);
-    }
-
-    .badge.gray {
-        background: #7f8c8d;
-    }
-
-    /* INFO BOX */
-    .info-box {
-        background: white;
-        padding: 25px;
-        border-radius: 14px;
-        border: 1px solid var(--gray-borders);
-        margin-top: 30px;
-    }
-
-    .info-box h3 {
-        font-size: 18px;
-        margin-bottom: 12px;
-    }
-
-    .info-box ul {
-        list-style: disc;
-        padding-left: 20px;
-        text-align: left;
-        color: var(--gray-text);
-    }
 </style>
+
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         document.querySelector(".circle").style.transform = "scale(1.15)";

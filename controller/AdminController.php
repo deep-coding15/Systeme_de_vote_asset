@@ -42,6 +42,10 @@ class AdminController
         return Response::render('/administrateur/auth');
     }
 
+    public function getDash(){
+        return Response::render("/administrateur/dashboarde");
+    }
+    
     public function getDashboard()
     {
         $candidats    = $this->candidatRepository->findAllShort();
@@ -89,71 +93,51 @@ class AdminController
      * Connexion admin
      */
     public function login()
-    {
-
-        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
-            error_log("❌ Mauvaise méthode HTTP : " . $_SERVER['REQUEST_METHOD']);
-            Response::redirect('/403', statusCode: CODE_RESPONSE::FORBIDDEN);
-            exit;
-        }
-
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
-
-        if (!$email || !$password) {
-            echo "Veuillez remplir tous les champs.";
-            return;
-        }
-
-        $stmt = $this->db->prepare("SELECT * FROM admin WHERE email = ?");
-        $stmt->execute([$email]);
-        $admin = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        error_log($email . ' ' . $password . $admin['mot_de_passe'], 3, dirname(__DIR__) . '/utils/error.log');
-        if (!$admin) {
-            error_log("❌ Échec log in admin.");
-            //echo "Admin introuvable.";
-            // Message flash
-            $_SESSION['login_error'] = "Adresse email ou mot de passe incorrect";
-
-            return Response::redirect('/administrateur/auth');
-        }
-
-
-        // ICI : remplace par password_verify si tu utilises password_hash
-        if (!Utils::verifyPasswordBcrypt($password, $admin['mot_de_passe'])) {
-            //if ($password !== $admin['mot_de_passe']) {
-            error_log("❌ Échec log in admin.");
-            //echo "Admin introuvable.";
-            // Message flash
-            $_SESSION['login_error'] = "Adresse email ou mot de passe incorrect";
-
-            return Response::redirect('/administrateur/auth');
-
-            //echo "Mot de passe incorrect.";
-        }
-
-        // connexion réussie
-        //$_SESSION['admin_id'] = $admin['id_admin'];
-
-        //global $session;
-        $is_admin = true;
-        $est_valide = true;
-        $code_qr = '';
-        $this->session->set('user', [
-            'id' => $admin['id_admin'],
-            'nom' => $admin['nom'],
-            'prenom' => $admin['prenom'],
-            'email' => $admin['email'],
-            'est_valide' => $est_valide,
-            'code_qr' => $code_qr,
-            'is_admin' => $is_admin
-        ]); 
-
-        error_log("✔️ Admin " . $admin['nom'] . ' ' . $admin['prenom'] . " connecte et session créée.");
-        echo "Connexion réussie, bienvenue " . $admin['prenom'] . " !";
-        return Response::redirect('/resultats');
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['login_error'] = "Methode non autorise.";
+        Response::redirect('/', CODE_RESPONSE::FORBIDDEN);
     }
+
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+
+    if (!$email || !$password) {
+        $_SESSION['login_error'] = "Veuillez remplir tous les champs.";
+        return Response::redirect('/administrateur/auth');
+    }
+
+    $stmt = $this->db->prepare("SELECT * FROM admin WHERE email = ?");
+    $stmt->execute([$email]);
+    $admin = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+    if (!$admin) {
+        $_SESSION['login_error'] = "Adresse email ou mot de passe incorrect";
+        return Response::redirect('/administrateur/auth');
+    }
+
+    if (!Utils::verifyPasswordBcrypt($password, $admin['mot_de_passe'])) {
+        $_SESSION['login_error'] = "Adresse email ou mot de passe incorrect";
+        return Response::redirect('/administrateur/auth');
+    }
+
+    $this->session->set('user', [
+        'id' => $admin['id_admin'],
+        'nom' => $admin['nom'],
+        'prenom' => $admin['prenom'],
+        'email' => $admin['email'],
+        'est_valide' => true,
+        'code_qr' => '',
+        'is_admin' => true
+    ]);
+
+    return Response::redirect('/resultats');
+}
+
 
     /**
      * Déconnexion admin

@@ -105,9 +105,15 @@ try {
     | 5.1 Vérification : déjà voté ?
     |--------------------------------------------------------------------------
     */
-    $checkStmt = $repository->db->prepare(
+    /* $checkStmt = $repository->db->prepare(
         'SELECT COUNT(*) FROM vote WHERE id_participant = :id_participant'
-    );
+    ); */
+
+    $checkStmt = $repository->db->prepare('SELECT a_vote
+        FROM participant
+        WHERE id_participant = :id_participant
+        FOR UPDATE;');
+
     $checkStmt->execute(['id_participant' => $participantId]);
 
     if ((int) $checkStmt->fetchColumn() > 0) {

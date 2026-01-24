@@ -20,8 +20,16 @@ class Response
     public static function redirect(string $url, CODE_RESPONSE $statusCode = CODE_RESPONSE::REDIRECT)
     {
         // On s'assure qu'il n'y a qu'un seul slash entre la base et l'url
-        $fullPath = Utils::getBaseUrl() . '/' . ltrim($url, '/');
+        //$fullPath = Utils::getBaseUrl() . '/' . ltrim($url, '/');
         //$fullPath = Utils::getBaseUrl() .  $url;
+        // Si l'URL est absolue (http / https)
+        if (preg_match('#^https?://#i', $url)) {
+            $fullPath = $url;
+        } else {
+            $base = rtrim(Utils::getBaseUrl(), '/');
+            $path = ltrim($url, '/');
+            $fullPath = $base . '/' . $path;
+        }
         // 1. Vérification de sécurité
         if (!headers_sent()) {
             http_response_code($statusCode->value);
@@ -77,7 +85,6 @@ class Response
         if (ob_get_level() > 0) {
             ob_end_flush();
         }
-
     }
 
 

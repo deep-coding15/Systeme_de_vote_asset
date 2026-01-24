@@ -366,7 +366,7 @@ class VoteController
 
     public function results_view()
     {
-        Response::render('resultats/indexe');
+        Response::render('/resultats/indexe');
     }
 
     public function result_indexe(){

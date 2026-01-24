@@ -1,4 +1,5 @@
 <?php
+
 namespace Repositories;
 
 use chillerlan\QRCode\Output\QROutputInterface;
@@ -36,17 +37,31 @@ class ParticipantRepository extends Repository
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 	}
-	
+
 	public function findAllParticipantsForAdmin()
 	{
-		$sql = "SELECT CONCAT(p.nom, ' ', p.prenom) as nameParticipant, p.email, CONCAT(p.type_document, ' ', p.numero_document) as document, v.created_at
+		$sql = "SELECT 
+    CONCAT(p.nom, ' ', p.prenom) AS nameParticipant, 
+    p.email, 
+    po.description AS descriptionPoste,  
+    CONCAT(c.nom, ' ', c.prenom) AS nameCandidat, 
+    e.nom_equipe, 
+    v.created_at AS date_vote
+		FROM participant p 
+		LEFT JOIN vote v ON p.id_participant = v.id_participant 
+		LEFT JOIN poste po ON po.id_poste = v.id_poste
+		LEFT JOIN candidat c ON c.id_candidat = v.id_candidat
+		LEFT JOIN equipe e ON e.id_equipe = c.id_equipe
+		ORDER BY v.created_at DESC;";
+		/*$sql = "SELECT CONCAT(p.nom, ' ', p.prenom) as nameParticipant, p.email, CONCAT(p.type_document, ' ', p.numero_document) as document, v.created_at
 			FROM participant p
-			RIGHT JOIN vote v ON p.id_participant = v.id_participant
-			ORDER BY nom ASC, prenom ASC;";
+			LEFT JOIN vote v ON p.id_participant = v.id_participant
+			ORDER BY v.date_vote DESC, nom ASC, prenom ASC;";*/
 		$stmt = $this->db->prepare($sql);
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 	}
+
 
 	/**
 	 * Trouver un participant par son ID
