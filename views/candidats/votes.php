@@ -15,15 +15,24 @@ if (!isset($_SESSION['user'])) {
 $user = $_SESSION['user'];
 $base_url = Utils::getBaseUrl();
 
-if (Utils::IsStatusVoteClose()) {
+/* if (Utils::IsStatusVoteClose()) {
     // Stocker le message en session (Flash message)
-    $_SESSION['flash_error'] = "Le vote est fermé pour le moment.";
+    $_SESSION['flash_error'] = "Le vote est finis et fermé. Rendez vous l'année prochaine";
 
     Response::redirect('/');
     // Redirection propre côté serveur
     //header("Location: /" . $base_url);
     exit;
-} else if (!Utils::IsStatusVoteOpen()) {
+}
+else if(Utils::IsStatusVoteFinis()) {
+    $_SESSION['flash_error'] = "Le vote est finis. Redirection vers la page de résultat.";
+
+    Response::redirect('/resultats');
+    // Redirection propre côté serveur
+    //header("Location: /" . $base_url);
+    exit;
+}
+else if (!Utils::IsStatusVoteOpen()) {
 
     $_SESSION['flash_error'] = "Le vote est n'a pas encore commencé.";
 
@@ -31,7 +40,38 @@ if (Utils::IsStatusVoteClose()) {
     // Redirection propre côté serveur
     //header("Location: /" . $base_url);
     exit;
+} */
+
+$status = Utils::getVoteStatus();
+
+switch ($status) {
+
+    case 'NOT_STARTED':
+        $_SESSION['flash_error'] = "Le vote n'a pas encore commencé.";
+        Response::redirect('/');
+        exit;
+
+    case 'OPEN':
+        // ✅ le vote est autorisé
+        break;
+
+    case 'FINISHED':
+        $_SESSION['flash_error'] = "Le vote est terminé. Redirection vers les résultats.";
+        Response::redirect('/resultats');
+        exit;
+
+    case 'CLOSED':
+        $_SESSION['flash_error'] = "Le vote est définitivement fermé.";
+        Response::redirect('/');
+        exit;
+
+    default:
+        // Sécurité
+        $_SESSION['flash_error'] = "Statut de vote inconnu.";
+        Response::redirect('/');
+        exit;
 }
+
 
 $participantId = (int) $_SESSION['user']['id'];
 $posteRepository = new PosteRepository();

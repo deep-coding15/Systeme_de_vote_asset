@@ -4,6 +4,7 @@ use Utils\Utils;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +22,7 @@ use Utils\Utils;
             --gray-foreground: #1a1a1a;
             --radius-lg: 12px;
             --radius-md: 10px;
-            --shadow-soft: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
             --fw-bold: 700;
         }
 
@@ -368,8 +369,13 @@ use Utils\Utils;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 1000px) {
@@ -403,12 +409,46 @@ use Utils\Utils;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="page-head">
             <h1>Résultats des Élections</h1>
             <p>Résultats en temps réel de l'élection du bureau exécutif de l'ASEET</p>
         </div>
+
+        <?php
+
+        // Vérifier si un message d'erreur existe en session
+        if (isset($_SESSION['flash_error'])) {
+            // Affichage du message (exemple avec une classe CSS d'alerte)
+            echo '<div id="flash-message" style="color: white; background-color: #4a8640; 
+                    padding: 15px; margin-bottom: 20px; border-radius: 4px; transition: opacity 0.5s ease;">'
+                . htmlspecialchars($_SESSION['flash_error']) .
+                '</div>';
+
+            // TRÈS IMPORTANT : On supprime le message pour qu'il ne se réaffiche pas au prochain rafraîchissement
+            unset($_SESSION['flash_error']);
+        }
+        ?>
+
+        <script>
+            // On attend que la page soit chargée
+            document.addEventListener('DOMContentLoaded', function() {
+                const flash = document.getElementById('flash-message');
+
+                if (flash) {
+                    setTimeout(function() {
+                        // Effet de fondu (nécessite la propriété transition dans le style)
+                        flash.style.opacity = '0';
+
+                        // On retire complètement l'élément après l'effet de fondu (0.5s)
+                        setTimeout(() => flash.remove(), 500);
+                    }, 5000); // 5000 millisecondes = 5 secondes
+                }
+            });
+        </script>
+
 
         <section class="summary-card">
             <div class="summary-left">
@@ -463,7 +503,9 @@ use Utils\Utils;
 
         // VARIABLES GLOBALES
         let apiData = null;
-        const data = { postes: {} };
+        const data = {
+            postes: {}
+        };
         let barChartInstance = null;
         let refreshInterval = null;
 
@@ -478,13 +520,13 @@ use Utils\Utils;
         // TRANSFORMATION DES DONNÉES API
         function transformData() {
             data.postes = {};
-            
+
             if (!apiData) return;
 
             Object.keys(apiData).forEach(key => {
                 const posteData = apiData[key];
                 const normalizedKey = normalizePoste(posteData.poste);
-                
+
                 data.postes[normalizedKey] = {
                     id: key,
                     title: posteData.poste,
@@ -536,12 +578,12 @@ use Utils\Utils;
                 const top = sorted[0];
 
                 const el = document.createElement("div");
-                
+
                 // Construction de l'image
-                const photoHtml = top.photo 
-                    ? `<img class="winner-photo" src="${top.photo}" alt="${top.name}" onerror="this.outerHTML='<div class=\\'winner-photo\\'>👤</div>'">`
-                    : `<div class="winner-photo">👤</div>`;
-                
+                const photoHtml = top.photo ?
+                    `<img class="winner-photo" src="${top.photo}" alt="${top.name}" onerror="this.outerHTML='<div class=\\'winner-photo\\'>👤</div>'">` :
+                    `<div class="winner-photo">👤</div>`;
+
                 el.innerHTML = `
                     <div class="winner-card">
                         <div class="winner-rank">1</div>
@@ -582,9 +624,9 @@ use Utils\Utils;
                 const percentage = totalVotes > 0 ? (c.votes / totalVotes * 100).toFixed(1) : 0;
 
                 // Construction de l'image ou avatar par défaut
-                const photoHtml = c.photo 
-                    ? `<img src="${c.photo}" alt="${c.name}" style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover;" onerror="this.outerHTML='<div style=\\'width:56px;height:56px;border-radius:8px;background:#e3e3e3;display:flex;align-items:center;justify-content:center;font-size:24px;\\'>👤</div>'">`
-                    : `<div style="width:56px;height:56px;border-radius:8px;background:#e3e3e3;display:flex;align-items:center;justify-content:center;font-size:24px;">👤</div>`;
+                const photoHtml = c.photo ?
+                    `<img src="${c.photo}" alt="${c.name}" style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover;" onerror="this.outerHTML='<div style=\\'width:56px;height:56px;border-radius:8px;background:#e3e3e3;display:flex;align-items:center;justify-content:center;font-size:24px;\\'>👤</div>'">` :
+                    `<div style="width:56px;height:56px;border-radius:8px;background:#e3e3e3;display:flex;align-items:center;justify-content:center;font-size:24px;">👤</div>`;
 
                 row.innerHTML = `
                     <div class="left">
@@ -656,14 +698,14 @@ use Utils\Utils;
             let firstKey = null;
             Object.keys(data.postes).forEach((key, index) => {
                 if (index === 0) firstKey = key;
-                
+
                 const poste = data.postes[key];
                 const tab = document.createElement("div");
                 tab.className = "tab" + (index === 0 ? " active" : "");
                 tab.dataset.poste = key;
                 tab.textContent = poste.title;
                 tab.setAttribute("role", "tab");
-                
+
                 tab.addEventListener("click", () => {
                     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
                     tab.classList.add("active");
@@ -704,7 +746,7 @@ use Utils\Utils;
             try {
                 const apiUrl = `${BASE_URL}/api/resultat.php`;
                 console.log('Chargement depuis:', apiUrl);
-                
+
                 const response = await fetch(apiUrl, {
                     method: 'GET',
                     headers: {
@@ -712,19 +754,19 @@ use Utils\Utils;
                     },
                     cache: 'no-cache'
                 });
-                
+
                 console.log('Statut de la réponse:', response.status);
-                
+
                 if (!response.ok) {
                     throw new Error(`Erreur HTTP: ${response.status}`);
                 }
-                
+
                 const responseText = await response.text();
                 console.log('Réponse brute:', responseText);
-                
+
                 apiData = JSON.parse(responseText);
                 console.log("Données chargées depuis l'API:", apiData);
-                
+
                 transformData();
                 initPage();
             } catch (error) {
@@ -757,23 +799,23 @@ use Utils\Utils;
                         },
                         cache: 'no-cache'
                     });
-                    
+
                     if (!response.ok) return;
-                    
+
                     const newData = await response.json();
-                    
+
                     if (JSON.stringify(newData) !== JSON.stringify(apiData)) {
                         apiData = newData;
                         console.log("Données mises à jour:", apiData);
                         transformData();
-                        
+
                         const activeTab = document.querySelector(".tab.active");
                         const activePoste = activeTab ? activeTab.dataset.poste : null;
-                        
+
                         renderStats();
                         renderWinners();
                         createTabs();
-                        
+
                         if (activePoste && data.postes[activePoste]) {
                             document.querySelector(`[data-poste="${activePoste}"]`)?.classList.add("active");
                             renderPoste(activePoste);
@@ -791,4 +833,5 @@ use Utils\Utils;
         });
     </script>
 </body>
+
 </html>
