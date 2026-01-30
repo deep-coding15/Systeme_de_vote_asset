@@ -579,11 +579,11 @@ $session = new Session();
                 <i class="fa-solid fa-chart-column"></i>
                 <span>Résultats</span>
             </a>
-            <a href="" id="voteTermine"
+            <!-- <a href="" id="voteTermine"
                 class="nav-item <?= isActive(BASE_URL . '/resultats') ?>">
                 <i class="fa-solid fa-chart-column"></i>
                 <span>VOTE TERMINE</span>
-            </a>
+            </a> -->
 
 
         <?php else : ?>

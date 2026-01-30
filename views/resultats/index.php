@@ -497,6 +497,9 @@
                       </div>
                   </div>
 
+                  <button id="prevPoste">◀ Précédent</button>
+                  <button id="nextPoste">Suivant ▶</button>
+
                   <div class="winners-list" style="display: grid; gap: 25px;  grid-template-columns: repeat(2, 1fr); justify-items: justify;" id="winnersList">
                       <!-- Winners injected by JS -->
                   </div>
@@ -521,12 +524,14 @@
           </section>
 
           <!-- tabs -->
-          <div class="tabs" role="tablist" aria-label="Postes">
+          <!-- <div class="tabs" role="tablist" aria-label="Postes">
               <div class="tab active" data-poste="president" role="tab" aria-selected="true">Président(e)</div>
               <div class="tab" data-poste="vice_president" role="tab">Vice-Président(e)</div>
-              <div class="tab" data-poste="secretaire" role="tab">Secrétaire Général(e)</div>
+              <div class="tab" data-poste="secretaire-general" role="tab">Secrétaire Général(e)</div>
               <div class="tab" data-poste="tresorier" role="tab">Trésorier(e)</div>
-          </div>
+          </div> -->
+
+          <div id="tabs" class="tabs"></div>
 
           <!-- results panel -->
           <section class="results-panel" id="resultsPanel" aria-live="polite">
@@ -547,7 +552,7 @@
       </div>
 
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <script>
+      <!-- <script>
           const data = <?= json_encode([
                             'stats_globales' => $stats_globales,
                             'results_vote' => $results_vote
@@ -670,7 +675,7 @@
 
           let barChartInstance = null;
 
-          function updateBarChart(labels, values) {
+          /* function updateBarChart(labels, values) {
               const ctx = document.getElementById("barChart").getContext("2d");
 
               if (barChartInstance) barChartInstance.destroy();
@@ -690,6 +695,46 @@
                       scales: {
                           y: {
                               beginAtZero: true
+                          }
+                      },
+                      plugins: {
+                          legend: {
+                              display: false
+                          }
+                      }
+                  }
+              });
+          }
+ */
+
+          function updateBarChart(labels, values) {
+              if (!labels.length || !values.length) {
+                  console.warn("Bar chart ignoré : données vides");
+                  return;
+              }
+
+              const safeValues = values.map(v => Number.isFinite(Number(v)) ? Number(v) : 0);
+
+              const ctx = document.getElementById("barChart").getContext("2d");
+
+              if (barChartInstance) barChartInstance.destroy();
+
+              barChartInstance = new Chart(ctx, {
+                  type: "bar",
+                  data: {
+                      labels,
+                      datasets: [{
+                          label: "Votes",
+                          data: safeValues,
+                          backgroundColor: "#1e4f9c",
+                          borderRadius: 6
+                      }]
+                  },
+                  options: {
+                      scales: {
+                          y: {
+                              beginAtZero: true,
+                              precision: 0
                           }
                       },
                       plugins: {
@@ -852,4 +897,415 @@
           }
 
           initPage();
+      </script> -->
+
+      <script>
+          let chart = null;
+          let resultats = {};
+          let currentPosteId = null;
+
+          // 1. Récupérer les résultats depuis l'API
+          fetch('/api/resultats.php')
+              .then(res => res.json())
+              .then(data => {
+                  resultats = data;
+                  creerTabs();
+                  // afficher le premier poste
+                  const firstPosteId = Object.keys(resultats)[0];
+                  if (firstPosteId) afficherPoste(firstPosteId);
+              })
+              .catch(err => console.error(err));
+
+          // 2. Créer dynamiquement les tabs
+          function creerTabs() {
+              const tabsContainer = document.getElementById('tabs');
+              tabsContainer.innerHTML = '';
+
+              Object.keys(resultats).forEach(idPoste => {
+                  const tab = document.createElement('div');
+                  tab.className = 'tab';
+                  tab.textContent = resultats[idPoste].poste;
+                  tab.dataset.poste = idPoste;
+
+                  tab.addEventListener('click', () => {
+                      // retirer active sur toutes les tabs
+                      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                      // activer la tab cliquée
+                      tab.classList.add('active');
+                      // afficher le poste correspondant
+                      afficherPoste(idPoste);
+                  });
+
+                  tabsContainer.appendChild(tab);
+              });
+
+              // activer la première tab par défaut
+              const firstTab = tabsContainer.firstChild;
+              if (firstTab) firstTab.classList.add('active');
+          }
+
+          // 3. Afficher le graphique pour un poste
+          function afficherPoste(idPoste) {
+              currentPosteId = idPoste;
+              const candidats = resultats[idPoste].candidats;
+
+              if (!candidats || candidats.length === 0) {
+                  console.warn("Aucun candidat pour ce poste");
+                  if (chart) chart.destroy();
+                  return;
+              }
+
+              const labels = candidats.map(c => c.nom);
+              const votes = candidats.map(c => c.votes);
+
+              if (chart) chart.destroy();
+
+              const ctx = document.getElementById('voteChart').getContext('2d');
+
+              chart = new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                      labels: labels,
+                      datasets: [{
+                          label: 'Votes',
+                          data: votes,
+                          backgroundColor: '#1e4f9c',
+                          borderRadius: 6
+                      }]
+                  },
+                  options: {
+                      responsive: true,
+                      scales: {
+                          y: {
+                              beginAtZero: true,
+                              precision: 0
+                          }
+                      },
+                      plugins: {
+                          legend: {
+                              display: false
+                          }
+                      }
+                  }
+              });
+          }
       </script>
+
+      <!-- <script>
+          /* =====================================================
+   DONNÉES PHP → JS
+   ===================================================== */
+          const data = <?= json_encode([
+                            'stats_globales' => $stats_globales,
+                            'results_vote'  => $results_vote
+                        ]); ?>;
+
+          console.log('DATA RAW:', data);
+
+          /* =====================================================
+             OUTILS
+             ===================================================== */
+          function normalizePoste(str) {
+              return String(str || '')
+                  .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                  .replace(/[-\s]+/g, "_")
+                  .toLowerCase();
+          }
+
+          function safeNumber(v) {
+              const n = Number(v);
+              return Number.isFinite(n) ? n : 0;
+          }
+
+          /* =====================================================
+             STRUCTURATION DES POSTES (DEPUIS LA BDD)
+             ===================================================== */
+          data.postes = {};
+
+          (data.results_vote || []).forEach(c => {
+              const key = normalizePoste(c.poste);
+
+              if (!data.postes[key]) {
+                  data.postes[key] = {
+                      id_poste: c.id_poste,
+                      title: c.poste,
+                      candidates: []
+                  };
+              }
+
+              data.postes[key].candidates.push({
+                  id: c.id_candidat,
+                  name: c.candidat,
+                  team: c.equipe,
+                  votes: safeNumber(c.total_votes),
+                  percent: safeNumber(c.pourcentage_votes),
+                  photo: c.photo || "/uploads/default.png"
+              });
+          });
+
+          console.log('POSTES STRUCTURÉS:', data.postes);
+
+          data.postesIndex = Object.keys(data.postes).map((key, index) => ({
+              index,
+              key,
+              id_poste: data.postes[key].id_poste,
+              title: data.postes[key].title
+          }));
+          let currentPosteIndex = 0;
+
+          function renderPosteByIndex(idx) {
+              if (idx < 0 || idx >= data.postesIndex.length) return;
+
+              currentPosteIndex = idx;
+              const posteKey = data.postesIndex[idx].key;
+
+              renderPoste(posteKey);
+              setActiveTab(posteKey);
+          }
+
+          function setActiveTab(key) {
+              document.querySelectorAll(".tab").forEach(t => {
+                  t.classList.toggle("active", t.dataset.poste === key);
+              });
+          }
+
+          function creerTabs() {
+              const tabsContainer = document.getElementById('tabs');
+              tabsContainer.innerHTML = '';
+
+              Object.keys(resultats).forEach(idPoste => {
+                  const tab = document.createElement('div');
+                  tab.className = 'tab';
+                  tab.textContent = resultats[idPoste].poste;
+
+                  tab.onclick = () => {
+                      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                      tab.classList.add('active');
+                      afficherPoste(idPoste);
+                  };
+
+                  tabsContainer.appendChild(tab);
+              });
+
+              tabsContainer.firstChild.classList.add('active');
+          }
+
+          /* =====================================================
+             STATS GLOBALES
+             ===================================================== */
+          function renderStats() {
+              const total = data.stats_globales?.find(s => s.statistic === "Votes enregistrés")?.total ?? 0;
+              const el = document.getElementById("totalVotes");
+              if (el) el.textContent = total;
+          }
+
+          /* =====================================================
+             GAGNANTS PAR POSTE
+             ===================================================== */
+          function renderWinners() {
+              const container = document.getElementById("winnersList");
+              if (!container) return;
+
+              container.innerHTML = "";
+
+              Object.values(data.postes).forEach(poste => {
+                  const candidates = poste.candidates || [];
+                  const sorted = [...candidates].sort((a, b) => b.votes - a.votes);
+                  const winner = sorted[0] || {
+                      name: "-",
+                      team: "-",
+                      votes: 0,
+                      percent: 0,
+                      photo: "/uploads/default.png"
+                  };
+
+                  const el = document.createElement("div");
+                  el.className = "winner-card";
+                  el.innerHTML = `
+            <div class="winner-rank">1</div>
+            <div class="winner-content">
+                <div class="winner-header">${poste.title}</div>
+                <div class="winner-body">
+                    <img src="${winner.photo}" alt="${winner.name}">
+                    <div>
+                        <div class="winner-name">${winner.name}</div>
+                        <div class="winner-team">${winner.team}</div>
+                        <div class="winner-meta">
+                            ${winner.votes} votes • ${winner.percent.toFixed(1)}%
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+                  container.appendChild(el);
+              });
+          }
+
+          /* =====================================================
+             AFFICHAGE D’UN POSTE
+             ===================================================== */
+          let barChartInstance = null;
+
+          function renderPoste(key) {
+              const poste = data.postes[key];
+              if (!poste) return;
+
+              const container = document.getElementById("resultsList");
+              if (!container) return;
+
+              container.innerHTML = "";
+
+              const sorted = [...poste.candidates].sort((a, b) => b.votes - a.votes);
+              const totalVotes = sorted.reduce((s, c) => s + c.votes, 0);
+              const hasVotes = totalVotes > 0;
+
+              if (!sorted.length) {
+                  container.innerHTML = "<div class='empty'>Aucun candidat</div>";
+                  return;
+              }
+
+              sorted.forEach((c, i) => {
+                  const percent = hasVotes ? (c.votes / totalVotes) * 100 : 0;
+
+                  const row = document.createElement("div");
+                  row.className = "candidate-row";
+                  row.innerHTML = `
+            <div class="left">
+                <div class="rank">${i + 1}</div>
+                <img src="${c.photo}" alt="${c.name}">
+                <div class="info">
+                    <div class="name">${c.name}</div>
+                    <div class="team">${c.team}</div>
+                </div>
+            </div>
+            <div class="bars">
+                <div class="progress-bg">
+                    <div class="progress-fill" style="width:${percent.toFixed(1)}%"></div>
+                </div>
+            </div>
+            <div class="votes-meta">${c.votes} votes • ${percent.toFixed(1)}%</div>
+        `;
+                  container.appendChild(row);
+              });
+
+              updateBarChart(
+                  sorted.map(c => c.name),
+                  sorted.map(c => c.votes)
+              );
+          }
+
+          /* =====================================================
+             BAR CHART (SÉCURISÉ)
+             ===================================================== */
+          function updateBarChart(labels, values) {
+              if (!labels.length || !values.length) return;
+
+              const safeValues = values.map(v => safeNumber(v));
+              const ctx = document.getElementById("barChart")?.getContext("2d");
+              if (!ctx) return;
+
+              if (barChartInstance) barChartInstance.destroy();
+
+              barChartInstance = new Chart(ctx, {
+                  type: "bar",
+                  data: {
+                      labels,
+                      datasets: [{
+                          label: "Votes",
+                          data: safeValues,
+                          backgroundColor: "#1e4f9c",
+                          borderRadius: 6
+                      }]
+                  },
+                  options: {
+                      scales: {
+                          y: {
+                              beginAtZero: true,
+                              precision: 0
+                          }
+                      },
+                      plugins: {
+                          legend: {
+                              display: false
+                          }
+                      }
+                  }
+              });
+          }
+
+          /* =====================================================
+             RADAR CHART (POIDS PAR POSTE)
+             ===================================================== */
+          let radarChartInstance = null;
+
+          function initRadarChart() {
+              const canvas = document.getElementById("radarChart");
+              if (!canvas) return;
+
+              const ctx = canvas.getContext("2d");
+
+              const labels = [];
+              const values = [];
+
+              Object.values(data.postes).forEach(poste => {
+                  labels.push(poste.title);
+                  const maxVotes = Math.max(...poste.candidates.map(c => c.votes), 0);
+                  values.push(maxVotes);
+              });
+
+              if (radarChartInstance) radarChartInstance.destroy();
+
+              radarChartInstance = new Chart(ctx, {
+                  type: "radar",
+                  data: {
+                      labels,
+                      datasets: [{
+                          label: "Poids par poste",
+                          data: values,
+                          backgroundColor: "rgba(18,59,154,0.12)",
+                          borderColor: "#123B9A",
+                          borderWidth: 2
+                      }]
+                  },
+                  options: {
+                      scales: {
+                          r: {
+                              beginAtZero: true
+                          }
+                      },
+                      plugins: {
+                          legend: {
+                              display: false
+                          }
+                      }
+                  }
+              });
+          }
+
+          /* =====================================================
+             TABS (POSTES DYNAMIQUES)
+             ===================================================== */
+          document.querySelectorAll(".tab").forEach(tab => {
+              tab.addEventListener("click", () => {
+                  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+                  tab.classList.add("active");
+                  renderPoste(tab.dataset.poste);
+              });
+          });
+
+          /* =====================================================
+             INIT
+             ===================================================== */
+          function initPage() {
+              renderStats();
+              renderWinners();
+              initRadarChart();
+
+              /* const firstPosteKey = Object.keys(data.postes)[0];
+              if (firstPosteKey) renderPoste(firstPosteKey); */
+              if (data.postesIndex.length > 0) {
+                  renderPosteByIndex(0);
+              }
+          }
+
+          initPage();
+      </script> -->

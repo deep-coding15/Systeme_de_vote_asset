@@ -263,6 +263,7 @@ use Utils\Utils;
 
 $session = new Session();
 $base_url = Utils::getBaseUrl();
+
 //var_dump($session->getAll())
 
 $user = $session->get('user');

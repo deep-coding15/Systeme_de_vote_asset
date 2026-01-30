@@ -136,33 +136,91 @@ class Utils
 		if (!$date_start_str || !$date_fin_str) return false;
 
 		try {
-			$date_actuelle      = new DateTime();
-			$date_debut_scrutin = new DateTime($date_start_str);
-			$date_fin_scrutin   = new DateTime($date_fin_str);
+			$date_actuelle      = $date_actuelle = new DateTime('now', new \DateTimeZone('UTC'));
+			$date_debut_scrutin = new DateTime($date_start_str, new \DateTimeZone('UTC'));
+			$date_fin_scrutin   = new DateTime($date_fin_str, new \DateTimeZone('UTC'));
 
 			if ($date_actuelle > $date_fin_scrutin) return false;
 
-			return $date_actuelle > $date_debut_scrutin;
+			return $date_actuelle >= $date_debut_scrutin;
 		} catch (\Exception $ex) {
 			// En cas de format de date invalide
-			error_log("Format de date SCRUTIN_START invalide : " . $ex->getMessage());
+			error_log("Erreur dates scrutin : " . $ex->getMessage());
 			return false;
 		}
 	}
+
+	/** Apres la cloture du vote et avant 7 jours */
+	static function IsStatusVoteFinis(): bool
+	{
+		$date_fin_str   = Env::get('SCRUTIN_END');
+
+		//Vérifier si la variable eciste pour éviter un crash
+		if (!$date_fin_str) return false;
+
+		try {
+			$now        = new \DateTime('now', new \DateTimeZone('UTC'));
+			$date_fin   = new \DateTime($date_fin_str, new \DateTimeZone('UTC'));
+
+			// On définit la limite : 1 semaine après la fin du scrutin
+			$date_limite = clone $date_fin;
+			$date_limite->modify('+7 days');
+
+			// Vrai UNIQUEMENT si on est entre la fin et fin + 7 jours
+			return ($now > $date_fin && $now <= $date_limite);
+		} catch (\Exception $ex) {
+			// En cas de format de date invalide
+			error_log(message: "Erreur SCRUTIN_END : " . $ex->getMessage());
+			return false;
+		}
+	}
+
+	/**
+	 * Summary of IsStatusVoteClose : return true apres 7 jours apres la fermeture de vote
+	 * @return bool
+	 */
 	static function IsStatusVoteClose(): bool
 	{
 		$date_fin_str   = Env::get('SCRUTIN_END');
 		if (!$date_fin_str) return false;
 
 		try {
-			$date_actuelle    = new \DateTime();
-			$date_fin_scrutin = new \DateTime($date_fin_str);
+			$date_actuelle = new DateTime('now', new \DateTimeZone('UTC'));
+			$date_limite   = (new DateTime($date_fin_str, new \DateTimeZone('UTC')))->modify('+7 days');
 
 			// Est fermé si la date actuelle est > date fin scrutin
-			return $date_fin_scrutin < $date_actuelle;
-		} catch (Exception $ex) {
-			return true;
+			//return $date_fin_scrutin < $date_actuelle;
+			return $date_actuelle > $date_limite;
+		} catch (\Exception $ex) {
+			error_log(message: "Erreur SCRUTIN_END : " . $ex->getMessage());
+			
+			return false;
 		}
+	}
+
+	static function getVoteStatus(): string
+	{
+		//error_log('VOTE STATUS = ' . Utils::getVoteStatus());
+		error_log('NOW UTC = ' . (new \DateTime('now', new \DateTimeZone('UTC')))->format('c'));
+		error_log('START   = ' . Env::get('SCRUTIN_START'));
+
+		error_log('OPEN=' . Utils::IsStatusVoteOpen());
+		error_log('FINISHED=' . Utils::IsStatusVoteFinis());
+		error_log('CLOSED=' . Utils::IsStatusVoteClose());
+
+		if (self::IsStatusVoteOpen()) {
+			return 'OPEN';
+		}
+
+		if (self::IsStatusVoteFinis()) {
+			return 'FINISHED';
+		}
+
+		if (self::IsStatusVoteClose()) {
+			return 'CLOSED';
+		}
+
+		return 'NOT_STARTED';
 	}
 
 	static function ChoixPosteLogJsToPHP()

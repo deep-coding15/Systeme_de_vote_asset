@@ -21,8 +21,8 @@ class Database
 
         // 1. Détection automatique de l'hôte principal selon l'environnement
         // Si le fichier /.dockerenv existe, on est dans un conteneur Docker
-        $isDocker = file_exists('/.dockerenv');
-        $primaryHost = $isDocker ? "db" : $dbHost; // "db" est le nom classique du service Docker
+        //$isDocker = file_exists('/.dockerenv');
+        //$primaryHost = $isDocker ? "db" : $dbHost; // "db" est le nom classique du service Docker
 
         /* $host = getenv('DB_HOST') ?: 'localhost';
         $db   = getenv('DB_NAME') ?: 'votre_bdd';

@@ -2,11 +2,13 @@
 
 use Config\Env;
 use Controller\VoteController;
+use Core\Response;
 use Core\Session;
 use Utils\Utils;
 
 Utils::showErrors();
 Session::init();
+Env::load('local');
 ?>
 <style>
     .banner {
@@ -296,7 +298,7 @@ Session::init();
     // Vérifier si un message d'erreur existe en session
     if (isset($_SESSION['flash_error'])) {
         // Affichage du message (exemple avec une classe CSS d'alerte)
-        echo '<div style="color: white; background-color: #d9534f; padding: 15px; margin-bottom: 20px; border-radius: 4px;">'
+        echo '<div id="flash-message" style="color: white; background-color: #d9534f; padding: 15px; margin-bottom: 20px; border-radius: 4px;">'
             . htmlspecialchars($_SESSION['flash_error']) .
             '</div>';
 
@@ -304,6 +306,23 @@ Session::init();
         unset($_SESSION['flash_error']);
     }
     ?>
+
+    <script>
+        // On attend que la page soit chargée
+        document.addEventListener('DOMContentLoaded', function() {
+            const flash = document.getElementById('flash-message');
+
+            if (flash) {
+                setTimeout(function() {
+                    // Effet de fondu (nécessite la propriété transition dans le style)
+                    flash.style.opacity = '0';
+
+                    // On retire complètement l'élément après l'effet de fondu (0.5s)
+                    setTimeout(() => flash.remove(), 500);
+                }, 5000); // 5000 millisecondes = 5 secondes
+            }
+        });
+    </script>
 
     <div class="badge">
         <i class="fa-chisel fa-solid fa-shield fa-lg"></i>
@@ -327,13 +346,32 @@ $stats = (new VoteController($session))->results_view_view();
     <div class="stat-item"><span><?php echo (new \DateTime(Env::get('SCRUTIN_START')))->format('d M Y') ?> </span>Date de Scrutin</div>
     <div class="stat-item"><span><?= $stats[0]['nb_equipe'] ?> Équipes</span>Groupes Candidats</div>
     <div class="stat-item"><span><?= $stats[0]['nb_poste'] ?> Postes</span>Postes à Pourvoir</div>
-    <?php if (Utils::IsStatusVoteOpen()) : ?>
-        <div class="stat-item"><span style="color: var(--status-success)">Vote Ouvert</span>Statut Actuel</div>
-    <?php elseif (Utils::IsStatusVoteClose()) : ?>
-        <div class="stat-item"><span style="color: var(--status-error)">Vote Fermé</span>Statut Actuel</div>
-    <?php else : ?>
-        <div class="stat-item"><span style="color: var(--status-warning)">Vote Pas encore commencé</span>Statut Actuel</div>
-    <?php endif; ?>
+    <?php
+    $statuts = Utils::getVoteStatus();
+    //echo $statuts;
+    switch ($statuts) {
+
+        case 'NOT_STARTED': ?>
+            <div class="stat-item"><span style="color: var(--status-warning)">Vote Pas encore commencé</span>Statut Actuel</div>
+        <?php break;
+        case 'OPEN':
+            // ✅ le vote est autorisé 
+        ?>
+            <div class="stat-item"><span style="color: var(--status-success)">Vote Ouvert</span>Statut Actuel</div>
+        <?php break;
+
+        case 'FINISHED': ?>
+            <div class="stat-item"><span style="color: var(--status-warning);">Vote Finis</span>Statut Actuel</div>
+        <?php
+            break;
+
+        case 'CLOSED': ?>
+            <div class="stat-item"><span style="color: var(--status-error)">Vote Fermé</span>Statut Actuel</div>
+    <?php
+            break;
+    }
+    ?>
+
     <!-- ! A verifier avec new Datetime - Date Scrutin de Env -->
 
 </section>

@@ -16,9 +16,9 @@ use Core\Session;
 if (!class_exists('Controller\CandidatController')) {
     //echo "L'autoloader ne trouve pas la classe. Voici les chemins vérifiés :<br>";
     die();
-    }
-    //else 
-        //echo "L'autoloader a trouvé  la classe. ";
+}
+//else 
+//echo "L'autoloader a trouvé  la classe. ";
 
 //echo "Chemin attendu : " . realpath(__FILE__);
 
@@ -54,20 +54,20 @@ get('/redirect', [\Controller\Controller::class, 'redirect']);
 get('/candidats', [\Controller\CandidatController::class, 'index']);
 
 // Participants : OKAY
-get('/votes/auth', function(){
+get('/votes/auth', function () {
     \Core\Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
 });
-get('/votes', function(){
+get('/votes', function () {
     \Core\Response::render('/votes/auth', ['titre' => 'Inscription — ASSET Vote']);
 });
 
-get('/resultats/test', function(){
+get('/resultats/test', function () {
     \Core\Response::render('/resultats/test', ['titre' => 'Resultats — ASSET Vote']);
 });
 
 
 get('/resultats/test2', [\Controller\VoteController::class, 'results_view']);
-get('/votes/waiting', function(){
+get('/votes/waiting', function () {
     \Core\Response::render('/votes/waiting', ['titre' => 'Waiting — ASSET Vote']);
 });
 get('/api/vote/status', [\Controller\VoteController::class, 'voteStatus']);
@@ -90,6 +90,7 @@ get('/test', [\Controller\CandidatController::class, 'test']);
 
 get('/administrateur/auth', [\Controller\AdminController::class, 'getLogin']);
 get('/administrateur/dashboard', [\Controller\AdminController::class, 'getDashboard']);
+get('/administrateur/dash', [\Controller\AdminController::class, 'getDash']);
 post('/administrateur/auth', [\Controller\AdminController::class, 'login']);
 
 // Participants
@@ -101,12 +102,14 @@ post('/participants/validate/:id', [\Controller\ParticipantController::class, 'v
 post('/participant/vote', [\Controller\VoteController::class, 'vote']);
 post('/vote/:poste/:candidat/:participant', [\Controller\VoteController::class, 'store']);
 get('/resultats', [\Controller\VoteController::class, 'results_view']);
+get('/resultat/result', [\Controller\VoteController::class, 'result_indexe']);
 
 post('/choix/vote/poste', [\Utils\Utils::class, 'ChoixPosteLogJsToPHP']);
 
 
 // API
 get('/api/candidats/poste', [\Controller\CandidatController::class, 'candidatsPoste']);
+get('/api/resultat', [\Controller\VoteController::class, 'results_direct']);
 // Route introuvable
 any('/404', function () {
     echo 'chemin serveur : ' . $_SERVER['REQUEST_URI'];
